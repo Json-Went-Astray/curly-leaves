@@ -8,9 +8,10 @@
                 </span>
                 <!-- change me -->
                 <div class="cl-white fw-bold d-inline fs-5">Admin</div>
-                <img src="@/assets/static/nopfp-1.png" alt="np-pfp" class="pfp-img rounded-circle unselectable">
+                <img src="@/assets/static/profiles/profile1.png" alt="np-pfp" class="pfp-img rounded-circle unselectable">
             </div>
 
+            <!-- left panel -->
             <div class="y-scroll flex-grow-1">
 
                 <div class="mx-0 row p-3 m-0 cl-border cl-border-hover w-100 cursor-pointer">
@@ -100,13 +101,15 @@
 
         </div>
         <div class="col h-100">
-            <Orders></Orders>
+            <!-- <Orders></Orders> -->
+            <NewProduct></NewProduct>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import Orders from '@/components/AdminPanel/Orders.vue';
+import NewProduct from '@/components/AdminPanel/NewProduct.vue';
 import router from '@/router';
 
 </script>

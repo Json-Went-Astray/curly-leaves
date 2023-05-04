@@ -11,3 +11,7 @@ Cień: #c4c4c4
 #4d4d4d (ciemny szary dla tekstu)
 #ffffff (biały kolor dla tekstu)
 #b6d7a8 (kolor akcentu, np. dla przycisków lub linków)
+
+
+//imgs
+box - https://pixabay.com/vectors/box-delivery-storage-parcel-7401887/

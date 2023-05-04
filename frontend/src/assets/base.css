@@ -10,6 +10,7 @@
   --color-border-hover: #c5c5c5;
   --color-heading: #333333;
   --color-text: #666666;
+  --color-shadow: #c4c4c4;
   --section-gap: 160px;
 }
 
@@ -62,6 +63,10 @@
 
 .cl-border {
   border: 1px solid var(--color-border);
+}
+
+.cl-shadow:hover {
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
 }
 
 .cl-border-hover:hover {
