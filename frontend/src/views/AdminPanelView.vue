@@ -101,8 +101,9 @@
 
         </div>
         <div class="col h-100">
-            <!-- <Orders></Orders> -->
-            <NewProduct></NewProduct>
+            <Orders></Orders>
+           <!-- <NewProduct></NewProduct>
+            <CompanyUsers></CompanyUsers>  -->
         </div>
     </div>
 </template>
@@ -110,6 +111,7 @@
 <script setup lang="ts">
 import Orders from '@/components/AdminPanel/Orders.vue';
 import NewProduct from '@/components/AdminPanel/NewProduct.vue';
+import CompanyUsers from '@/components/AdminPanel/CompanyUsers.vue';
 import router from '@/router';
 
 </script>

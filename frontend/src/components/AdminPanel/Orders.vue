@@ -63,7 +63,7 @@
                                 <span class="material-symbols-outlined unselectable cl-text-primary cursor-pointer">
                                     visibility
                                 </span>
-                                <span class="material-symbols-outlined unselectable cl-text-text cursor-deny">
+                                <span class="material-symbols-outlined unselectable cl-text cursor-deny">
                                     archive
                                 </span>
                                 <span class="material-symbols-outlined unselectable cl-text-primary cursor-pointer">

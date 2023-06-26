@@ -49,17 +49,17 @@
                                     data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="col-2">
                                         <span class="material-symbols-outlined">
-                                            {{ selectedDropdown.icon }}
+                                            {{ selectedDropdownProductType.icon }}
                                         </span>
                                     </div>
                                     <div class="col-10 text-center">
-                                        {{ selectedDropdown.text }}
+                                        {{ selectedDropdownProductType.text }}
                                     </div>
                                 </button>
                                 <ul class="dropdown-menu w-100">
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                            href="#" @click="selectDropdown('potted_plant', 'Roślina')">
+                                            href="#" @click="selectDropdownProductType('potted_plant', 'Roślina')">
                                             <div class="col-2">
                                                 <span class="material-symbols-outlined">
                                                     potted_plant
@@ -72,7 +72,7 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                            href="#" @click="selectDropdown('garden_cart', 'Art. ogrodniczy')">
+                                            href="#" @click="selectDropdownProductType('garden_cart', 'Art. ogrodniczy')">
                                             <div class="col-2">
                                                 <span class="material-symbols-outlined">
                                                     garden_cart
@@ -85,7 +85,7 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                            href="#" @click="selectDropdown('pergola', 'Inny')">
+                                            href="#" @click="selectDropdownProductType('pergola', 'Inny')">
                                             <div class="col-2">
                                                 <span class="material-symbols-outlined">
                                                     pergola
@@ -127,6 +127,31 @@
                             <span class="text-warning mx-2">Opis jest pusty</span>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-7 p-0">
+                            <div class="form-floating my-2 px-1">
+                                <textarea class="form-control" placeholder="Opis produktu" rows="6"
+                                    style="resize: none; height: 100%;"></textarea>
+                                <label>Opis produktu na liście</label>
+                            </div>
+                            <div class="d-flex w-100 flex-nowrap">
+                                <span class="text-warning mx-2">Opis jest pusty</span>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <div class="row">
+                                <div class="form-floating my-2 px-1 w-100 ">
+                                    <input type="text" class="form-control" v-model="labelMaxLength" placeholder="Etykieta" maxlength="12">
+                                    <label>Etykieta</label>
+                                    <span class="position-absolute bottom-0" style="right:5%"> {{ labelMaxLength.length }} / 12 </span>
+                                </div>
+                                <div class="form-floating my-2 px-1 w-100 align-self-end">
+                                    <input type="text" class="form-control" placeholder="Etykieta">
+                                    <label>Etykieta</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-4">
@@ -138,10 +163,57 @@
                         <input type="text" class="form-control" placeholder="Cena NETTO">
                         <label>Cena NETTO</label>
                     </div>
-                    <div class="d-flex w-100 flex-nowrap">
+                    <!-- extend -->
+                    <div class="d-flex w-100 flex-nowrap my-1">
                         <span class="fw-bold mx-2">Cena BRUTTO: Nan zł</span>
                         <span class="text-danger mx-2">Wpisz poprawną cenę</span>
                     </div>
+                    <div class="d-flex w-100 flex-nowrap my-1">
+                        <span class="fw-bold mx-2">Cena Dostawy: Nan zł</span>
+                        <span class="text-danger mx-2">Wpisz poprawną cenę</span>
+                    </div>
+                    <div class="row my-2">
+                        <div class="col-6 d-flex align-items-center">
+                            <span class="me-2">Produkt w promocji</span>
+                            <Toggle v-model="test" />
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating my-2 px-1">
+                                <input type="text" class="form-control" placeholder="Cena promocyjna" :disabled="!!!test">
+                                <label>Cena promocyjna</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row my-2">
+                        <div class="col-6 d-flex align-items-center">
+                            <span class="me-2">Objęty kuponem</span>
+                        </div>
+                        <div class="col-6">
+                            <div class="btn-group my-2 px-1 d-flex">
+                                <button type="button"
+                                    class="btn btn-success-outline dropdown-toggle d-flex align-items-center justify-content-around px-4"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{ selectedDropdownCoupon.value + " " + selectedDropdownCoupon.key }}
+                                </button>
+                                <ul class="dropdown-menu w-100">
+                                    <li>
+                                        <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
+                                            href="#" @click="selectDropdownCoupon('Nie', 0)">
+                                            Nie
+                                        </a>
+                                    </li>
+                                    <li v-for="i in 4" :key="i">
+                                        <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
+                                            href="#" @click="selectDropdownCoupon('kupon', i)">
+                                            kupon {{ i }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -149,20 +221,33 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
+import Toggle from '@vueform/toggle'
 
-const selectedDropdown = reactive({
+const selectedDropdownProductType = reactive({
     icon: "potted_plant",
     text: "Roślina"
 });
 
-const selectDropdown = ((icon: string, text: string) => {
-    selectedDropdown.icon = icon;
-    selectedDropdown.text = text;
+const selectedDropdownCoupon = reactive({
+    value: "Nie",
+    key: 0
 });
 
+const selectDropdownProductType = ((icon: string, text: string) => {
+    selectedDropdownProductType.icon = icon;
+    selectedDropdownProductType.text = text;
+});
+const selectDropdownCoupon = ((value: string, key: number) => {
+    selectedDropdownCoupon.value = value;
+    selectedDropdownCoupon.key = key;
+});
+
+const test = ref("");
+const labelMaxLength = ref("");
 </script>
 
+<style src="@vueform/toggle/themes/default.css"></style>
 <style scoped>
 .dropdown-menu li a:focus {
     background-color: transparent;
