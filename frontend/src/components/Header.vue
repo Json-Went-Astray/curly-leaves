@@ -110,7 +110,7 @@ import { onMounted, ref } from 'vue';
 const searchWidth = ref(20);
 const focusSearch = (() => {
     if (searchWidth.value == 20) searchWidth.value = 50;
-    // else searchWidth.value = 20;
+    else searchWidth.value = 20;
 });
 
 const signinWindow = ref(false);
