@@ -133,45 +133,69 @@
             <transition name="slide">
                 <div v-show="step == 2"
                     class="cl-bg-background-soft p-3 rounded cl-border col-lg-7 col-md-8 col-12 mx-auto mt-3 position-absolute card">
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="floatingInput" placeholder="Login">
-                        <label for="floatingInput">Login (Wymagane)</label>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <label for="floatingInput">Imię (Wymagane)</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating position-relative mb-3">
+                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <label for="floatingInput">Nazwisko (Wymagane)</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-floating position-relative mb-3">
-                        <input type="email" class="form-control" id="floatingInput" placeholder="Login">
-                        <label for="floatingInput">Adres E-mail (Wymagane)</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input :type="inputType" class="form-control" id="floatingPassword" placeholder="Hasło">
-                        <label for="floatingPassword">Hasło (Wymagane)</label>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-floating position-relative mb-3">
+                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <label for="floatingInput">Województwo</label>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <div class="form-floating position-relative mb-3">
+                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <label for="floatingInput">Miasto</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating position-relative mb-3">
+                                <input type="text" class="form-control" id="floatingInput" placeholder="Kod pocztowy" pattern="[0-9]{2}-[0-9]{3}">
+                                <label for="floatingInput">Kod pocztowy</label>
 
-                        <span v-if="inputType == 'Password'" @click="changePasswordVisibility"
-                            class="material-symbols-outlined position-absolute eye-icon unselectable cursor-pointer">
-                            visibility
-                        </span>
-                        <span v-else @click="changePasswordVisibility"
-                            class="material-symbols-outlined position-absolute eye-icon unselectable cursor-pointer">
-                            visibility_off
-                        </span>
-
-                    </div>
-                    <div class="form-floating position-relative">
-                        <input :type="inputType" class="form-control" id="floatingPassword" placeholder="Hasło">
-                        <label for="floatingPassword">Powtórz hasło (Wymagane)</label>
-
-                        <span v-if="inputType == 'Password'" @click="changePasswordVisibility"
-                            class="material-symbols-outlined position-absolute eye-icon unselectable cursor-pointer">
-                            visibility
-                        </span>
-                        <span v-else @click="changePasswordVisibility"
-                            class="material-symbols-outlined position-absolute eye-icon unselectable cursor-pointer">
-                            visibility_off
-                        </span>
-
+                                <span class="position-absolute top-50 start-0" style="">
+                                    _ _ - _ _ _
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
-                    <span class="text-danger">Hasło jest niepoprawne, spróbuj ponownie lub skorzystaj z <a
-                            href="#">pomocy</a></span>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">+48</span>
+                            <div class="form-floating position-relative">
+                                <input type="email" class="form-control" id="floatingInput" placeholder="Numer telefonu" aria-label="Numer telefonu" aria-describedby="basic-addon1">
+                                <label for="floatingInput">Numer telefonu</label>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="col-5">
+                            <div class="form-floating position-relative mb-3">
+                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <label for="floatingInput">Ulica</label>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-floating position-relative mb-3">
+                                <input type="text" class="form-control" id="floatingInput" placeholder="Kod pocztowy" pattern="[0-9]{2}-[0-9]{3}">
+                                <label for="floatingInput">Numer lokalu</label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row justify-content-around mt-2">
                         <div class="col-md-6 text-center my-2">
                             <button class="btn btn-outline-success w-75">Zaloguj się</button>
@@ -321,7 +345,7 @@ const stepNext = ((toStep: number) => {
 }
 
 .cl-border-color {
-    background-color: var(--color-primary);
+    /* background-color: var(--color-primary); */
 }
 
 .card {
