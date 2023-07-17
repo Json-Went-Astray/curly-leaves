@@ -24,7 +24,7 @@
 
             <div class="rounded-circle p-4 cl-bg-background-soft border cursor-pointer" @click="stepNext(1)">
                 <div class="position-absolute h-100 cl-bg-primary rounded-circle start-0 top-0 progress-ball w-100 d-flex align-items-center justify-content-center"
-                    :class="point[0]" :style="{ border: stepOne }">
+                    :class="point[0]">
                     <span class="material-symbols-outlined unselectable fs-2">
                         password
                     </span>
@@ -162,10 +162,10 @@
                         </div>
                         <div class="col-3">
                             <div class="form-floating position-relative mb-3">
-                                <input type="text" class="form-control" id="floatingInput" placeholder="Kod pocztowy" pattern="[0-9]{2}-[0-9]{3}">
+                                <input type="text" class="form-control" id="floatingInput" placeholder="Kod pocztowy" v-model="postalField" @input="handlePostal" pattern="[0-9]{2}-[0-9]{3}" >
                                 <label for="floatingInput">Kod pocztowy</label>
 
-                                <span class="position-absolute top-50 start-0" style="">
+                                <span class="position-absolute" style="top: 50%; left: 13px">
                                     _ _ - _ _ _
                                 </span>
                             </div>
@@ -288,6 +288,7 @@ const barProgress = ref("0%");
 const stepOne = ref("");
 const step = ref(1);
 const point: string[] = ['100%', "0%", "0%", "0%"];
+const postalField = ref("");
 
 const passwordStrength = reactive({width: "0%", background: "red"})
 
@@ -325,6 +326,23 @@ const stepNext = ((toStep: number) => {
     }
 });
 
+const handlePostal = (() => {
+
+    let char = postalField.value.charAt(postalField.value.length - 1);
+
+    
+
+    if (!/^\d$/.test(char)) {
+        postalField.value = postalField.value.substring(0, postalField.value.length - 1);
+    }
+
+    else if (postalField.value.length == 3 && char != '-') {
+        postalField.value = postalField.value.substring(0, postalField.value.length - 1);
+        postalField.value += '-' + char;
+    }
+});
+
+
 </script>
 
 <style scoped>
@@ -343,11 +361,6 @@ const stepNext = ((toStep: number) => {
     transition: background-size 0.33s;
     background-size: 0% 100%;
 }
-
-.cl-border-color {
-    /* background-color: var(--color-primary); */
-}
-
 .card {
     left: 50%;
     transform: translate(-50%, 0);
