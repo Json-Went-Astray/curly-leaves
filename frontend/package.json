@@ -17,8 +17,12 @@
     "apollo-upload-client": "^17.0.0",
     "bootstrap": "^5.2.3",
     "mdb-ui-kit": "^6.2.0",
+    "swiper": "^6.8.4",
     "vue": "^3.2.47",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "vue-star-rating": "^2.1.0",
+    "vue3-burger-menu": "^1.1.1",
+    "vue3-star-ratings": "^3.0.4"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^3.3.1",

@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import AdminLoginView from '@/views/AdminLoginView.vue'
 import AdminPanelView from '@/views/AdminPanelView.vue'
 import SignupView from '@/views/SignupView.vue'
+import UserPanelViewVue from '@/views/UserPanelView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,13 @@ const router = createRouter({
       component: AdminLoginView
     },
     {
+      //TO DO SNOWFLAKE
+      path: '/user',
+      name: 'user',
+      component: UserPanelViewVue
+    },
+    {
+      //TO DO SNOWFLAKE
       path: '/admin/panel',
       name: 'admin-panel',
       component: AdminPanelView

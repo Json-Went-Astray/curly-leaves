@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <div class="d-flex my-3 mx-auto col-lg-7 col-md-8 col-12 rounded position-relative justify-content-between p-0">
+        <div class="d-flex my-3 mx-auto col-xl-7 col-lg-8 col-lg-9 col-12 rounded position-relative justify-content-between p-0">
 
             <div class="position-absolute align-items-center cl-bg-background-soft border col-md-6 p-1 rounded top-50 w-100"
                 style="transform: translateY(-50%);">
@@ -64,17 +64,17 @@
         <div class="d-flex">
             <transition name="slide">
                 <div v-show="step == 1"
-                    class="cl-bg-background-soft p-3 rounded cl-border col-lg-7 col-md-8 col-12 mx-auto mt-3 position-absolute card">
+                    class="cl-bg-background-soft p-3 rounded cl-border col-xl-7 col-lg-8 col-lg-9 col-12 mx-auto mt-3 position-absolute card">
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                        <input type="email" class="form-control" placeholder="Login">
                         <label for="floatingInput">Login (Wymagane)</label>
                     </div>
                     <div class="form-floating position-relative mb-3">
-                        <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                        <input type="email" class="form-control" placeholder="Login">
                         <label for="floatingInput">Adres E-mail (Wymagane)</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input :type="inputType" class="form-control" id="floatingPassword" placeholder="Hasło">
+                        <input :type="inputType" class="form-control" placeholder="Hasło">
                         <label for="floatingPassword">Hasło (Wymagane)</label>
 
                         <span v-if="inputType == 'Password'" @click="changePasswordVisibility"
@@ -88,7 +88,7 @@
 
                     </div>
                     <div class="form-floating position-relative">
-                        <input :type="inputType" class="form-control" id="floatingPassword" placeholder="Hasło">
+                        <input :type="inputType" class="form-control" placeholder="Hasło">
                         <label for="floatingPassword">Powtórz hasło (Wymagane)</label>
 
                         <span v-if="inputType == 'Password'" @click="changePasswordVisibility"
@@ -132,75 +132,75 @@
 
             <transition name="slide">
                 <div v-show="step == 2"
-                    class="cl-bg-background-soft p-3 rounded cl-border col-lg-7 col-md-8 col-12 mx-auto mt-3 position-absolute card">
+                    class="cl-bg-background-soft p-3 rounded cl-border col-xl-7 col-lg-8 col-lg-9 col-12 mx-auto mt-3 position-absolute card">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-lg-6">
                             <div class="form-floating mb-3">
-                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <input type="email" class="form-control" placeholder="Login">
                                 <label for="floatingInput">Imię (Wymagane)</label>
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-lg-6">
                             <div class="form-floating position-relative mb-3">
-                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <input type="email" class="form-control" placeholder="Login">
                                 <label for="floatingInput">Nazwisko (Wymagane)</label>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-lg-4">
                             <div class="form-floating position-relative mb-3">
-                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <input type="email" class="form-control" placeholder="Login">
                                 <label for="floatingInput">Województwo</label>
                             </div>
                         </div>
-                        <div class="col-5">
+                        <div class="col-lg-5">
                             <div class="form-floating position-relative mb-3">
-                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <input type="email" class="form-control" placeholder="Login">
                                 <label for="floatingInput">Miasto</label>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-lg-3">
                             <div class="form-floating position-relative mb-3">
-                                <input type="text" class="form-control" id="floatingInput" placeholder="Kod pocztowy" v-model="postalField" @input="handlePostal" pattern="[0-9]{2}-[0-9]{3}" >
+                                <input type="text" class="form-control" placeholder="Kod pocztowy" v-model="postalField" @input="handlePostal" pattern="[0-9]{2}-[0-9]{3}" >
                                 <label for="floatingInput">Kod pocztowy</label>
 
-                                <span class="position-absolute" style="top: 50%; left: 13px">
+                                <!-- <span class="position-absolute" style="top: 50%; left: 13px">
                                     _ _ - _ _ _
-                                </span>
+                                </span> -->
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-lg-4">
                             <div class="input-group mb-3">
                             <span class="input-group-text" id="basic-addon1">+48</span>
                             <div class="form-floating position-relative">
-                                <input type="email" class="form-control" id="floatingInput" placeholder="Numer telefonu" aria-label="Numer telefonu" aria-describedby="basic-addon1">
-                                <label for="floatingInput">Numer telefonu</label>
+                                <input type="text" class="form-control" placeholder="Numer telefonu" v-model="phoneField" @input="handlePhone" aria-label="Numer telefonu" aria-describedby="basic-addon1">
+                                <label for="floatingInput">Nr telefonu</label>
                             </div>
                         </div>
                         </div>
-                        <div class="col-5">
+                        <div class="col-lg-5">
                             <div class="form-floating position-relative mb-3">
-                                <input type="email" class="form-control" id="floatingInput" placeholder="Login">
+                                <input type="text" class="form-control" placeholder="Login">
                                 <label for="floatingInput">Ulica</label>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-lg-3">
                             <div class="form-floating position-relative mb-3">
-                                <input type="text" class="form-control" id="floatingInput" placeholder="Kod pocztowy" pattern="[0-9]{2}-[0-9]{3}">
-                                <label for="floatingInput">Numer lokalu</label>
+                                <input type="text" class="form-control" placeholder="Kod pocztowy" pattern="[0-9]{2}-[0-9]{3}">
+                                <label for="floatingInput">Nr lokalu</label>
                             </div>
                         </div>
                     </div>
 
                     <div class="row justify-content-around mt-2">
-                        <div class="col-md-6 text-center my-2">
+                        <div class="col-lg-6 text-center my-2">
                             <button class="btn btn-outline-success w-75">Zaloguj się</button>
                         </div>
-                        <div class="col-md-6 text-center my-2">
+                        <div class="col-lg-6 text-center my-2">
                             <button class="btn btn-outline-success w-75">Pomoc</button>
                         </div>
                     </div>
@@ -288,7 +288,12 @@ const barProgress = ref("0%");
 const stepOne = ref("");
 const step = ref(1);
 const point: string[] = ['100%', "0%", "0%", "0%"];
+
 const postalField = ref("");
+let postalFieldInitLength = 0;
+
+const phoneField = ref("");
+let phoneFieldInitLength = 0;
 
 const passwordStrength = reactive({width: "0%", background: "red"})
 
@@ -327,21 +332,36 @@ const stepNext = ((toStep: number) => {
 });
 
 const handlePostal = (() => {
+    let postal: any[] = postalField.value.split('');
 
-    let char = postalField.value.charAt(postalField.value.length - 1);
+    postal = postal.map((char) => {
+        if (/^[\d | -]$/.test(char)) return char;
+        return undefined;
+    }).filter((char) => char !== undefined);
 
-    
-
-    if (!/^\d$/.test(char)) {
-        postalField.value = postalField.value.substring(0, postalField.value.length - 1);
-    }
-
-    else if (postalField.value.length == 3 && char != '-') {
-        postalField.value = postalField.value.substring(0, postalField.value.length - 1);
-        postalField.value += '-' + char;
-    }
+    postal = postal.slice(0, 6);
+    postalField.value = postal.join('');
 });
 
+
+const handlePhone = (() => {
+    let number: any[] = phoneField.value.split('');
+    number = number.map((char) => {
+        if (/^\d$/.test(char)) return char;
+        return undefined;
+    }).filter((char) => char !== undefined);
+
+    number = number.slice(0, 9);
+
+    phoneFieldInitLength = number.length;
+    if (phoneFieldInitLength <= number.length) {
+        if (number.length == 9) {
+            number.splice(3, 0, " ");
+            number.splice(7, 0, " ");
+        }
+    }
+    phoneField.value = number.join('');
+});
 
 </script>
 

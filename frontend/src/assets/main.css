@@ -83,10 +83,19 @@ a:hover {
   height: auto;
 }
 
+.img-md {
+  width: 75px;
+  height: auto;
+}
+
+.img-lg {
+  width: 150px;
+  height: auto;
+}
+
 .border-box {
   box-sizing: border-box !important;
 }
-
 
 
 .hover {
@@ -97,4 +106,18 @@ a:hover {
 .hover:hover {
   background-color: var(--color-secondary);
   transition: background-color 0.5s ease;
+}
+
+
+/* ceny */
+.price {
+  color: var(--color-primary);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.discount {
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-decoration: line-through;
 }

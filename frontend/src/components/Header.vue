@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid row cl-bg-primary mx-0 p-0">
-        <div class="col-6 d-flex align-items-center pe-0">
+        <div class="col-md col-12 d-flex align-items-center pe-0">
 
             <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer">
                 <span class="material-symbols-outlined fw-bold fs-2">
@@ -15,83 +15,96 @@
                 <input type="text" class="form-control d-inline p-2 ms-4 w-100 border-rounded" placeholder="Szukaj..."
                     @focusin="focusSearch" @focusout="focusSearch">
             </div>
-
         </div>
 
 
+        <Transition name="searchAnim" @after-leave="searchWidth=50" @after-appear="searchWidth=20">
 
-        <div class="col d-flex justify-content-end p-0">
 
-            <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4">
-                <span class="fs-6 fw-bold">Produkty&nbsp;</span>
-                <span class="material-symbols-outlined fs-4 position-relative">
-                    stat_minus_2
-                </span>
-            </div>
+            <div class="col-6 d-flex justify-content-end p-0" v-if="!searchMode">
+                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4">
+                    <span class="fs-6 fw-bold">Produkty&nbsp;</span>
+                    <span class="material-symbols-outlined fs-4 position-relative">
+                        stat_minus_2
+                    </span>
+                </div>
 
-            <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4">
-                <span class="fs-6 fw-bold">Nasz Blog&nbsp;</span>
-                <span class="material-symbols-outlined fs-4 position-relative">
-                    feed
-                </span>
-            </div>
+                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4">
+                    <span class="fs-6 fw-bold">Blog&nbsp;</span>
+                    <span class="material-symbols-outlined fs-4 position-relative">
+                        feed
+                    </span>
+                </div>
 
-            <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4"
-                style="border-left: solid 1px var(--color-secondary);">
-                <span class="fs-6 fw-bold">Koszyk&nbsp;</span>
-                <span class="material-symbols-outlined fs-4 position-relative">
-                    shopping_cart
-                </span>
-                <span class="position-absolute translate-middle badge rounded-pill bg-danger"
-                    style="top:25%; font-size: 65%; right: -10%; z-index: 2;">
-                    99+
-                </span>
-            </div>
+                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4">
+                    <span class="fs-6 fw-bold">Koszyk&nbsp;</span>
+                    <span class="material-symbols-outlined fs-4 position-relative">
+                        shopping_cart
+                    </span>
+                    <span class="position-absolute translate-middle badge rounded-pill bg-danger"
+                        style="top:25%; font-size: 65%; right: -10%; z-index: 2;">
+                        99+
+                    </span>
+                </div>
 
-            <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer px-3 hover login-btn"
-                :style="{ 'background-color': signinWindow ? 'var(--color-secondary)' : '' }" @click="openSigninWindow">
-                <span class="fw-bold fs-6">Logowanie&nbsp;</span>
-                <span class="material-symbols-outlined fs-4">
-                    login
-                </span>
+                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer px-3 hover login-btn"
+                    :style="{ 'background-color': signinWindow ? 'var(--color-secondary)' : '' }"
+                    @click="signinWindow = true">
+                    <span class="fw-bold fs-6">Logowanie&nbsp;</span>
+                    <span class="material-symbols-outlined fs-4">
+                        login
+                    </span>
 
-                <!-- login modal -->
-                <transition name="fade">
-                    <div class="p-3 cl-bg-primary cl-white rounded position-absolute signin-window border-box cursor-default"
-                        v-if="signinWindow">
-                        <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="floatingLoginInput2" placeholder="Login">
-                            <label for="floatingLoginInput" class="cl-text">Login/E-mail</label>
-                        </div>
-
-                        <div class="form-floating">
-                            <input type="password" class="form-control" id="floatingPassword" placeholder="Hasło">
-                            <label for="floatingPassword" class="cl-text">Hasło</label>
-                        </div>
-
-                        <div class="row justify-content-around mt-2">
-                            <div class="col-6 text-center my-2">
-                                <button class="btn btn-outline-light w-100">Zaloguj się</button>
+                    <!-- login modal -->
+                    <Transition mode="out-in">
+                        <div class="p-3 cl-bg-primary cl-white rounded position-absolute signin-window border-box cursor-default"
+                            v-if="signinWindow">
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="floatingLoginInput2" placeholder="Login">
+                                <label for="floatingLoginInput" class="cl-text">Login/E-mail</label>
                             </div>
-                            <div class="col-6 text-center my-2">
-                                <button class="btn btn-outline-light w-100">Pomoc</button>
+
+                            <div class="form-floating">
+                                <input type="password" class="form-control" id="floatingPassword" placeholder="Hasło">
+                                <label for="floatingPassword" class="cl-text">Hasło</label>
                             </div>
+
+                            <div class="row justify-content-around mt-2">
+                                <div class="col-6 text-center my-2">
+                                    <button class="btn btn-outline-light w-100">Zaloguj się</button>
+                                </div>
+                                <div class="col-6 text-center my-2">
+                                    <button class="btn btn-outline-light w-100">Pomoc</button>
+                                </div>
+                            </div>
+
+                            <div class="arrow-up"></div>
                         </div>
+                    </Transition>
+                </div>
 
-                        <div class="arrow-up"></div>
-                    </div>
-                </transition>
+                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer px-3 hover">
+                    <span class="fw-bold fs-6">Rejestracja&nbsp;</span>
+                    <span class="material-symbols-outlined fs-4">
+                        emoji_people
+                    </span>
+                </div>
             </div>
+        </Transition>
 
-            <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer px-3 hover">
-                <span class="fw-bold fs-6">Rejestracja&nbsp;</span>
-                <span class="material-symbols-outlined fs-4">
-                    emoji_people
-                </span>
-            </div>
-        </div>
     </div>
-    <div class="container-fluid row cl-accent mx-0 p-0 justify-content-around text-center py-2">
+
+
+    <!-- burger -->
+    <!-- <Slide style="height: 100px; width: 100px;">
+        <a id="home" href="#">
+            <span>Home</span>
+        </a>
+    </Slide> -->
+
+
+    <!-- Cats -->
+    <!-- <div class="container-fluid row cl-accent mx-0 p-0 justify-content-around text-center py-2">
         <div class="col" v-for="i in 6">
             <div class="d-flex justify-content-center">
                 <span class="fs-6">Kategoria</span>
@@ -101,16 +114,34 @@
                 <span>Sukkulenty</span>
             </div>
         </div>
-    </div>
+    </div> -->
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+//@ts-ignore
+import { Slide } from 'vue3-burger-menu';
 
 const searchWidth = ref(20);
+const searchMode = ref(false);
+
+if (window.innerWidth < 768) {
+    searchWidth.value = 100;
+}
 const focusSearch = (() => {
-    if (searchWidth.value == 20) searchWidth.value = 50;
-    else searchWidth.value = 20;
+    if (window.innerWidth < 768) return;
+
+    
+    
+    if (searchWidth.value == 20) {
+        searchMode.value = true;
+    }
+
+    else {
+        searchWidth.value = 20;
+        searchMode.value = false;
+        console.log(searchWidth.value);
+    }
 });
 
 const signinWindow = ref(false);
@@ -133,7 +164,6 @@ const closeSigninWindow = (event: MouseEvent) => {
     ) {
         return;
     }
-    // console.log("ELo");
     signinWindow.value = false;
 };
 
@@ -145,7 +175,7 @@ const closeSigninWindow = (event: MouseEvent) => {
 }
 
 .search-bar {
-    width: 20%;
+
     transition: width 0.5s ease;
 }
 
@@ -166,15 +196,31 @@ const closeSigninWindow = (event: MouseEvent) => {
     border-bottom: 12px solid var(--color-primary);
 }
 
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity .5s
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
 }
 
-.fade-enter,
-.fade-leave-to {
-    opacity: 0
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
+
+.searchAnim-enter-active {
+  transition: opacity 0.4s ease;
+
+}
+.searchAnim-leave-active {
+  transition: opacity 0.1s ease;
+}
+
+.searchAnim-enter-from,
+.searchAnim-leave-to {
+  opacity: 0;
+}
+
+
 
 hr {
     border-top: 3px solid var(--color-text);
