@@ -121,3 +121,15 @@ a:hover {
   font-size: 0.8rem;
   text-decoration: line-through;
 }
+
+.slide-hr {
+  width: 2%;
+  height: 3px;
+  border-radius: 15px;
+  border: none;
+  margin: auto;
+  color: var(--color-heading);
+  background-color: var(--color-heading);
+  transition: width linear 1s;
+
+}

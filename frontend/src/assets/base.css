@@ -14,6 +14,9 @@
   --section-gap: 160px;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
+
+
 /* @media (prefers-color-scheme: dark) {
   :root {
     --color-background: #222222;
@@ -106,6 +109,8 @@
   width: 100% !important;
   margin-top: 50px !important;
 }
+
+
 
 
 

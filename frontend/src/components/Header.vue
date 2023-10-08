@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid row cl-bg-primary mx-0 p-0">
+    <div class="container-fluid row cl-bg-primary mx-0 p-0" style="z-index: 6;">
         <div class="col-md col-12 d-flex align-items-center pe-0">
 
             <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer">
@@ -18,11 +18,10 @@
         </div>
 
 
-        <Transition name="searchAnim" @after-leave="searchWidth=50" @after-appear="searchWidth=20">
-
-
+        <Transition name="searchAnim" @after-leave="searchWidth = 50" @after-appear="searchWidth = 20">
             <div class="col-6 d-flex justify-content-end p-0" v-if="!searchMode">
-                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4">
+                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4"
+                    @click="catsBar = !catsBar">
                     <span class="fs-6 fw-bold">Produkty&nbsp;</span>
                     <span class="material-symbols-outlined fs-4 position-relative">
                         stat_minus_2
@@ -92,7 +91,23 @@
             </div>
         </Transition>
 
+
+
     </div>
+
+    <Transition name="catsBar">
+        <div class="container-fluid row cl-accent mx-0 p-0 justify-content-around text-center py-2 cats" v-if="catsBar">
+            <div class="col" v-for="i in 6">
+                <div class="d-flex justify-content-center">
+                    <span class="fs-6">Kategoria</span>
+                </div>
+                <hr>
+                <div class="row p-2" v-for="i in 10">
+                    <span>Sukkulenty</span>
+                </div>
+            </div>
+        </div>
+    </Transition>
 
 
     <!-- burger -->
@@ -101,20 +116,6 @@
             <span>Home</span>
         </a>
     </Slide> -->
-
-
-    <!-- Cats -->
-    <!-- <div class="container-fluid row cl-accent mx-0 p-0 justify-content-around text-center py-2">
-        <div class="col" v-for="i in 6">
-            <div class="d-flex justify-content-center">
-                <span class="fs-6">Kategoria</span>
-            </div>
-            <hr>
-            <div class="row p-2" v-for="i in 7">
-                <span>Sukkulenty</span>
-            </div>
-        </div>
-    </div> -->
 </template>
 
 <script setup lang="ts">
@@ -124,6 +125,7 @@ import { Slide } from 'vue3-burger-menu';
 
 const searchWidth = ref(20);
 const searchMode = ref(false);
+const catsBar = ref(false);
 
 if (window.innerWidth < 768) {
     searchWidth.value = 100;
@@ -131,8 +133,8 @@ if (window.innerWidth < 768) {
 const focusSearch = (() => {
     if (window.innerWidth < 768) return;
 
-    
-    
+
+
     if (searchWidth.value == 20) {
         searchMode.value = true;
     }
@@ -175,7 +177,6 @@ const closeSigninWindow = (event: MouseEvent) => {
 }
 
 .search-bar {
-
     transition: width 0.5s ease;
 }
 
@@ -199,27 +200,49 @@ const closeSigninWindow = (event: MouseEvent) => {
 
 .v-enter-active,
 .v-leave-active {
-  transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease;
 }
 
 .v-enter-from,
 .v-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
 
 .searchAnim-enter-active {
-  transition: opacity 0.4s ease;
+    transition: opacity 0.4s ease;
 
 }
+
 .searchAnim-leave-active {
-  transition: opacity 0.1s ease;
+    transition: opacity 0.1s ease;
 }
 
 .searchAnim-enter-from,
 .searchAnim-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
 
+
+.catsBar-enter-active,
+.catsBar-leave-active {
+    transition: transform 1s ease;
+    z-index: 2;
+
+}
+
+.catsBar-enter-from,
+.catsBar-leave-to {
+    transform: translateY(-200%);
+    z-index: 2;
+
+}
+
+
+.cats {
+    position: absolute;
+    top: 8%;
+    z-index: 5;
+}
 
 
 hr {
