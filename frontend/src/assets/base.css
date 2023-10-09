@@ -1,8 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
 /* color palette */
 :root {
   --color-primary: #6d9b76;
   --color-secondary: #4b674f;
   --color-accent: #e0caaf;
+  --color-accent-dark: #ddad72;
+  --color-accent-darker: #b38c5d;
   --color-background: #f8f8f8;
   --color-background-soft: #fcfcfc;
   --color-background-mute: #f2f2f2;
@@ -12,9 +15,9 @@
   --color-text: #666666;
   --color-shadow: #c4c4c4;
   --section-gap: 160px;
+  --color-droplet: #79a6d2;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap');
 
 
 /* @media (prefers-color-scheme: dark) {

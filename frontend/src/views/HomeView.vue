@@ -170,20 +170,25 @@
         </swiper>
 
       </div>
-
-      <div class="cl-break"></div>
-      <div class="cl-break"></div>
-
-      <div class="my-5 text-center" style="overflow-x:visible;">
-        <p class="text-center col-12 h2 mb-4">Zapraszamy do naszego katalogu!</p>
-        <button class="btn btn-success-outline btn-lg mx-auto">PRZEJDŹ DO PRODUKTÓW</button>
-      </div>
-
-      <div class="cl-break"></div>
-      <div class="cl-break"></div>
-
-
     </div>
+
+    <div class="cl-break"></div>
+    <div class="cl-break"></div>
+
+    <div class="divider-top" style="height: 150px;"></div>
+    <div class="text-center cl-bg-primary py-5 cl-white" style="overflow-x:visible;">
+      <p class="text-center col-12 h2 mb-4">Zapraszamy do naszego katalogu!</p>
+      <button class="btn btn-secondary btn-lg mx-auto fw-bold py-3">PRZEJDŹ DO PRODUKTÓW</button>
+    </div>
+    <div class="divider-bottom" style="height: 150px;"></div>
+
+
+    <div class="cl-break"></div>
+    <div class="cl-break"></div>
+
+    <img src="@/assets/static/svg/droplet.svg" alt="" width="100px" height="auto">
+
+
     <Footer></Footer>
 
     <!-- WSZYSTKIE  -->
@@ -404,4 +409,5 @@ const images = ref([]);
     background-position: 100% center;
   }
 }
+
 </style>
