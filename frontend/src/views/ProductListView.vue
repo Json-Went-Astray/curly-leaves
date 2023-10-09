@@ -180,11 +180,6 @@
                     <div class="col-5 ms-2">Gleba</div>
                     <div class="col-6 text-center">x</div>
                 </div>
-
-
-
-
-
             </div>
 
             <div class="col-md-9 border">
