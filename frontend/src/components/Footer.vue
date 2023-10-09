@@ -67,7 +67,7 @@
 
             </div>
         </div>
-        <div class="py-2 text-center bg-secondary">
+        <div class="py-2 text-center cl-bg-secondary">
             2024 Kacper Boszkiewicz
         </div>
     </footer>

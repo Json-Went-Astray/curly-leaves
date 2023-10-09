@@ -54,7 +54,7 @@
                     </tr>
                     <tr>
                         <th scope="row">312222</th>
-                        <td class="text-center"><span class="badge rounded-pill bg-secondary">Oczekiwanie na płatność</span>
+                        <td class="text-center"><span class="badge rounded-pill cl-bg-secondary">Oczekiwanie na płatność</span>
                         </td>
                         <td>2023-04-07</td>
                         <td>exta@em.pl</td>

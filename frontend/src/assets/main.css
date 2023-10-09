@@ -22,6 +22,11 @@ textarea:focus {
   box-shadow: none;
 }
 
+input[type="checkbox"]:checked {
+  background-color: var(--color-primary);
+  border: none;
+}
+
 a {
   color: var(--color-secondary) !important;
 }

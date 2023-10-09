@@ -282,9 +282,6 @@ const test = ref({
 
 const images = ref([]);
 
-
-
-
 </script>
 
 <style>

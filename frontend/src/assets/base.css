@@ -47,8 +47,8 @@
   background-color: var(--color-primary);
 }
 
-.bg-secondary {
-  background-color: var(--color-secondary);
+.cl-bg-secondary {
+  background-color: var(--color-secondary) !important;
 }
 
 .cl-accent {
@@ -111,6 +111,18 @@
 .cl-break {
   width: 100% !important;
   margin-top: 50px !important;
+}
+
+.cl-highlight:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0px 0px 3px var(--color-primary);
+  transition:.5s;
+}
+
+.cl-highlighted {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0px 0px 7px var(--color-primary) !important;
+  
 }
 
 
