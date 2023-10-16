@@ -5,10 +5,16 @@ import AdminPanelView from '@/views/AdminPanelView.vue'
 import SignupView from '@/views/SignupView.vue'
 import UserPanelViewVue from '@/views/UserPanelView.vue'
 import ProductListView from '@/views/ProductListView.vue'
+import NotFoundView from '@/views/NotFoundView.vue'
+import HelpView from '@/views/HelpView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: "/:catchAll(.*)",
+      component: NotFoundView,
+    },
     {
       path: '/',
       name: 'home',
@@ -40,6 +46,11 @@ const router = createRouter({
       path: '/admin/panel',
       name: 'admin-panel',
       component: AdminPanelView
+    },
+    {
+      path: '/help',
+      name: 'help',
+      component: HelpView
     },
     {
       path: '/about',

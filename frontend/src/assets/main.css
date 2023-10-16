@@ -35,6 +35,10 @@ a:hover {
   color: var(--color-primary) !important;
 }
 
+.vh-100 {
+  height: 100vh;
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -66,6 +70,18 @@ a:hover {
   color: var(--color-background-soft);
   background-color: var(--color-primary);
   border-color: var(--color-primary);
+}
+
+.btn-warning-outline {
+  color: var(--color-accent-dark);
+  background-color: transparent;
+  border-color: var(--color-accent-dark);
+}
+
+.btn-warning-outline:hover {
+  color: var(--color-background-soft);
+  background-color: var(--color-accent-dark);
+  border-color: var(--color-accent-dark);
 }
 
 .y-scroll {
