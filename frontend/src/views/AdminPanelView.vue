@@ -101,9 +101,9 @@
 
         </div>
         <div class="col h-100">
-            <Orders></Orders>
-           <!-- <NewProduct></NewProduct>
-            <CompanyUsers></CompanyUsers>  -->
+            <!-- <Orders></Orders> -->
+           <NewProduct></NewProduct>
+            <!-- <CompanyUsers></CompanyUsers>   -->
         </div>
     </div>
 </template>
