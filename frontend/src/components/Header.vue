@@ -1,254 +1,188 @@
 <template>
-    <div class="container-fluid row cl-bg-primary mx-0 p-0" style="z-index: 6;">
-        <div class="col-md col-12 d-flex align-items-center pe-0">
-
-            <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer">
-                <span class="material-symbols-outlined fw-bold fs-2">
-                    nest_eco_leaf
-                </span>
-                <span class="fw-bold fs-2 d-none d-lg-block">Curly Leaves</span>
-                <span class="fw-bold fs-2 d-lg-none">CL</span>
-            </div>
-
-
-            <div class="search-bar" :style="{ width: searchWidth + '%' }">
-                <input type="text" class="form-control d-inline p-2 ms-4 w-100 border-rounded" placeholder="Szukaj..."
-                    @focusin="focusSearch" @focusout="focusSearch">
-            </div>
-        </div>
+    <!-- Navbar -->
+    <nav class="top-navbar navbar sticky-top cl-bg-primary cl-shadow-down">
+        <!-- Container wrapper -->
+        <div class="container-fluid">
+            <!-- Collapsible wrapper -->
+            <div class="d-flex align-items-center">
+                <!-- Navbar brand -->
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <img src="@/assets/static/images/logo1.png" height="36" alt="MDB Logo" loading="lazy" />
+                    <div class="cl-white">CURLY LEAVES</div>
+                </a>
 
 
-        <Transition name="searchAnim" @after-leave="searchWidth = 50" @after-appear="searchWidth = 20">
-            <div class="col-6 d-flex justify-content-end p-0" v-if="!searchMode">
-                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4"
-                    @click="catsBar = !catsBar">
-                    <span class="fs-6 fw-bold">Produkty&nbsp;</span>
-                    <span class="material-symbols-outlined fs-4 position-relative">
-                        stat_minus_2
-                    </span>
+                <!-- KOSZYK  -->
+
+                <Slide right :burgerIcon="false" :isOpen="cartOpen" @closeMenu="cartOpen = false">
+                    <div class="d-flex w-100 my-3">
+                        <span class="material-symbols-outlined">
+                            shopping_cart
+                        </span>
+                        <span>KOSZYK</span>
+                    </div>
+
+                    <div class="bg-danger" style="max-height: 60vh; height: 60vh;">
+
+                    </div>
+                    <div class="w-100">
+                        <button class="btn btn-success w-100 p-3 my-1">Przejdź do zapłaty</button>
+                    </div>
+
+                    <div class="w-100">
+                        <button class="btn btn-secondary w-100 p-3">Opróżnij koszyk</button>
+                    </div>
+                </Slide>
+
+
+
+
+                <div class="control">
+                    <Slide class="d-md-none d-block">
+                        <a id="home" href="#">
+                            <span>Produkty</span>
+                        </a>
+                        <a id="home" href="#">
+                            <span>Promocje</span>
+                        </a>
+                        <a id="home" href="#">
+                            <span>Blog</span>
+                        </a>
+                        <a id="home" href="#">
+                            <span>O nas</span>
+                        </a>
+                        <a id="home" href="#">
+                            <span>Kontakt</span>
+                        </a>
+                        <a id="home" href="#">
+                            <span>Login / Rejestracja</span>
+                        </a>
+                        <a id="home" href="#">
+                            <span>Wyloguj się</span>
+                        </a>
+                    </Slide>
                 </div>
 
-                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4">
-                    <span class="fs-6 fw-bold">Blog&nbsp;</span>
-                    <span class="material-symbols-outlined fs-4 position-relative">
-                        feed
-                    </span>
-                </div>
+                <!-- Left links -->
+                <div class=" me-auto d-none d-md-flex">
 
-                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer hover px-3 pe-4">
-                    <span class="fs-6 fw-bold">Koszyk&nbsp;</span>
-                    <span class="material-symbols-outlined fs-4 position-relative">
+
+                    <a class="nav-link dropdown-toggle d-none d-md-inline mx-3" href="#" id="navbarDarkDropdownMenuLink"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Produkty
+                    </a>
+                    <div class="dropdown-menu cl-bg-primary cl-white" aria-labelledby="navbarDarkDropdownMenuLink">
+                        <li v-for="i in 10" class="cl-white"><a class="dropdown-item cl-white" href="#">kat {{ i }}</a></li>
+                    </div>
+
+
+                    <div class="nav-item mx-3">
+                        <a class="nav-link" href="#">Promocje</a>
+                    </div>
+                    <div class="nav-item mx-3">
+                        <a class="nav-link" href="#">Blog</a>
+                    </div>
+                    <div class="nav-item mx-3">
+                        <a class="nav-link" href="#">O nas</a>
+                    </div>
+                    <div class="nav-item mx-3">
+                        <a class="nav-link" href="#">Kontakt</a>
+                    </div>
+
+                </div>
+                <!-- Left links -->
+            </div>
+            <!-- Collapsible wrapper -->
+
+            <!-- Right elements -->
+            <div class="d-flex align-items-center me-5">
+
+                <a class="mx-5 d-none d-md-flex align-items-center unselectable cursor-pointer" @click="cartOpen = true">
+                    <span>Koszyk</span>
+                    <span class="material-symbols-outlined">
                         shopping_cart
                     </span>
-                    <span class="position-absolute translate-middle badge rounded-pill bg-danger"
-                        style="top:25%; font-size: 65%; right: -10%; z-index: 2;">
-                        99+
-                    </span>
-                </div>
+                    <div class="bg-danger rounded-circle position-absolute pill-indicator"
+                        style="font-size: 8pt; top: -40%">
+                        99
+                    </div>
+                </a>
 
-                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer px-3 hover login-btn"
-                    :style="{ 'background-color': signinWindow ? 'var(--color-secondary)' : '' }"
-                    @click="signinWindow = true">
-                    <span class="fw-bold fs-6">Logowanie&nbsp;</span>
-                    <span class="material-symbols-outlined fs-4">
-                        login
-                    </span>
+                <a class="mx-0 mx-sm-5 d-flex align-items-center unselectable cursor-pointer">
+                    <div class="bg-white p-3 rounded-circle">
 
-                    <!-- login modal -->
-                    <Transition mode="out-in">
-                        <div class="p-3 cl-bg-primary cl-white rounded position-absolute signin-window border-box cursor-default"
-                            v-if="signinWindow">
-                            <div class="form-floating mb-3">
-                                <input type="email" class="form-control" id="floatingLoginInput2" placeholder="Login">
-                                <label for="floatingLoginInput" class="cl-text">Login/E-mail</label>
-                            </div>
+                    </div>
+                    <div class="bg-danger rounded-circle position-absolute pill-indicator" style="font-size: 8pt;">
+                        99
+                    </div>
+                </a>
 
-                            <div class="form-floating">
-                                <input type="password" class="form-control" id="floatingPassword" placeholder="Hasło">
-                                <label for="floatingPassword" class="cl-text">Hasło</label>
-                            </div>
 
-                            <div class="row justify-content-around mt-2">
-                                <div class="col-6 text-center my-2">
-                                    <button class="btn btn-outline-light w-100">Zaloguj się</button>
-                                </div>
-                                <div class="col-6 text-center my-2">
-                                    <button class="btn btn-outline-light w-100">Pomoc</button>
-                                </div>
-                            </div>
+                <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer">
+                    Login / Rejestracja
+                </a>
 
-                            <div class="arrow-up"></div>
-                        </div>
-                    </Transition>
-                </div>
-
-                <div class="cl-white d-inline-flex align-items-center h-100 unselectable cursor-pointer px-3 hover">
-                    <span class="fw-bold fs-6">Rejestracja&nbsp;</span>
-                    <span class="material-symbols-outlined fs-4">
-                        emoji_people
-                    </span>
-                </div>
             </div>
-        </Transition>
-
-
-
-    </div>
-
-    <Transition name="catsBar">
-        <div class="container-fluid row cl-accent mx-0 p-0 justify-content-around text-center py-2 cats" v-if="catsBar">
-            <div class="col" v-for="i in 6">
-                <div class="d-flex justify-content-center">
-                    <span class="fs-6">Kategoria</span>
-                </div>
-                <hr>
-                <div class="row p-2" v-for="i in 10">
-                    <span>Sukkulenty</span>
-                </div>
-            </div>
+            <!-- Right elements -->
         </div>
-    </Transition>
+        <!-- Container wrapper -->
+    </nav>
 
 
-    <!-- burger -->
-    <!-- <Slide style="height: 100px; width: 100px;">
-        <a id="home" href="#">
-            <span>Home</span>
-        </a>
-    </Slide> -->
+    <nav class="fixed-bottom border border-1 bg-background d-flex d-md-none cl-shadow-up">
+        <div class="col-4 cl-text-accent border-end p-2 unselectable d-flex align-items-center justify-content-center">
+            <span>Kategorie</span>
+            <span class="material-symbols-outlined">
+                dataset
+            </span>
+        </div>
+
+        <div class="col-4 cl-text-accent border-end p-2 unselectable d-flex align-items-center justify-content-center"
+            @click="cartOpen = true">
+            <span>Koszyk</span>
+            <span class="material-symbols-outlined">
+                shopping_cart
+            </span>
+        </div>
+
+        <div class="col-4 cl-text-accent p-2 unselectable d-flex align-items-center justify-content-center">
+            <span>Konto</span>
+            <span class="material-symbols-outlined">
+                emoji_people
+            </span>
+        </div>
+    </nav>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-//@ts-ignore
+import { ref, type Ref } from 'vue';
+// @ts-ignore
 import { Slide } from 'vue3-burger-menu';
 
-const searchWidth = ref(20);
-const searchMode = ref(false);
-const catsBar = ref(false);
-
-if (window.innerWidth < 768) {
-    searchWidth.value = 100;
-}
-const focusSearch = (() => {
-    if (window.innerWidth < 768) return;
+const cartOpen = ref(false);
 
 
-
-    if (searchWidth.value == 20) {
-        searchMode.value = true;
-    }
-
-    else {
-        searchWidth.value = 20;
-        searchMode.value = false;
-        console.log(searchWidth.value);
-    }
-});
-
-const signinWindow = ref(false);
-
-onMounted(() => {
-    document.addEventListener('click', closeSigninWindow);
-});
-
-const openSigninWindow = (() => {
-    signinWindow.value = true;
-});
-
-const closeSigninWindow = (event: MouseEvent) => {
-    const signinWindowElement = document.querySelector('.signin-window');
-    const loginElement = document.querySelector('.login-btn');
-
-    if (
-        (signinWindowElement?.contains(event.target as Node) ?? false) ||
-        (loginElement?.contains(event.target as Node) ?? false)
-    ) {
-        return;
-    }
-    signinWindow.value = false;
-};
 
 </script>
 
 <style scoped>
-.container-fluid:first-child {
-    height: 8%;
+.top-navbar span:not(.bm-item-list span),
+.top-navbar a:not(.bm-item-list a),
+.top-navbar *:not(.bm-item-list *) {
+    color: white !important;
 }
 
-.search-bar {
-    transition: width 0.5s ease;
+a:hover {
+    color: var(--color-accent) !important;
 }
 
-.signin-window {
-    right: 50%;
-    top: 120%;
-    z-index: 999;
-    width: 200%;
-    border-top-right-radius: 0px !important;
+a {
+    text-decoration: none;
 }
 
-.arrow-up {
-    position: absolute;
-    top: -5%;
-    right: 0;
-    border-left: 12px solid transparent;
-    border-right: 12px solid transparent;
-    border-bottom: 12px solid var(--color-primary);
-}
-
-
-.v-enter-active,
-.v-leave-active {
-    transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-    opacity: 0;
-}
-
-.searchAnim-enter-active {
-    transition: opacity 0.4s ease;
-
-}
-
-.searchAnim-leave-active {
-    transition: opacity 0.1s ease;
-}
-
-.searchAnim-enter-from,
-.searchAnim-leave-to {
-    opacity: 0;
-}
-
-
-.catsBar-enter-active,
-.catsBar-leave-active {
-    transition: transform 1s ease;
-    z-index: 2;
-
-}
-
-.catsBar-enter-from,
-.catsBar-leave-to {
-    transform: translateY(-200%);
-    z-index: 2;
-
-}
-
-
-.cats {
-    position: absolute;
-    top: 8%;
-    z-index: 5;
-}
-
-
-hr {
-    border-top: 3px solid var(--color-text);
-    width: 75%;
-    margin: auto;
-    border-radius: 200%;
+.pill-indicator {
+    right: -20%;
+    top: -20%;
+    padding: 5px;
 }
 </style>

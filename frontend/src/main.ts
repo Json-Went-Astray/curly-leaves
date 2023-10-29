@@ -15,6 +15,7 @@ const vuetify = createVuetify({
   directives,
 });
 
+
 import "./assets/main.css";
 const app = createApp(App);
 

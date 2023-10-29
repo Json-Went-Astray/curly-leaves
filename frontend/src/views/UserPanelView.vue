@@ -3,7 +3,7 @@
         <Header></Header>
         <div class="w-75 row mx-auto mt-5 justify-content-between">
 
-            <div class="col-lg-8 p-2 cl-border rounded cl-shadow-static border-box mb-4 mb-lg-0">
+            <div class="col-lg-8 p-2 cl-border rounded cl-shadown-down border-box mb-4 mb-lg-0">
                 <div class="border row border-box m-0 p align-items-center">
                     <!-- TO DO -->
                     <div class="col-md-7 d-flex align-items-center no-wrap unselectable">
@@ -351,7 +351,7 @@
 
 
 
-            <div class="col-lg-3 p-2 cl-border rounded cl-shadow-static h-100">
+            <div class="col-lg-3 p-2 cl-border rounded cl-shadown-down h-100">
                 <div class="row my-2 w-75 mx-auto">
                     <button class="btn btn-success">Moje zamówienia</button>
                 </div>

@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,7 +8,143 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id              Int      @id @default(autoincrement())
+  picId           Int      @default(0)
+  createdAt       DateTime @default(now())
+  suspended       Boolean  @default(false)
+  email           String   @unique
+  password        String
+  name            String?
+  surname         String?
+  points          Int      @default(0)
+  permissionLevel Int      @default(2)
+
+  addressesSets AdressSet[] @relation("owner")
+  IssuesCreated Issue[]     @relation("issuesCreated")
+  IssueHandled  Issue[]     @relation("issuesHandled")
+}
+
+model Review {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  ratingValue    Decimal
+  content        String?
+  createdAt      DateTime @default(now())
+  positiveRating Int      @default(0)
+  negativeRating Int      @default(0)
+
+  comments Comment[] @relation("reviewComment")
+}
+
+model Comment {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  opReviewId     Int
+  content        String
+  createdAt      DateTime @default(now())
+  positiveRating Int      @default(0)
+  negativeRating Int      @default(0)
+
+  review Review @relation("reviewComment", fields: [opReviewId], references: [id])
+}
+
+model AdressSet {
+  id          Int     @id @default(autoincrement())
+  ownerId     Int
+  city        String
+  county      String
+  street      String?
+  houseNumber Int
+  postalCode  String
+  nip         String?
+  companyName String?
+  isTemporary Boolean @default(false)
+
+  owner  User    @relation("owner", fields: [ownerId], references: [id])
+  orders Order[] @relation("ordersSets")
+}
+
+model Product {
+  id            Int     @id @default(autoincrement())
+  productTypeId Int
+  isAvailable   Boolean @default(true)
+  label         String?
+  fullPrice     Int?
+  price         Int?
+  title         String
+  description   String?
+
+  productType ProductType @relation("products", fields: [productTypeId], references: [id])
+  orders      Order[]     @relation("productList")
+}
+
+model ProductType {
+  id    Int    @id @default(autoincrement())
+  title String
+
+  products Product[] @relation("products")
+}
+
+model Invoice {
+  id        Int    @id @default(autoincrement())
+  orderId   Int    @unique
+  inVoiceId String @unique
+
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+model Issue {
+  id          Int       @id @default(autoincrement())
+  issueTypeId Int
+  userId      Int
+  handlerId   Int
+  isOpen      Boolean   @default(true)
+  title       String
+  content     String
+  createdAt   DateTime  @default(now())
+  endedAt     DateTime?
+  rating      Int?
+
+  createdBy      User            @relation("issuesCreated", fields: [userId], references: [id])
+  HandledBy      User            @relation("issuesHandled", fields: [handlerId], references: [id])
+  issueType      IssueType       @relation("issueTypes", fields: [issueTypeId], references: [id])
+  issueResponses issueResponse[] @relation("issueResponses")
+}
+
+model IssueType {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  issues Issue[] @relation("issueTypes")
+}
+
+model issueResponse {
+  id        Int      @id @default(autoincrement())
+  issueId   Int
+  authorId  Int
+  content   String
+  createdAt DateTime @default(now())
+  rating    Int?
+
+  issue Issue @relation("issueResponses", fields: [issueId], references: [id])
+}
+
+model Order {
+  id                 Int      @id @default(autoincrement())
+  orderStatusId      Int
+  netValue           Int
+  userId             Int
+  standaloneAdressId Int?
+  invoice            Invoice?
+
+  standaloneAdress AdressSet?  @relation("ordersSets", fields: [standaloneAdressId], references: [id])
+  products         Product[]   @relation("productList")
+  orderStatus      OrderStatus @relation("ordersWithStatus", fields: [orderStatusId], references: [id])
+}
+
+model OrderStatus {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  orders Order[] @relation("ordersWithStatus")
 }

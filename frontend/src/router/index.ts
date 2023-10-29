@@ -7,6 +7,9 @@ import UserPanelViewVue from '@/views/UserPanelView.vue'
 import ProductListView from '@/views/ProductListView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
 import HelpView from '@/views/HelpView.vue'
+import ProductViewVue from '@/views/ProductView.vue'
+import CheckoutView from '@/views/CheckoutView.vue'
+import CheckoutSummaryView from '@/views/CheckoutSummaryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,6 +39,16 @@ const router = createRouter({
       component: AdminLoginView
     },
     {
+      path: '/checkout',
+      name: 'checkout',
+      component: CheckoutView
+    },
+    {
+      path: '/checkout/summary',
+      name: 'summary',
+      component: CheckoutSummaryView
+    },
+    {
       //TO DO SNOWFLAKE
       path: '/user',
       name: 'user',
@@ -46,6 +59,12 @@ const router = createRouter({
       path: '/admin/panel',
       name: 'admin-panel',
       component: AdminPanelView
+    },
+    {
+      //TO DO SNOWFLAKE
+      path: '/product/',
+      name: 'product',
+      component: ProductViewVue
     },
     {
       path: '/help',

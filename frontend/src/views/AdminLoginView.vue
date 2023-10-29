@@ -7,7 +7,7 @@
             </div>
         </div>
 
-        <div class="cl-bg-background-soft p-3 rounded cl-border col-md-6 col mx-auto mt-3">
+        <div class="cl-bg-white p-3 rounded cl-border col-md-6 col mx-auto mt-3">
             <div class="form-floating mb-3">
                 <input type="email" class="form-control" id="floatingInput" placeholder="Login">
                 <label for="floatingInput">Login</label>

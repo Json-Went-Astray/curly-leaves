@@ -1,5 +1,6 @@
 @import './base.css';
 @import './dividers.css';
+@import './dividers-forms.css';
 
 body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
@@ -36,7 +37,7 @@ a:hover {
 }
 
 .vh-100 {
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .cursor-pointer {
@@ -82,6 +83,15 @@ a:hover {
   color: var(--color-background-soft);
   background-color: var(--color-accent-dark);
   border-color: var(--color-accent-dark);
+}
+
+.btn-success {
+  background-color: var(--color-primary);
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: var(--color-secondary);
 }
 
 .y-scroll {
@@ -198,3 +208,81 @@ textarea.form-floating > .form-control:-webkit-autofill ~ label {
   transform: scale(0.982) translateY(0.045rem) translateX(0.1rem);
   border-radius: 5px 0 0 0;
 }
+
+input[type="radio"]:checked {
+  background-color: var(--color-primary);
+  border: var(--color-primary);
+}
+
+.rounded-2 {
+  border-radius: 20px !important;
+}
+
+.border-2 {
+  border-width: 2px !important;
+}
+
+.bm-burger-button {
+  position: static;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.bm-burger-bars {
+  background-color: white !important;
+  
+}
+
+.bm-menu {
+
+  background-color: #f8f8f8; /* Black*/
+  font-size: 18px;
+  border-right: solid 1px d8d8d8;
+  box-shadow: 2px 0px 15px 1px var(--color-shadow);
+
+}
+
+.bm-item-list span {
+  color: #666666 !important;
+}
+
+.hr-divider {
+  --b: 6px;
+  /* control the border thickness */
+  --w: 80px;
+  /* control the width of the line*/
+  --g: 15px;
+  /* control the gap */
+  --c: #0B486B;
+
+  width: fit-content;
+  padding: 0 1em;
+  line-height: 1.6em;
+  border: 1px solid;
+  color: #fff;
+  background:
+      conic-gradient(from 45deg at left, var(--c) 25%, #0000 0) 0,
+      conic-gradient(from -135deg at right, var(--c) 25%, #0000 0) 100%;
+  background-size: 51% 100%;
+  background-origin: border-box;
+  background-repeat: no-repeat;
+  border-image:
+      linear-gradient(#0000 calc(50% - var(--b)/2),
+          var(--c) 0 calc(50% + var(--b)/2),
+          #0000 0) 1/0 var(--w)/calc(var(--w) + var(--g));
+  margin-inline: auto;
+}
+
+.toggle-on {
+  background: #6d9b76;
+  border-color: #6d9b76;
+  outline: none;
+}
+
+.toggle-container:focus {
+  outline: none;
+  box-shadow: none !important;
+  border: none;
+}
+

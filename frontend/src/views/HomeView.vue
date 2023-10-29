@@ -30,7 +30,7 @@
 
         }" />
 
-      <div class=" cl-bg-background-soft p-4 rounded motd col-12 col-sm-11 col-md-8 col-lg-6 mx-auto">
+      <div class=" cl-bg-white p-4 rounded motd col-12 col-sm-11 col-md-8 col-lg-6 mx-auto">
         <p class="h5 m-0 text-center" style="font-family: 'Dancing Script', cursive;">Tutaj pojawiają się wiadomości dnia
         </p>
       </div>
@@ -186,46 +186,9 @@
     <div class="cl-break"></div>
     <div class="cl-break"></div>
 
-    <img src="@/assets/static/svg/droplet.svg" alt="" width="100px" height="auto">
 
 
     <Footer></Footer>
-
-    <!-- WSZYSTKIE  -->
-
-
-
-    <!-- <div class="row w-100 mx-auto px-5">
-
-      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3" v-for="i in 10" style="max-width: 100vw;">
-      
-
-        <div class="rounded border unselectable">
-          <div>
-            <img src='@/assets/static/Products/rose-test.jpg' alt="alt" class="w-100 rounded">
-          </div>
-
-
-          <div class="p-3">
-            <div class="d-flex p-0 w-100 justify-content-around mb-2">
-              <span class="price">1999 zł</span>
-              <span class="discount">2999 zł</span>
-            </div>
-            <div class="text-truncate text-center my-3">
-              <span class="h5">Róża Ziemowitka</span>
-            </div>
-            <div class="d-flex align-items-center justify-content-around">
-              <vue3starRatings v-bind="test" :rating="3.8" :read-only="true" :increment="0.01" />
-              <span>(100)</span>
-            </div>
-            <star-rating :rating="3.8" :read-only="true" :increment="0.01"></star-rating>
-          </div>
-        </div>
-
-      </div>
-
-    </div> -->
-
   </div>
 </template>
 
@@ -258,6 +221,7 @@ const updateScreenWidth = () => {
 };
 
 onMounted(() => {
+  document.documentElement.style.overflow = 'hidden';
   window.addEventListener('resize', updateScreenWidth);
   updateScreenWidth();
 });
@@ -284,7 +248,12 @@ const images = ref([]);
 
 </script>
 
-<style>
+
+<style scoped>
+html {
+  overflow-y: hidden !important;
+}
+
 .deco-1 {
   position: absolute;
   width: 140vw;

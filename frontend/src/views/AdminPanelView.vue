@@ -1,6 +1,6 @@
 <template>
     <div class="containter-fluid row mx-0" style="height: 100vh;">
-        <div class="d-none d-md-flex col-md-2 p-0 cl-bg-background-soft text-center flex-column h-100">
+        <div class="d-none d-md-flex col-md-2 p-0 cl-bg-white text-center flex-column h-100">
             <div class="mx-0 w-100 d-flex p-3 m-0 w-100 cl-bg-primary align-items-center justify-content-around">
                 <span class="material-symbols-outlined cl-white cursor-pointer unselectable" title="Wyloguj się"
                     @click="$router.push('/admin')">
