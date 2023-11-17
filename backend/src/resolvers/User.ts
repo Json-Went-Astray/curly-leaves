@@ -1,33 +1,336 @@
 import "reflect-metadata";
 import {
   Resolver,
-  Query,
   Mutation,
   Arg,
-  Ctx,
-  FieldResolver,
-  Root,
-  Int,
   InputType,
   Field,
-  Subscription,
-  Args,
-  PubSub,
-  PubSubEngine,
+  Ctx,
+  Query,
   ID,
-  UseMiddleware,
-  ArgsDictionary,
+  Int,
 } from "type-graphql";
+import { IsEmail, IsStrongPassword, MaxLength } from "class-validator";
+import { prisma } from "../context.js";
 import { type Context } from "../context.js";
 import { User } from "../models/User.js";
 
+import * as crypto from "crypto";
+import validator from "validator";
+import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken";
+import { GraphQLError } from "graphql/error/index.js";
+
+@InputType()
+export class UserExtraInput {
+  @Field((type) => String, { nullable: true })
+  county: string;
+
+  @Field((type) => String, { nullable: true })
+  city: string;
+
+  @Field((type) => String, { nullable: true })
+  postalCode: string;
+
+  @Field((type) => String, { nullable: true })
+  phoneNumber: string;
+
+  @Field((type) => String, { nullable: true })
+  street: string;
+
+  @Field((type) => Int, { nullable: true })
+  houseNumber: number;
+
+  @Field((type) => String, { nullable: true })
+  nip: string;
+
+  @Field((type) => String, { nullable: true })
+  companyName: string;
+}
+
+@InputType()
+export class UserCreateInput {
+  @Field((type) => String)
+  login: string;
+
+  @Field((type) => String)
+  email: string;
+
+  @Field((type) => String)
+  password_1: string;
+
+  @Field((type) => String)
+  password_2: string;
+
+  @Field((type) => String)
+  name: string;
+
+  @Field((type) => String)
+  surname: string;
+
+  @Field()
+  tos: boolean;
+}
+
 @Resolver(User)
 export class UserResolver {
- 
-  @Query((returns) => Boolean)
-  async test(
+  public activationEmails: { [email: string]: number } = {};
+
+  // @Query((returns) => User, {nullable: false})
+  // async me(@Ctx() ctx: Context) {
+  //   return ctx.prisma.user.findUniqueOrThrow({
+  //       where: {
+  //         id: ctx.user!.id,
+  //       },
+  //     });
+  // }
+
+  @Query((returns) => User)
+  async resendActivationLink(
+    @Ctx() ctx: Context,
+    @Arg("userEmail") userEmail: string
+  ) {
+    const exists = await ctx.prisma.user.findFirst({
+      where: {
+        email: userEmail,
+      },
+    });
+
+    if (!exists) {
+      throw new GraphQLError("user does not exists", {
+        extensions: {
+          code: "USER_DONT_EXISTS",
+        },
+      });
+    }
+
+    if (
+      this.activationEmails[userEmail] &&
+      Date.now() - this.activationEmails[userEmail] < 30000
+    ) {
+      throw new GraphQLError("resend under 30 seconds", {
+        extensions: {
+          code: "TO_MANY_REQUESTS",
+        },
+      });
+    } else {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "curly.leaves.mailer@gmail.com",
+          pass: "nhusxltunzdgietp",
+        },
+      });
+
+      const sendEmail = async (to: string, activationLink: string) => {
+        try {
+          const subject =
+            "Witamy w serwisie Curly-Leaves - potwierdź rejestrację!";
+          const text = `Witamy w naszym serwisie! W celu aktywacji konta proszę kliknąć w poniższy link http://localhost:5173/activate-account/${exists.activationLink}`;
+
+          const mailOptions = {
+            from: "curly.leaves.mailer@gmail.com",
+            to: to,
+            subject: subject,
+            text: text,
+          };
+
+          const info = await transporter.sendMail(mailOptions);
+        } catch (error) {
+          console.error("Error sending email:", error);
+        }
+      };
+
+      await sendEmail(exists.email, exists.activationLink);
+      this.activationEmails[exists.email] = Date.now();
+    }
+  }
+
+  @Mutation((returns) => User)
+  async userSignup(
+    @Arg("userData") userData: UserCreateInput,
+    @Arg("userExtra") userExtra: UserExtraInput,
     @Ctx() ctx: Context
   ) {
-    return true;
+   
+    const errors: GraphQLError[] = [];
+    
+
+    const exists = await ctx.prisma.user.findFirst({
+      where: {
+        login: userData.login,
+      },
+    });
+
+    if (!userData.tos) {
+      errors.push(
+        new GraphQLError("tos was not accepted", {
+          extensions: {
+            code: "TOS_ERROR",
+          },
+        })
+      );
+    }
+
+    if (exists || userData.login.length < 2) {
+      errors.push(
+        new GraphQLError("user with login already exists", {
+          extensions: {
+            code: "USER_EXISTS_LOGIN_OR_INCORRECT",
+          },
+        })
+      );
+    }
+
+    const emailExists = await ctx.prisma.user.findFirst({
+      where: {
+        email: userData.email,
+      },
+    });
+
+    if (emailExists || !validator.default.isEmail(userData.email)) {
+      errors.push(
+        new GraphQLError(
+          "user with email already exists or email is incorrect",
+          {
+            extensions: {
+              code: "USER_EXISTS_EMAIL_OR_INCORRECT",
+            },
+          }
+        )
+      );
+    }
+
+    console.log("1");
+
+    if (userData.password_1 !== userData.password_2) {
+      errors.push(
+        new GraphQLError("passwords are diffrent", {
+          extensions: {
+            code: "PASSWORD_MISSMATCH",
+          },
+        })
+      );
+    }
+
+    const isPasswordSecure = validator.default.isStrongPassword(
+      userData.password_1,
+      {
+        minLength: 8,
+        minNumbers: 1,
+        minSymbols: 1,
+        minLowercase: 0,
+        minUppercase: 0,
+      }
+    );
+
+    if (!isPasswordSecure) {
+      errors.push(
+        new GraphQLError("password is too weak", {
+          extensions: {
+            code: "PASSWORD_INSECURE",
+          },
+        })
+      );
+    }
+
+    if (userData.name.length < 3 || !/^[A-Z][a-z]*$/.test(userData.name)) {
+      errors.push(
+        new GraphQLError("name is incorrect", {
+          extensions: {
+            code: "NAME_INCORRECT",
+          },
+        })
+      );
+    }
+
+    if (
+      userData.surname.length < 3 ||
+      !/^[A-Z][a-z]*$/.test(userData.surname)
+    ) {
+      errors.push(
+        new GraphQLError("surname is incorrect", {
+          extensions: {
+            code: "SURNAME_INCORRECT",
+          },
+        })
+      );
+    }
+
+    if (errors.length > 0) {
+      
+      const combinedError = new GraphQLError("Validation error", {
+        extensions: {
+          code: "VALIDATION_ERROR",
+          errors: errors.map(error => ({
+            message: error.message,
+            code: error.extensions?.code || "UNKOWN_ERROR",
+          })),
+        },
+      });
+     
+      throw combinedError;
+
+    }
+
+    const activationLink = crypto.randomBytes(32).toString("hex");
+    const hashedPassword = crypto
+      .createHash("sha256")
+      .update(userData.password_1)
+      .digest("hex");
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "curly.leaves.mailer@gmail.com",
+        pass: "nhusxltunzdgietp",
+      },
+    });
+
+    const sendEmail = async (to: string, activationLink: string) => {
+      try {
+        const subject =
+          "Witamy w serwisie Curly-Leaves - potwierdź rejestrację!";
+        const text = `Witamy w naszym serwisie! W celu aktywacji konta proszę kliknąć w poniższy link http://localhost:5173/activate-account/${activationLink}`;
+
+        const mailOptions = {
+          from: "curly.leaves.mailer@gmail.com",
+          to: to,
+          subject: subject,
+          text: text,
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+      } catch (error) {
+        console.error("Error sending email:", error);
+      }
+    };
+
+    await sendEmail(userData.email, activationLink);
+    this.activationEmails[userData.email] = Date.now();
+
+    const user = await ctx.prisma.user.create({
+      data: {
+        login: userData.login,
+        email: userData.email,
+        password: hashedPassword,
+        name: userData.name,
+        surname: userData.surname,
+        activationLink: activationLink,
+        addressesSets: {
+          create: {
+            city: userExtra.county,
+            postalCode: userExtra.postalCode,
+            phoneNumber: userExtra.phoneNumber,
+            street: userExtra.street,
+            houseNumber: userExtra.houseNumber,
+            nip: userExtra.nip,
+            companyName: userExtra.companyName,
+          },
+        },
+      },
+    });
+
+    return user;
   }
 }

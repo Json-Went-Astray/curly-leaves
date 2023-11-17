@@ -10,18 +10,37 @@ datasource db {
 model User {
   id              Int      @id @default(autoincrement())
   picId           Int      @default(0)
+  availablePics   Image[]  @relation("userPics")
+  activationLink  String  @unique
+  resetLink       String?  @unique
   createdAt       DateTime @default(now())
   suspended       Boolean  @default(false)
   email           String   @unique
   password        String
-  name            String?
-  surname         String?
+  login           String
+  name            String
+  surname         String
   points          Int      @default(0)
   permissionLevel Int      @default(2)
+  isActive        Boolean  @default(false)
 
   addressesSets AdressSet[] @relation("owner")
   IssuesCreated Issue[]     @relation("issuesCreated")
   IssueHandled  Issue[]     @relation("issuesHandled")
+}
+
+model Image {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  altString   String?
+  createdAt   DateTime @default(now())
+  isProfile   Boolean
+  isCarousel  Boolean
+  source      String
+  refLink     String
+
+  userPics User @relation("userPics", fields: [id], references: [id])
 }
 
 model Review {
@@ -34,6 +53,11 @@ model Review {
   negativeRating Int      @default(0)
 
   comments Comment[] @relation("reviewComment")
+}
+
+model Motd {
+  id      Int    @id @default(autoincrement())
+  content String
 }
 
 model Comment {
@@ -51,31 +75,49 @@ model Comment {
 model AdressSet {
   id          Int     @id @default(autoincrement())
   ownerId     Int
-  city        String
-  county      String
+  city        String?
+  county      String?
   street      String?
-  houseNumber Int
-  postalCode  String
+  houseNumber Int?
+  phoneNumber String?
+  postalCode  String?
   nip         String?
   companyName String?
   isTemporary Boolean @default(false)
 
-  owner  User    @relation("owner", fields: [ownerId], references: [id])
-  orders Order[] @relation("ordersSets")
+  owner    User    @relation("owner", fields: [ownerId], references: [id])
+  orders   Order[] @relation("ordersSets")
 }
 
 model Product {
-  id            Int     @id @default(autoincrement())
-  productTypeId Int
-  isAvailable   Boolean @default(true)
-  label         String?
-  fullPrice     Int?
-  price         Int?
-  title         String
-  description   String?
+  id             Int     @id @default(autoincrement())
+  productTypeId  Int
+  isAvailable    Boolean @default(true)
+  label          String?
+  fullPrice      Float?
+  price          Float?
+  title          String
+  description    String?
+  trivia         String
+  rating         Float
+  metaTitle      String
+  metaDecription String
+  snowFlake      String
 
-  productType ProductType @relation("products", fields: [productTypeId], references: [id])
-  orders      Order[]     @relation("productList")
+  productType  ProductType  @relation("products", fields: [productTypeId], references: [id])
+  shippingCost ShippingCost @relation(fields: [shippingCostId], references: [id])
+
+  orders         Order[] @relation("productList")
+  carts          Cart[]  @relation("cartElements")
+  shippingCostId Int
+}
+
+model ShippingCost {
+  id    Int    @id @default(autoincrement())
+  name  String
+  value Float
+
+  Product Product[]
 }
 
 model ProductType {
@@ -147,4 +189,11 @@ model OrderStatus {
   name String
 
   orders Order[] @relation("ordersWithStatus")
+}
+
+model Cart {
+  id     Int @id @default(autoincrement())
+  userId Int
+
+  products Product[] @relation("cartElements")
 }

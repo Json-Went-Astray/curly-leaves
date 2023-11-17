@@ -14,6 +14,10 @@ import { graphqlUploadExpress } from "graphql-upload-ts";
 import { createContext } from "./context.js";
 import { UserResolver } from "./resolvers/User.js";
 import { Context } from "./context.js";
+import { User } from "./models/User.js";
+
+
+
 
 dotenv.config();
 
@@ -39,6 +43,7 @@ const yoga = createYoga({
   schema,
   context: createContext,
 });
+
 
 const app = express();
 app.use(cors(), bodyParser.json());

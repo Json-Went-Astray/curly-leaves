@@ -308,6 +308,16 @@ const minRange: Ref<number> = ref(10);
 const maxRange: Ref<number> = ref(500);
 
 
+const validateRange = () => {
+    if (rangeValue.value[0] > rangeValue.value[1]) rangeValue.value[0] = rangeValue.value[1];
+    if (rangeValue.value[1] < rangeValue.value[0]) rangeValue.value[1] = rangeValue.value[0];
+    if (rangeValue.value[0] < minRange.value) rangeValue.value[0] = minRange.value;
+    if (rangeValue.value[1] > maxRange.value) rangeValue.value[1] = maxRange.value;
+}
+
+
+
+
 const selectedType: Ref<number> = ref(-1);
 
 const hasTrueCats: Ref<boolean> = ref(false);
@@ -322,14 +332,6 @@ const clearCats = () => {
     });
 };
 
-
-
-const validateRange = () => {
-    if (rangeValue.value[0] > rangeValue.value[1]) rangeValue.value[0] = rangeValue.value[1];
-    if (rangeValue.value[1] < rangeValue.value[0]) rangeValue.value[1] = rangeValue.value[0];
-    if (rangeValue.value[0] < minRange.value) rangeValue.value[0] = minRange.value;
-    if (rangeValue.value[1] > maxRange.value) rangeValue.value[1] = maxRange.value;
-}
 
 </script>
 

@@ -10,8 +10,9 @@ export interface Context {
 export async function createContext(
   initialContext: YogaInitialContext
 ): Promise<Context> {
+  
 
   return {
-    prisma
+    prisma,
   };
 }
