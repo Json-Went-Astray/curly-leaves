@@ -24,7 +24,7 @@ import jwt from "jsonwebtoken";
 import { GraphQLError } from "graphql/error/index.js";
 import fs from "fs";
 import ejs from "ejs";
-import { hash, compare } from "bcrypt";
+import * as bcrypt from "bcrypt";
 import { IsLoggedIn } from "../auth.js";
 
 @InputType()
@@ -305,9 +305,11 @@ export class UserResolver {
       throw combinedError;
     }
 
+    const salt = bcrypt.genSaltSync(10);
+    userData.password_1 += salt;
+    const hashedPassword = await bcrypt.hashSync(userData.password_1, salt);
+    
     const activationLink = crypto.randomBytes(32).toString("hex");
-    const hashedPassword = await hash(userData.password_1, 10);
-
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -381,21 +383,22 @@ export class UserResolver {
       throw new GraphQLError("user does not exist");
     }
 
-    const hashedPassword = await hash(password, 10);
-    if (exists && (await compare(hashedPassword, exists.password))) {
-      if (exists.suspended) {
-        throw new GraphQLError("user is suspended");
-      }
 
-      if (!exists.isActive) {
-        throw new GraphQLError("user is not active");
-      } else {
-        const token = jwt.sign({ sub: exists.id }, process.env.APP_SECRET!);
-        return { token, user: exists };
-      }
+    // to-do 
+    // if (exists && (await compare(hashedPassword, exists.password))) {
+    //   if (exists.suspended) {
+    //     throw new GraphQLError("user is suspended");
+    //   }
 
-    } else {
-      throw new GraphQLError("user does not exist1 \n " + hashedPassword + "\n" + exists.password);
-    }
+    //   if (!exists.isActive) {
+    //     throw new GraphQLError("user is not active");
+    //   } else {
+    //     const token = jwt.sign({ sub: exists.id }, process.env.APP_SECRET!);
+    //     return { token, user: exists };
+    //   }
+
+    // } else {
+    //   throw new GraphQLError("user does not exist1 \n " + hashedPassword + "\n" + exists.password);
+    // }
   }
 }
