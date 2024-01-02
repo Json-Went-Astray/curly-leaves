@@ -9,6 +9,8 @@ import {
   Query,
   ID,
   Int,
+  ObjectType,
+  UseMiddleware,
 } from "type-graphql";
 import { IsEmail, IsStrongPassword, MaxLength } from "class-validator";
 import { prisma } from "../context.js";
@@ -20,6 +22,10 @@ import validator from "validator";
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 import { GraphQLError } from "graphql/error/index.js";
+import fs from "fs";
+import ejs from "ejs";
+import { hash, compare } from "bcrypt";
+import { IsLoggedIn } from "../auth.js";
 
 @InputType()
 export class UserExtraInput {
@@ -72,19 +78,29 @@ export class UserCreateInput {
   tos: boolean;
 }
 
+@ObjectType()
+export class LoginResult {
+  @Field()
+  token: string;
+
+  @Field((type) => User)
+  user: User;
+}
+
 @Resolver(User)
 export class UserResolver {
   public activationEmails: { [email: string]: number } = {};
 
-  // @Query((returns) => User, {nullable: false})
-  // async me(@Ctx() ctx: Context) {
-  //   return ctx.prisma.user.findUniqueOrThrow({
-  //       where: {
-  //         id: ctx.user!.id,
-  //       },
-  //     });
-  // }
-
+  @Query((returns) => User, { nullable: false })
+  @UseMiddleware(IsLoggedIn)
+  async me(@Ctx() ctx: Context) {
+    return ctx.prisma.user.findUniqueOrThrow({
+      where: {
+        id: ctx.user!.id,
+      },
+    });
+  }
+  
   @Query((returns) => User)
   async resendActivationLink(
     @Ctx() ctx: Context,
@@ -147,14 +163,32 @@ export class UserResolver {
   }
 
   @Mutation((returns) => User)
+  async userActivate(
+    @Arg("link") link: string,
+    @Ctx() ctx: Context
+  ) {
+    const found = await ctx.prisma.user.findFirst({
+      where: {
+        activationLink: link,
+      }
+    });
+
+    if (found && !found.isActive) {
+      found.isActive = true;
+    } else {
+      throw new GraphQLError("user already activated");
+    }
+
+    return found;
+  }
+
+  @Mutation((returns) => User)
   async userSignup(
     @Arg("userData") userData: UserCreateInput,
     @Arg("userExtra") userExtra: UserExtraInput,
     @Ctx() ctx: Context
   ) {
-   
     const errors: GraphQLError[] = [];
-    
 
     const exists = await ctx.prisma.user.findFirst({
       where: {
@@ -258,26 +292,21 @@ export class UserResolver {
     }
 
     if (errors.length > 0) {
-      
       const combinedError = new GraphQLError("Validation error", {
         extensions: {
           code: "VALIDATION_ERROR",
-          errors: errors.map(error => ({
+          errors: errors.map((error) => ({
             message: error.message,
             code: error.extensions?.code || "UNKOWN_ERROR",
           })),
         },
       });
-     
-      throw combinedError;
 
+      throw combinedError;
     }
 
     const activationLink = crypto.randomBytes(32).toString("hex");
-    const hashedPassword = crypto
-      .createHash("sha256")
-      .update(userData.password_1)
-      .digest("hex");
+    const hashedPassword = await hash(userData.password_1, 10);
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -288,11 +317,12 @@ export class UserResolver {
     });
 
     const sendEmail = async (to: string, activationLink: string) => {
+      let name = userData.name;
       try {
         const subject =
           "Witamy w serwisie Curly-Leaves - potwierdź rejestrację!";
         const text = `Witamy w naszym serwisie! W celu aktywacji konta proszę kliknąć w poniższy link http://localhost:5173/activate-account/${activationLink}`;
-
+        
         const mailOptions = {
           from: "curly.leaves.mailer@gmail.com",
           to: to,
@@ -332,5 +362,40 @@ export class UserResolver {
     });
 
     return user;
+  }
+
+  @Mutation((returns) => LoginResult)
+  async loginUser(
+    @Arg("userLogin") login: string,
+    @Arg("userPassword") password: string,
+    @Ctx() ctx: Context
+  ) {
+
+    const exists = await ctx.prisma.user.findFirst({
+      where: {
+        email: login,
+      },
+    });
+
+    if (!exists) {
+      throw new GraphQLError("user does not exist");
+    }
+
+    const hashedPassword = await hash(password, 10);
+    if (exists && (await compare(hashedPassword, exists.password))) {
+      if (exists.suspended) {
+        throw new GraphQLError("user is suspended");
+      }
+
+      if (!exists.isActive) {
+        throw new GraphQLError("user is not active");
+      } else {
+        const token = jwt.sign({ sub: exists.id }, process.env.APP_SECRET!);
+        return { token, user: exists };
+      }
+
+    } else {
+      throw new GraphQLError("user does not exist1 \n " + hashedPassword + "\n" + exists.password);
+    }
   }
 }

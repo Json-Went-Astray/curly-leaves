@@ -10,6 +10,7 @@ import HelpView from '@/views/HelpView.vue'
 import ProductViewVue from '@/views/ProductView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
 import CheckoutSummaryView from '@/views/CheckoutSummaryView.vue'
+import ActivateAccountView from '@/views/ActivateAccountView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +33,12 @@ const router = createRouter({
       path: '/signup',
       name: 'signup',
       component: SignupView
+    },
+    {
+      path: '/new-user/:activationKey',
+      name: 'activateAccount',
+      component: ActivateAccountView,
+      props: true
     },
     {
       path: '/admin',

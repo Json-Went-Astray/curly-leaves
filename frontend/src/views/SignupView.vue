@@ -1,7 +1,8 @@
 <template>
     <div class="d-flex flex-column vh-100">
-        <Preloader v-if="loading"></Preloader>
 
+        <Preloader v-if="loading"></Preloader>
+        
 
         <div class="form-divider-bottom d-none d-md-block"
             style="transform: rotate(180deg); height: 170px; top: -7%; opacity: 0.8;"></div>
@@ -81,7 +82,7 @@
                             <div v-show="step == 1"
                                 class="cl-bg-white p-3 rounded cl-border col-xl-7 col-lg-8 col-lg-9 col-12 mx-auto mt-3 position-absolute card">
                                 <div class="form-floating">
-                                    <input type="email" class="form-control" placeholder="Login" v-model="login"
+                                    <input type="email" class="form-control" placeholder="Login" v-model="loginModel"
                                         :class="{ 'is-invalid': errors.username }">
                                     <label for="floatingInput">Login (Wymagane)</label>
                                 </div>
@@ -336,12 +337,12 @@
                     <div
                         class="cl-bg-white p-3 rounded cl-border col-lg-7 col-md-8 col-12 mx-auto mt-3 position-absolute card">
                         <div class="form-floating mb-3">
-                            <input type="email" class="form-control" placeholder="Login">
-                            <label for="floatingInput">Login</label>
+                            <input type="email" class="form-control" placeholder="Login" v-model="loginEmail">
+                            <label for="floatingInput">E-mail</label>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input :type="inputType" class="form-control" placeholder="Hasło">
+                            <input :type="inputType" class="form-control" placeholder="Hasło" v-model="loginPassword">
                             <label for="floatingPassword">Hasło</label>
 
                             <span v-if="inputType == 'Password'" @click="changePasswordVisibility"
@@ -354,15 +355,17 @@
                             </span>
                         </div>
 
-                        <span class="text-danger">Hasło jest niepoprawne, spróbuj ponownie lub skorzystaj z <a
-                                href="#">pomocy</a></span>
+                        <span class="text-danger" v-if="loginErrors.email || loginErrors.password">Hasło lub e-mail, są
+                            niepoprawne spróbuj ponownie lub skorzystaj z <a
+                                href="http://localhost:5173/help">pomocy</a></span>
+                        <span class="text-danger" v-else>&nbsp;</span>
                         <div class="row justify-content-around mt-2">
                             <div class="col-lg-6 text-center my-2">
                                 <button class="btn btn-outline-success w-75" @click="loginWindow = -1">Resetowanie
                                     hasła</button>
                             </div>
                             <div class="col-lg-6 text-center my-2">
-                                <button class="btn btn-outline-success w-75">Zaloguj się</button>
+                                <button class="btn btn-outline-success w-75" @click="doLogin">Zaloguj się</button>
                             </div>
                         </div>
                     </div>
@@ -401,6 +404,52 @@
                 </div>
             </transition>
 
+            <!-- USER_NOT_ACTIVE -->
+            <transition name="fade">
+                <div v-show="loginWindow == -2">
+                    <div
+                        class="cl-bg-white p-3 rounded cl-border col-xl-7 col-lg-8 col-lg-9 col-12 mx-auto mt-3 position-absolute card">
+
+                        <span class="px-2 text-center my-1">Twoje konto nie zostało aktywowane. <br> Sprawdź swój adres E-mail.</span>
+
+
+                        <div class="row justify-content-around mt-2">
+                            <div class="col-lg-6 text-center my-2">
+                                <button class="btn btn-outline-success w-75" @click="">Wyślij ponownie link aktywacji</button>
+                            </div>
+                            <div class="col-lg-6 text-center my-2">
+                                <button class="btn btn-outline-success w-75" @click="$router.push('/help')">Dział pomocy</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </transition>
+
+            <!--  USER_SUSPENDED -->
+            <transition name="fade">
+                <div v-show="loginWindow == -3">
+                    <div
+                        class="cl-bg-white p-3 rounded cl-border col-xl-7 col-lg-8 col-lg-9 col-12 mx-auto mt-3 position-absolute card">
+
+                        <span class="px-2 text-center my-1">Twoje konto zostało zawieszone. <br> Prosimy o kontakt z działem pomocy.</span>
+
+
+                        <div class="row justify-content-around mt-2">
+                            <div class="col-lg-6 text-center my-2">
+                                <button class="btn btn-outline-success w-75" @click="$router.push('/help')">Dział pomocy</button>
+                            </div>
+                            <div class="col-lg-6 text-center my-2">
+                                <button class="btn btn-outline-success w-75" @click="$router.push('/')">Strona główna</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </transition>
+
         </div>
     </div>
     <div class="form-divider-bottom d-none d-md-block" style="height: 200px; bottom: -5%; opacity: 0.8;"></div>
@@ -413,8 +462,10 @@ import { onMounted, reactive, ref } from 'vue';
 import { useLazyQuery, useQuery, useResult } from "@vue/apollo-composable";
 import Preloader from '@/components/Preloader.vue';
 import { computed } from "@vue/reactivity";
+
 import validator from 'validator';
 import { signup } from "@/me";
+import { loginUser } from "@/me";
 import { vMaska } from "maska"
 
 const inputType = ref("Password");
@@ -425,7 +476,7 @@ const point: string[] = ['100%', "0%", "0%", "0%"];
 const loginWindow = ref(0);
 
 // creds
-const login = ref("");
+const loginModel= ref("");
 const email = ref("");
 const password_1 = ref("");
 const password_2 = ref("");
@@ -442,8 +493,12 @@ const nip = ref("");
 const companyName = ref("");
 //
 
+const loginEmail = ref("");
+const loginPassword = ref("");
+
 const loading = ref(false);
 const errors = reactive({ username: false, email: false, passwordMissmatch: false, passwordWeak: false, tosError: false, name: false, surname: false, city: false, postalCode: false, phoneNumber: false, nip: false });
+const loginErrors = reactive({ email: false, password: false, notActive: false, banned: false })
 
 const passwordStrength = reactive({ width: "2%", background: "red" })
 
@@ -470,7 +525,7 @@ const stepNext = ((toStep: number) => {
 
         case 2:
 
-            if (login.value.length < 3) errors.username = true;
+            if (loginModel.value.length < 3) errors.username = true;
             else errors.username = false;
 
             if (!validator.isEmail(email.value)) errors.email = true;
@@ -625,10 +680,9 @@ const doSignup = async () => {
     }
 
     try {
-
         loading.value = true;
         const success = await signup(
-            login.value,
+            loginModel.value,
             email.value,
             password_1.value,
             password_2.value,
@@ -686,6 +740,48 @@ const doSignup = async () => {
 
     }
 };
+
+const doLogin = async () => {
+    loading.value = true;
+    Object.assign(loginErrors, ...Object.keys(loginErrors).map((key) => ({ [key]: false })));
+
+    if (!validator.isEmail(loginEmail.value)) {
+        loginErrors.email = true;
+    }
+
+    if (Object.values(loginErrors).includes(true)) {
+        loading.value = false;
+        return;
+    }
+
+    try {
+        const success = await loginUser(
+            loginEmail.value,
+            loginPassword.value,
+        );
+    } catch (error: any) {
+        console.log(error.message);
+        if (error.message == "user does not exist") {
+            loginErrors.email = true;
+            loginErrors.password = true;
+        }
+
+        if (error.message == "user is suspended") {
+            loginErrors.banned = true;
+            step.value = -3;
+        }
+
+        if (error.message == "user is not active") {
+            loginErrors.notActive = true;
+            step.value = -2;
+        }
+
+    } finally {
+        loading.value = false;
+    }
+
+
+}
 
 
 

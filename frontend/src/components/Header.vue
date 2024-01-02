@@ -39,25 +39,25 @@
 
                 <div class="control">
                     <Slide class="d-md-none d-block">
-                        <a id="home" href="#">
+                        <a href="#">
                             <span>Produkty</span>
                         </a>
-                        <a id="home" href="#">
+                        <a href="#">
                             <span>Promocje</span>
                         </a>
-                        <a id="home" href="#">
+                        <a href="#">
                             <span>Blog</span>
                         </a>
-                        <a id="home" href="#">
+                        <a href="#">
                             <span>O nas</span>
                         </a>
-                        <a id="home" href="#">
+                        <a href="#">
                             <span>Kontakt</span>
                         </a>
-                        <a id="home" href="#">
+                        <a href="#" @click="$router.push('/signup')">
                             <span>Login / Rejestracja</span>
                         </a>
-                        <a id="home" href="#">
+                        <a href="#">
                             <span>Wyloguj się</span>
                         </a>
                     </Slide>
@@ -118,7 +118,7 @@
                 </a>
 
 
-                <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer">
+                <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer" @click="$router.push('/signup')">
                     Login / Rejestracja
                 </a>
 
