@@ -10,7 +10,6 @@ datasource db {
 model User {
   id              Int      @id @default(autoincrement())
   picId           Int      @default(0)
-  availablePics   Image[]  @relation("userPics")
   activationLink  String  @unique
   resetLink       String?  @unique
   createdAt       DateTime @default(now())
@@ -38,9 +37,7 @@ model Image {
   isProfile   Boolean
   isCarousel  Boolean
   source      String
-  refLink     String
-
-  userPics User @relation("userPics", fields: [id], references: [id])
+  refLink     String?
 }
 
 model Review {

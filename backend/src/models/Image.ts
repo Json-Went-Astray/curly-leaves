@@ -10,11 +10,11 @@ export class Image {
   @Field((type) => String)
   title: string;
 
-  @Field((type) => String)
-  description: string;
+  @Field((type) => String, { nullable: true })
+  description: string | null;
 
-  @Field((type) => String)
-  altString: string;
+  @Field((type) => String, { nullable: true })
+  altString: string | null;
 
   @Field((type) => Date)
   createdAt: Date;
@@ -22,7 +22,13 @@ export class Image {
   @Field((type) => String)
   source: string;
 
-  @Field((type) => String)
-  refLink: string;
+  @Field((type) => String, { nullable: true })
+  refLink: string | null;
+
+  @Field((type) => Boolean)
+  isProfile: boolean;
+
+  @Field((type) => Boolean)
+  isCarousel: boolean;
 
 }

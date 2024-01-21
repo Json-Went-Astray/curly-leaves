@@ -22,6 +22,9 @@ export class User {
   @Field((type) => Boolean)
   isActive: boolean;
 
+  @Field((type) => Int)
+  permissionLevel: number;
+
   @Field((type) => String)
   @MaxLength(20)
   login: string;

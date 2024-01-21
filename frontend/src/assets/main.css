@@ -119,6 +119,11 @@ a:hover {
   'opsz' 48
 }
 
+.img-library-thumbnail {
+  width: 64px;
+  height: 64px;
+}
+
 .img-sm {
   width: 50px;
   height: auto;
@@ -132,6 +137,11 @@ a:hover {
 .img-lg {
   width: 150px;
   height: auto;
+}
+
+.img-library {
+  width: auto;
+  height: 256px;
 }
 
 .border-box {

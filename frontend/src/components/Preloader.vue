@@ -12,7 +12,7 @@
 <style scoped>
     .backdrop {
         height: 100vh;
-        width: 100vw;
+        width: 200vw;
         position: fixed;
         z-index: 999;
         background-color: gray;

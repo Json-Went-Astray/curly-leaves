@@ -1,6 +1,14 @@
 <template>
+  <MediaLibrary style="" />
+
   <div class="container-fluid p-0" style="height: 100vh; overflow-x: hidden;">
     <Header></Header>
+
+
+
+
+
+
 
     <div class="carousel w-100 mb-4">
       <swiper :spaceBetween="30" :centeredSlides="true" :slidesPerView="1" :autoplay="{
@@ -195,6 +203,7 @@
 <script setup lang="ts">
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
+import MediaLibrary from '@/components/MediaLibrary.vue';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { Swiper, SwiperSlide } from "swiper/vue";
