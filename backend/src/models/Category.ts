@@ -10,6 +10,6 @@ export class Category {
   @Field()
   title: string;
 
-  @Field((type) => [Product])
-  products: Product[];
+  @Field((type) => [Product], { nullable: true })
+  products: Product[] | null;
 }

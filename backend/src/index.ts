@@ -17,11 +17,12 @@ import { Context } from "./context.js";
 import { User } from "./models/User.js";
 import { MediaResolver } from "./resolvers/Media.js";
 import serveStatic from "serve-static";
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import { ProductResolver } from "./resolvers/Product.js";
 
 dotenv.config();
-process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = "development";
 const paths = [`${process.env.UPLOAD_DIR!}/user-avatars`];
 for (const p of paths) {
   await mkdir(p, { recursive: true }).catch((e) => {
@@ -34,35 +35,31 @@ for (const p of paths) {
 }
 
 const schema = await tq.buildSchema({
-  resolvers: [
-    UserResolver,
-    MediaResolver
-  ],
+  resolvers: [UserResolver, MediaResolver, ProductResolver],
   scalarsMap: [{ type: GraphQLScalarType, scalar: DateTimeResolver }],
   validate: { forbidUnknownValues: false },
 });
 const yoga = createYoga({
   schema,
   context: createContext,
-  
 });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-app.use(cors(), bodyParser.json({ limit: '10mb' }));
-app.use(express.json({ limit: '10mb' }));
+app.use(cors(), bodyParser.json({ limit: "10mb" }));
+app.use(express.json({ limit: "10mb" }));
 app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
 
 app.use("/graphql", (req, res) => {
   yoga(req, res);
 });
-app.use('/uploads', express.static(join(__dirname, '../uploads')));
+app.use("/uploads", express.static(join(__dirname, "../uploads")));
 
 const httpServer = http.createServer(app);
 
 httpServer.listen({ port: 4000 }, () => {
   console.log(`Server ready at http://localhost:4000`);
-  console.log(join(__dirname, '../uploads'))
+  console.log(join(__dirname, "../uploads"));
 });

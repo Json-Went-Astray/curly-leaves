@@ -3,7 +3,6 @@ import { ObjectType, Field, ID, Int } from "type-graphql";
 import { Product } from "./Product.js";
 import { OrderStatus } from "./OrderStatus.js";
 import { AdressSet } from "./AdressSet.js";
-import { Invoice } from "./Invoice.js";
 
 @ObjectType()
 export class Order {
@@ -23,7 +22,8 @@ export class Order {
   standaloneAdressId?: number;
 
   @Field((type) => Invoice, { nullable: true })
-  invoice?: Invoice;
+  //@ts-ignore
+  invoice?;
 
   @Field((type) => AdressSet, { nullable: true })
   standaloneAdress?: AdressSet;
@@ -33,4 +33,19 @@ export class Order {
 
   @Field((type) => OrderStatus)
   orderStatus: OrderStatus;
+}
+
+@ObjectType()
+export class Invoice {
+  @Field((type) => ID)
+  id: number;
+
+  @Field((type) => Int)
+  orderId: number;
+
+  @Field()
+  inVoiceId: string;
+
+  @Field()
+  order: Order;
 }

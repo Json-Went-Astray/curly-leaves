@@ -104,12 +104,13 @@ model Product {
 
   productType  ProductType   @relation("products", fields: [productTypeId], references: [id])
   shippingCost ShippingCost? @relation(fields: [shippingCostId], references: [id])
-  category     Category      @relation(fields: [categoryId], references: [id])
+  category     Category?      @relation(fields: [categoryId], references: [id])
 
   orders         Order[]     @relation("productList")
   carts          Cart[]      @relation("cartElements")
   shippingCostId Int?
-  categoryId     Int
+  categoryId     Int?
+
   PlantInfo      PlantInfo[]
 }
 

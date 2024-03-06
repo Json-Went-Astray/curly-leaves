@@ -103,11 +103,11 @@
         <div class="col h-100" style="max-height: 100vh; overflow-y: overlay; overflow-x: hidden;">
             <!-- <Orders></Orders> -->
             <Transition>
-                <NewProduct v-show="menuItem == 'newProduct'"></NewProduct>
+                <NewProduct v-show="menuItem == 'newProduct'" :showed></NewProduct>
             </Transition>
             <!-- <CompanyUsers></CompanyUsers>   -->
             <Transition>
-                <Categories v-show="menuItem == 'categories'"></Categories>
+                <Categories v-show="menuItem == 'categories'" :showed></Categories>
             </Transition>
         </div>
     </div>
@@ -122,6 +122,7 @@ import { ref } from 'vue';
 import Categories from '@/components/AdminPanel/Categories.vue';
 
 const menuItem = ref("");
+const showed = ref(menuItem);
 
 </script>
 
