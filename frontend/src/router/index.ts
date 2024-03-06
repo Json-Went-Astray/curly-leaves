@@ -69,8 +69,9 @@ const router = createRouter({
     },
     {
       //TO DO SNOWFLAKE
-      path: '/product/',
+      path: '/product/:productSnowflake',
       name: 'product',
+      props: true,
       component: ProductViewVue
     },
     {

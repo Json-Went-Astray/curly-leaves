@@ -10,7 +10,7 @@ datasource db {
 model User {
   id              Int      @id @default(autoincrement())
   picId           Int      @default(0)
-  activationLink  String  @unique
+  activationLink  String   @unique
   resetLink       String?  @unique
   createdAt       DateTime @default(now())
   suspended       Boolean  @default(false)
@@ -82,31 +82,35 @@ model AdressSet {
   companyName String?
   isTemporary Boolean @default(false)
 
-  owner    User    @relation("owner", fields: [ownerId], references: [id])
-  orders   Order[] @relation("ordersSets")
+  owner  User    @relation("owner", fields: [ownerId], references: [id])
+  orders Order[] @relation("ordersSets")
 }
 
 model Product {
-  id             Int     @id @default(autoincrement())
-  productTypeId  Int
-  isAvailable    Boolean @default(true)
-  label          String?
-  fullPrice      Float?
-  price          Float?
-  title          String
-  description    String?
-  trivia         String
-  rating         Float
-  metaTitle      String
-  metaDecription String
-  snowFlake      String
+  id            Int     @id @default(autoincrement())
+  productTypeId Int
+  isPrize       Boolean @default(false)
+  pointsGiven   Int     @default(0)
+  pointsCost    Int?
+  isAvailable   Boolean @default(true)
+  label         String?
+  fullPrice     Float?
+  price         Float?
+  title         String
+  description   String?
+  trivia        String?
+  rating        Float?
+  snowFlake     String
 
-  productType  ProductType  @relation("products", fields: [productTypeId], references: [id])
-  shippingCost ShippingCost @relation(fields: [shippingCostId], references: [id])
+  productType  ProductType   @relation("products", fields: [productTypeId], references: [id])
+  shippingCost ShippingCost? @relation(fields: [shippingCostId], references: [id])
+  category     Category      @relation(fields: [categoryId], references: [id])
 
-  orders         Order[] @relation("productList")
-  carts          Cart[]  @relation("cartElements")
-  shippingCostId Int
+  orders         Order[]     @relation("productList")
+  carts          Cart[]      @relation("cartElements")
+  shippingCostId Int?
+  categoryId     Int
+  PlantInfo      PlantInfo[]
 }
 
 model ShippingCost {
@@ -193,4 +197,22 @@ model Cart {
   userId Int
 
   products Product[] @relation("cartElements")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  title    String
+  products Product[]
+}
+
+model PlantInfo {
+  id         Int @id @default(autoincrement())
+  sunlight   Int @default(0)
+  ground     Int @default(0)
+  fertilizer Int @default(0)
+  water      Int @default(0)
+  isToxic    Int @default(0)
+
+  product   Product? @relation(fields: [productId], references: [id])
+  productId Int?
 }
