@@ -4,14 +4,15 @@ import { MaxLength, IsEmail } from "class-validator";
 import { Image } from "./Image.js";
 import { Issue } from "./Issue.js";
 import { AdressSet } from "./AdressSet.js"; 
+import { Cart } from "./Cart.js";
 
 @ObjectType()
 export class User {
   @Field((type) => ID)
   id: number;
 
-  @Field((type) => Int)
-  picId: number;
+  @Field((type) => String)
+  picId: string;
 
   @Field((type) => String) 
   activationLink: string | null;
@@ -44,6 +45,9 @@ export class User {
 
   @Field((type) => Date)
   createdAt: Date;
+
+  @Field((type) => [Cart], { nullable: true })
+  cart?: Cart[] | null;
 
   @Field((type) => [Image], { nullable: true })
   profilePics?: Image[] | null;

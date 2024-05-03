@@ -25,7 +25,8 @@ import { GraphQLError } from "graphql/error/index.js";
 import fs from "fs";
 import ejs from "ejs";
 import * as bcrypt from "bcrypt";
-import { IsLoggedIn } from "../auth.js";
+import { IsElevated, IsLoggedIn } from "../auth.js";
+import { use } from "bcrypt/promises.js";
 
 @InputType()
 export class UserExtraInput {
@@ -90,6 +91,12 @@ export class LoginResult {
 @Resolver(User)
 export class UserResolver {
   public activationEmails: { [email: string]: number } = {};
+
+  @Query((returns) => Boolean)
+  @UseMiddleware(IsElevated)
+  async isElevatedQuery() {
+    return true;
+  }
 
   @Query((returns) => User, { nullable: false })
   @UseMiddleware(IsLoggedIn)
@@ -304,10 +311,7 @@ export class UserResolver {
 
       throw combinedError;
     }
-
-    const salt = bcrypt.genSaltSync(10);
-    userData.password_1 += salt;
-    const hashedPassword = await bcrypt.hashSync(userData.password_1, salt);
+    const hashedPassword = await bcrypt.hash(userData.password_1, 20);
     
     const activationLink = crypto.randomBytes(32).toString("hex");
     const transporter = nodemailer.createTransport({
@@ -372,33 +376,31 @@ export class UserResolver {
     @Arg("userPassword") password: string,
     @Ctx() ctx: Context
   ) {
-
-    const exists = await ctx.prisma.user.findFirst({
+    const user = await ctx.prisma.user.findUnique({
       where: {
         email: login,
       },
     });
-
-    if (!exists) {
-      throw new GraphQLError("user does not exist");
+  
+    if (!user) {
+      throw new GraphQLError("Nieprawidłowy email lub hasło");
     }
-
-
-    // to-do 
-    // if (exists && (await compare(hashedPassword, exists.password))) {
-    //   if (exists.suspended) {
-    //     throw new GraphQLError("user is suspended");
-    //   }
-
-    //   if (!exists.isActive) {
-    //     throw new GraphQLError("user is not active");
-    //   } else {
-    //     const token = jwt.sign({ sub: exists.id }, process.env.APP_SECRET!);
-    //     return { token, user: exists };
-    //   }
-
-    // } else {
-    //   throw new GraphQLError("user does not exist1 \n " + hashedPassword + "\n" + exists.password);
-    // }
+  
+    const passwordMatch = await bcrypt.compare(password, user.password);
+  
+    if (!passwordMatch) {
+      throw new GraphQLError("Nieprawidłowy email lub hasło2 " + password + " " + user.password);
+    }
+  
+    if (user.suspended) {
+      throw new GraphQLError("Użytkownik zawieszony");
+    }
+  
+    if (!user.isActive) {
+      throw new GraphQLError("Użytkownik nieaktywny");
+    }
+  
+    const token = jwt.sign({ sub: user.id }, process.env.APP_SECRET!);
+    return { token, user };
   }
 }

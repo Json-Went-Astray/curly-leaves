@@ -83,7 +83,6 @@ export class MediaResolver {
       }
     } while (imageObj);
 
-    // Zapisz informacje o pliku w bazie danych przy użyciu Prisma
     const uploadedImage = await ctx.prisma.image.create({
       data: {
         title,

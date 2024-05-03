@@ -1,5 +1,5 @@
 <template>
-  <MediaLibrary mode="singleSelect" />
+  <!-- <MediaLibrary mode="singleSelect" /> -->
 
   <div class="container-fluid p-0" style="height: 100vh; overflow-x: hidden;">
     <Header></Header>
@@ -15,9 +15,10 @@
         delay: 5000,
         disableOnInteraction: false,
       }" :pagination="{
-  clickable: true,
-}" :navigation="true" class="h-100">
-        <swiper-slide>Slide 1</swiper-slide>
+        clickable: true,
+      }" :navigation="true" class="h-100">
+        <swiper-slide><img src="@/assets/static/images/dousuniecia.jpg"
+            style="width: 1900px; height: auto; object-fit: fill;"></swiper-slide>
         <swiper-slide>Slide 2</swiper-slide>
         <swiper-slide>Slide 3</swiper-slide>
         <swiper-slide>Slide 4</swiper-slide>
@@ -31,15 +32,16 @@
 
       <img v-for="i in 45" src="@/assets/static/images/leaf.png"
         class="position-absolute blowing-leaf img-sm d-none d-sm-block" :style="{
-          transform: `translateY(${(Math.random() * 50)}%) rotate(${Math.random() * 360}deg) scale(${Math.random() * (0.3 - 0.1) + 0.3})`,
-          left: `${(Math.random() * -75)}%`,
-          top: `${(Math.random() * 90 - 90)}%`,
-          animationDuration: `${Math.random() * (20 - 11.5) + 11.5}s`
+        transform: `translateY(${(Math.random() * 50)}%) rotate(${Math.random() * 360}deg) scale(${Math.random() * (0.3 - 0.1) + 0.3})`,
+        left: `${(Math.random() * -75)}%`,
+        top: `${(Math.random() * 90 - 90)}%`,
+        animationDuration: `${Math.random() * (20 - 11.5) + 11.5}s`
 
-        }" />
+      }" />
 
       <div class=" cl-bg-white p-4 rounded motd col-12 col-sm-11 col-md-8 col-lg-6 mx-auto">
-        <p class="h5 m-0 text-center" style="font-family: 'Dancing Script', cursive;">Tutaj pojawiają się wiadomości dnia
+        <p class="h5 m-0 text-center" style="font-family: 'Dancing Script', cursive;">Tutaj pojawiają się wiadomości
+          dnia
         </p>
       </div>
     </div>
@@ -57,57 +59,41 @@
         <br />
         <br />
 
+
+
+
+
         <swiper :slidesPerView="slidesPerView" :centeredSlides="false" :spaceBetween="30" :navigation="true"
           :key="discountSlideIdx" class="col-11">
+          <swiper-slide v-for="product in discountedProducts" class="cl-shadow" @click="goToProduct(product.snowFlake)"
+            style="height: auto;">
+            <div class="rounded unselectable product-card cursor-pointer p-0 w-100" style="background-color: white;">
+              <div class="p-0 w-100">
+                <img :src="product.pic ? `http://localhost:4000${product.pic}` : 'http://placehold.co/100x200'"
+                  alt="alt" class="w-100 rounded-top" style="height: 200px; width: 100%">
 
-          <swiper-slide>
-            <div class="rounded unselectable text-truncate product-card cursor-pointer cl-shadow">
-              <div>
-                <img src='@/assets/static/Products/plant-test.jpg' alt="alt" class="w-100 rounded-top">
-
-                <span class="product-overlay">CHWILOWO NIEDOSTĘPNE</span>
+                <span class="badge rounded-pill bg-primary product-label" v-if="product.isAvailable && product.count > 0">{{ product.label
+                  }}</span>
+                <span class="product-overlay" style="width: 100%" v-else>CHWILOWO NIEDOSTĘPNE</span>
               </div>
               <div class="p-3">
-                <div class="d-flex p-0 w-100 justify-content-around mb-2">
-                  <span class="price">1999 zł</span>
-                  <span class="discount">2999 zł</span>
+                <div class="d-flex p-0 w-100 justify-content-around mb-2" v-if="product.price !== null">
+                  <span class="price">{{ product.price }} zł</span>
+                  <span class="discount">{{ product.fullPrice }} zł</span>
+                </div>
+                <div class="d-flex p-0 w-100 justify-content-around mb-2" v-else>
+                  <span class="price">{{ product.fullPrice }} zł</span>
                 </div>
                 <div class="text-truncate text-center my-3">
-                  <span class="h5">Planticae </span>
+                  <span class="h5">{{ product.title }}</span>
                 </div>
                 <div class="d-flex align-items-center justify-content-around">
-                  <vue3starRatings v-bind="test" :rating="3.8" :read-only="true" :increment="0.01" />
-                  <span>(100)</span>
+                  <vue3starRatings v-bind="test" :rating="product.rating" :read-only="true" :increment="0.01" />
+                  <span>({{ product.reviewsCount }})</span>
                 </div>
-                <star-rating :rating="3.8" :read-only="true" :increment="0.01"></star-rating>
               </div>
             </div>
           </swiper-slide>
-
-
-          <swiper-slide v-for="i in 12" :key="i">
-            <div class="rounded unselectable product-card cursor-pointer cl-shadow" style="background-color: white;">
-              <div>
-                <img src='@/assets/static/Products/rose-test.jpg' alt="alt" class="w-100 rounded-top">
-                <span class="badge rounded-pill bg-primary product-label">label test</span>
-              </div>
-              <div class="p-3">
-                <div class="d-flex p-0 w-100 justify-content-around mb-2">
-                  <span class="price">1999 zł</span>
-                  <span class="discount">2999 zł</span>
-                </div>
-                <div class="text-truncate text-center my-3">
-                  <span class="h5">Róża Ziemowitka</span>
-                </div>
-                <div class="d-flex align-items-center justify-content-around">
-                  <vue3starRatings v-bind="test" :rating="3.8" :read-only="true" :increment="0.01" />
-                  <span>(100)</span>
-                </div>
-                <star-rating :rating="3.8" :read-only="true" :increment="0.01"></star-rating>
-              </div>
-            </div>
-          </swiper-slide>
-
         </swiper>
       </div>
     </div>
@@ -126,51 +112,32 @@
 
         <swiper :slidesPerView="slidesPerView" :centeredSlides="false" :spaceBetween="30" :navigation="true"
           :key="discountSlideIdx" class="col-11">
+          <swiper-slide v-for="product in trendingProducts" class="cl-shadow" @click="goToProduct(product.snowFlake)"
+            style="height: auto;">
+            <div class="rounded unselectable product-card cursor-pointer p-0 w-100" style="background-color: white;">
+              <div class="p-0 w-100">
+                <img :src="product.pic ? `http://localhost:4000${product.pic}` : 'http://placehold.co/100x200'"
+                  alt="alt" class="w-100 rounded-top" style="height: 200px; width: 100%">
 
-          <swiper-slide>
-            <div class="rounded unselectable text-truncate product-card cursor-pointer cl-shadow">
-              <div>
-                <img src='@/assets/static/Products/plant-test.jpg' alt="alt" class="w-100 rounded-top">
-
-                <span class="product-overlay">CHWILOWO NIEDOSTĘPNE</span>
+                <span class="badge rounded-pill bg-primary product-label" v-if="product.isAvailable && product.count > 0">{{ product.label
+                  }}</span>
+                <span class="product-overlay" style="width: 100%" v-else>CHWILOWO NIEDOSTĘPNE</span>
               </div>
               <div class="p-3">
-                <div class="d-flex p-0 w-100 justify-content-around mb-2">
-                  <span class="price">1999 zł</span>
-                  <span class="discount">2999 zł</span>
+                <div class="d-flex p-0 w-100 justify-content-around mb-2" v-if="product.price !== null">
+                  <span class="price">{{ product.price }} zł</span>
+                  <span class="discount">{{ product.fullPrice }} zł</span>
+                </div>
+                <div class="d-flex p-0 w-100 justify-content-around mb-2" v-else>
+                  <span class="price">{{ product.fullPrice }} zł</span>
                 </div>
                 <div class="text-truncate text-center my-3">
-                  <span class="h5">Planticae </span>
+                  <span class="h5">{{ product.title }}</span>
                 </div>
                 <div class="d-flex align-items-center justify-content-around">
-                  <vue3starRatings v-bind="test" :rating="3.8" :read-only="true" :increment="0.01" />
-                  <span>(100)</span>
+                  <vue3starRatings v-bind="test" :rating="product.rating" :read-only="true" :increment="0.01" />
+                  <span>({{ product.reviewsCount }})</span>
                 </div>
-                <star-rating :rating="3.8" :read-only="true" :increment="0.01"></star-rating>
-              </div>
-            </div>
-          </swiper-slide>
-
-
-          <swiper-slide v-for="i in 12" :key="i">
-            <div class="rounded unselectable product-card cursor-pointer cl-shadow" style="background-color: white;">
-              <div>
-                <img src='@/assets/static/Products/rose-test.jpg' alt="alt" class="w-100 rounded-top">
-                <span class="badge rounded-pill bg-primary product-label">label test</span>
-              </div>
-              <div class="p-3">
-                <div class="d-flex p-0 w-100 justify-content-around mb-2">
-                  <span class="price">1999 zł</span>
-                  <span class="discount">2999 zł</span>
-                </div>
-                <div class="text-truncate text-center my-3">
-                  <span class="h5">Róża Ziemowitka</span>
-                </div>
-                <div class="d-flex align-items-center justify-content-around">
-                  <vue3starRatings v-bind="test" :rating="3.8" :read-only="true" :increment="0.01" />
-                  <span>(100)</span>
-                </div>
-                <star-rating :rating="3.8" :read-only="true" :increment="0.01"></star-rating>
               </div>
             </div>
           </swiper-slide>
@@ -204,12 +171,14 @@
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import MediaLibrary from '@/components/MediaLibrary.vue';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch, watchEffect } from 'vue';
 
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/swiper.scss";
 import "swiper/components/pagination/pagination.min.css";
 import "swiper/components/navigation/navigation.min.css";
+import gql from 'graphql-tag';
+import router from '@/router';
 //@ts-ignore
 import SwiperCore, { Autoplay, Pagination, Navigation } from "swiper/core";
 SwiperCore.use([Autoplay, Pagination, Navigation]);
@@ -239,11 +208,15 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', updateScreenWidth);
 });
 
+const goToProduct = ((snowflake: string) => {
+  router.push({ path: `/product/${snowflake}` });
+})
 
 
 // import vue3starRatings from "vue3-star-ratings";
 //@ts-ignore
 import vue3starRatings from 'vue-star-rating';
+import { useQuery } from '@vue/apollo-composable';
 
 const test = ref({
   activeColor: "#6d9b76",
@@ -254,6 +227,91 @@ const test = ref({
 });
 
 const images = ref([]);
+
+const GET_TRENDING = gql`
+query getTopProduct {
+  getTopProduct {
+    label,
+    isAvailable,
+    title,
+    pics,
+    rating,
+    fullPrice,
+    price,
+    count,
+    snowFlake,
+    reviews {
+      id
+    }
+  }
+}
+`;
+const { result: doGetTrending, loading, refetch: fetchTrending } = useQuery(GET_TRENDING);
+const trendingProducts = ref<any[]>([]);
+
+const GET_DISCOUNTED = gql`
+query getDiscountedProducts {
+  getDiscountedProducts {
+    label,
+    isAvailable,
+    title,
+    pics,
+    rating,
+    fullPrice,
+    price,
+    snowFlake,
+    reviews {
+      id
+    }
+  }
+}
+`;
+const { result: doGetDiscounted, loading: loading2, refetch: fetchDiscounted } = useQuery(GET_DISCOUNTED);
+const discountedProducts = ref<any[]>([]);
+
+watchEffect(() => {
+  if (!loading.value && doGetTrending.value) {
+    //@ts-ignore
+    trendingProducts.value = doGetTrending.value.getTopProduct.map(product => {
+      const reviewsCount = product.reviews ? product.reviews.length : 0;
+      const picsCSV = product.pics && product.pics.length > 0 ? `${product.pics.split(';')[0]}` : '';
+      return {
+        label: product.label,
+        isAvailable: product.isAvailable,
+        title: product.title,
+        rating: product.rating,
+        fullPrice: product.fullPrice,
+        price: product.price,
+        snowFlake: product.snowFlake,
+        pic: picsCSV,
+        reviewsCount: reviewsCount
+      };
+    });
+  }
+
+
+  if (!loading2.value && doGetDiscounted.value) {
+    //@ts-ignore
+    discountedProducts.value = doGetDiscounted.value.getDiscountedProducts.map(product => {
+      const reviewsCount = product.reviews ? product.reviews.length : 0;
+      const picsCSV = product.pics && product.pics.length > 0 ? `${product.pics.split(';')[0]}` : '';
+      console.log(picsCSV)
+      return {
+        label: product.label,
+        isAvailable: product.isAvailable,
+        title: product.title,
+        rating: product.rating,
+        fullPrice: product.fullPrice,
+        price: product.price,
+        snowFlake: product.snowFlake,
+        pic: picsCSV,
+        reviewsCount: reviewsCount
+      };
+    });
+  }
+});
+
+
 
 </script>
 
@@ -384,5 +442,4 @@ html {
     background-position: 100% center;
   }
 }
-
 </style>

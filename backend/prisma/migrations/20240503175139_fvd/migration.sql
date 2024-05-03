@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "picId" SET DEFAULT 'profile1.png',
+ALTER COLUMN "picId" SET DATA TYPE TEXT;

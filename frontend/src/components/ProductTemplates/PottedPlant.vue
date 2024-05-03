@@ -1,24 +1,29 @@
 <template>
     <div class="container-fluid my-4 px-0">
         <div class="row mx-0 my-3 gx-5 justify-content-between px-lg-5">
-            <span class="h2">Nazwa Produktu</span>
+            <span class="h2">{{ product.title }}
+            </span>
             <div class="col-xl-6 d-flex flex-column px-0 px-lg-5">
-                <v-carousel height="'auto'" show-arrows="hover" class="rounded-2">
-                    <v-carousel-item v-for="i in 10" :key="i">
-                        <v-img cover :src="'https://picsum.photos/id/' + i + '/1280/720'"></v-img>
+                <v-carousel height="'100'" show-arrows="hover" class="rounded-2">
+                    <v-carousel-item v-for="image in product.pics" v-if="product.pics">
+                        <!-- <v-img cover :src="'https://picsum.photos/id/' + i + '/1280/720'"></v-img> -->
+                        <v-img style="height: 400px;"
+                            :src="image ? `http://localhost:4000${image}` : 'http://placehold.co/100x200'"></v-img>
+
+                    </v-carousel-item>
+                    <v-carousel-item v-else>
+                        <!-- <v-img cover :src="'https://picsum.photos/id/' + i + '/1280/720'"></v-img> -->
+                        <v-img cover :src="'http://placehold.co/1280x960'"></v-img>
+
                     </v-carousel-item>
                 </v-carousel>
             </div>
             <div class="col-xl-6 px-0 px-lg-5">
                 <div class="row my-5 my-lg-0">
-                    <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas suscipit pretium mauris, vel
-                        sollicitudin sapien consectetur quis. Etiam eget eleifend enim. Nam lacinia euismod felis
-                        consectetur egestas. Praesent in leo ac erat accumsan bibendum quis eu eros. Donec iaculis, lectus
-                        varius porttitor convallis, mi eros blandit enim, at posuere turpis nibh ornare lorem. Phasellus ac
-                        ultricies ligula. Donec commodo elit a eleifend blandit. Praesent non molestie lorem. Duis ac
-                        laoreet est. Vestibulum tempus vulputate urna, eu blandit nunc tempor eu. Maecenas neque ligula,
-                        accumsan gravida velit nec, ultrices sagittis quam. Phasellus quis risus augue. Fusce ultricies nisi
-                        quis porta malesuada. Integer vitae finibus diam.</span>
+                    <span v-if="product.shortDescription">{{ product.shortDescription }}
+                    </span>
+                    <span v-else>Krótki opis pojawi się w krótce.
+                    </span>
                 </div>
                 <div class="row thick-border border my-3">
                     <div class="w-100 d-flex p-2 unselectable">
@@ -27,7 +32,9 @@
                         </div>
 
                         <div class="col-4 d-lg-flex align-items-center d-none">
-                            <img src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
                         </div>
 
                         <div class="col-lg-4 col-6 d-flex align-items-center">
@@ -41,12 +48,13 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/sun.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/sun.svg" alt="" width="30px" height="auto">
                         </div>
 
 
                         <div class="col-6 col-lg-4 d-flex align-items-center">
-                            <span>Raz w tygodniu</span>
+                            <span>od 3 do 5 godzin</span>
                         </div>
                     </div>
 
@@ -56,11 +64,12 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/soil.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/soil.svg" alt="" width="30px" height="auto">
 
                         </div>
                         <div class="col-6 col-lg-4 d-flex align-items-center">
-                            <span>Raz w tygodniu</span>
+                            <span>od 6 do 6,5 pH</span>
                         </div>
                     </div>
 
@@ -70,11 +79,11 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/shovel.svg" alt="" width="30px" height="auto">
                         </div>
 
                         <div class="col-6 col-lg-4 d-flex align-items-center">
-                            <span>Raz w tygodniu</span>
+                            <span>Raz na 3 miesiące</span>
                         </div>
                     </div>
                 </div>
@@ -83,27 +92,39 @@
                         local_shipping
                     </span>
                     <span class="fs-4 fw-bold">Czas dostawy: 2-3 dni</span>
+                    <span class="material-symbols-outlined mx-3" style="font-size: 2.5vw;">
+                        package_2
+                    </span>
+                    <span class="fs-4 fw-bold">W magazynie: {{ product.count }}</span>
                 </div>
             </div>
         </div>
         <div class="row mx-0 my-3 gx-5 justify-content-between px-lg-5">
             <div class="col-xl-6 d-flex align-items-center my-5 my-xl-0 p-0 p-lg-3">
-                <div class="bg-white border rounded-2 w-100 h-100 d-flex align-items-center p-3">
+                <div class="bg-white border rounded-2 w-100 h-100 d-flex align-items-center p-3"
+                    v-if="product.typeId == 1">
                     <span class="material-symbols-outlined fs-1">
                         emoji_objects
                     </span>
-                    <span class="fs-5 italic" style="font-family: 'Dancing Script', cursive;">Ciekawa ciekawostka o tym
-                        produkcie</span>
+                    <span class="fs-5 italic" v-if="product.trivia" style="font-family: 'Dancing Script', cursive;">Czy
+                        wiedziałeś, że: {{ product.trivia
+                        }}</span>
+                    <span class="fs-5 italic" v-else style="font-family: 'Dancing Script', cursive;">Czy
+                        wiedziałeś, że: do tego produktu nie dodano ciekawostki?</span>
                 </div>
             </div>
             <div class="col-xl-6 d-flex align-items-center justify-content-center flex-column flex-lg-row col-12">
-                <div class="col-lg-3 d-flex justify-content-start my-3 my-lg-0">
-                    <vue3starRatings v-bind="test" :rating="3.8" :read-only="true" :increment="0.01" />
+                <div class="col-lg-3 d-flex justify-content-start align-items-center my-3 my-lg-0">
+                    <vue3starRatings v-bind="test" :rating="product.rating" :read-only="true" :increment="0.01":starSize="24"  />
+                    <span>({{ product.reviewsCount }})</span>
                 </div>
                 <div class="col-12 col-lg-4 d-flex justify-content-center my-3 my-lg-0">
-                    <div class="price-label p-3 w-100">
-                        <span class="price">Cena netto: 55,99 zł</span>
-                        <span class="discount position-absolute">89,99 zł</span>
+                    <div class="price-label p-3 w-100" v-if="product.price">
+                        <span class="price">Cena netto: {{ product.price }} zł</span>
+                        <span class="discount position-absolute">{{ product.fullPrice }} zł</span>
+                    </div>
+                    <div class="price-label p-3 w-100" v-else>
+                        <span class="price">Cena netto: {{ product.fullPrice }} zł</span>
                     </div>
                 </div>
                 <div class="col-lg-5 d-flex justify-content-end my-3 my-lg-0">
@@ -115,14 +136,14 @@
                             </span>&nbsp;Do koszyka</button>
                         <div class="cl-bg-white fw-bold px-5 border align-self-stretch d-flex align-items-center fs-5 text-center justify-content-center"
                             style="min-width: 70px; max-width: 70px;">{{
-                                quantity }}</div>
+                quantity }}</div>
                         <div class="d-flex flex-column">
                             <button class="btn btn-success px-3" style="border-radius: 0 10px 0 0;"
                                 @click="handleQuantity('+')">
                                 +
                             </button>
-                            <button class="btn btn-danger" style="border-radius: 0 0 10px 0;" @click="handleQuantity('-')"
-                                :disabled="!canBuy">
+                            <button class="btn btn-danger" style="border-radius: 0 0 10px 0;"
+                                @click="handleQuantity('-')" :disabled="!canBuy">
                                 -
                             </button>
                         </div>
@@ -134,17 +155,11 @@
         <div class="row m-0 my-3 gx-5 px-lg-5">
             <div class="p-0 px-lg-5">
                 <p class="h4 fw-bold">Opis</p>
-                <div class="cl-b-white p-4 border rounded-2 bg-white">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas suscipit pretium mauris, vel
-                    sollicitudin
-                    sapien consectetur quis. Etiam eget eleifend enim. Nam lacinia euismod felis consectetur egestas.
-                    Praesent
-                    in leo ac erat accumsan bibendum quis eu eros. Donec iaculis, lectus varius porttitor convallis, mi eros
-                    blandit enim, at posuere turpis nibh ornare lorem. Phasellus ac ultricies ligula. Donec commodo elit a
-                    eleifend blandit. Praesent non molestie lorem. Duis ac laoreet est. Vestibulum tempus vulputate urna, eu
-                    blandit nunc tempor eu. Maecenas neque ligula, accumsan gravida velit nec, ultrices sagittis quam.
-                    Phasellus
-                    quis risus augue. Fusce ultricies nisi quis porta malesuada. Integer vitae finibus diam.
+                <div class="cl-b-white p-4 border rounded-2 bg-white" v-if="product.description">
+                    {{ product.description }}
+                </div>
+                <div class="cl-b-white p-4 border rounded-2 bg-white" v-else>
+                    Opis pojawi się w krótce
                 </div>
             </div>
         </div>
@@ -155,29 +170,39 @@
         <div class="cl-break"></div>
         <div class="cl-break"></div>
 
-        <div class="h4 w-100 text-center my-5">
+        <div class="h4 w-100 text-center my-5" v-if="products && products.length">
             Polecamy również
         </div>
-        <swiper :slidesPerView="slidesPerView" :centeredSlides="false" :spaceBetween="30" :navigation="true" class="col-11">
-            <swiper-slide v-for="i in 10" :key="i">
-                <div class="rounded unselectable product-card cursor-pointer cl-shadow" style="background-color: white;">
-                    <div>
-                        <img src='@/assets/static/Products/rose-test.jpg' alt="alt" class="w-100 rounded-top">
-                        <span class="badge rounded-pill bg-primary product-label">label test</span>
+        <swiper :slidesPerView="slidesPerView" :centeredSlides="false" :spaceBetween="30" :navigation="true"
+            class="col-11">
+            <swiper-slide v-if="productsData" v-for="product in productsData" :key="refreshKey" class="cl-shadow"
+                @click="goToProduct(product.snowFlake)" style="height: auto;">
+                <div class="rounded unselectable product-card cursor-pointer p-0 w-100"
+                    style="background-color: white;">
+                    <div class="p-0 w-100">
+                        <img :src="product.pic ? `http://localhost:4000${product.pic}` : 'http://placehold.co/100x200'"
+                            alt="alt" class="w-100 rounded-top" style="height: 200px; width: 100%">
+
+                        <span class="badge rounded-pill bg-primary product-label"
+                            v-if="product.isAvailable && product.count > 0">{{ product.label }}</span>
+                        <span class="product-overlay" style="width: 100%" v-else>CHWILOWO NIEDOSTĘPNE</span>
                     </div>
                     <div class="p-3">
-                        <div class="d-flex p-0 w-100 justify-content-around mb-2">
-                            <span class="price">1999 zł</span>
-                            <span class="discount">2999 zł</span>
+                        <div class="d-flex p-0 w-100 justify-content-around mb-2" v-if="product.price !== null">
+                            <span class="price">{{ product.price }} zł</span>
+                            <span class="discount">{{ product.fullPrice }} zł</span>
+                        </div>
+                        <div class="d-flex p-0 w-100 justify-content-around mb-2" v-else>
+                            <span class="price">{{ product.fullPrice }} zł</span>
                         </div>
                         <div class="text-truncate text-center my-3">
-                            <span class="h5">Róża Ziemowitka</span>
+                            <span class="h5">{{ product.title }}</span>
                         </div>
                         <div class="d-flex align-items-center justify-content-around">
-                            <vue3starRatings v-bind="crossSell" :rating="3.8" :read-only="true" :increment="0.01" />
-                            <span>(100)</span>
+                            <vue3starRatings v-bind="test" :rating="product.rating" :read-only="true" :starSize="15"
+                                :increment="0.01" />
+                            <span>({{ product.reviewsCount }})</span>
                         </div>
-                        <star-rating :rating="3.8" :read-only="true" :increment="0.01"></star-rating>
                     </div>
                 </div>
             </swiper-slide>
@@ -191,7 +216,8 @@
         <div class="divider-top" style="height: 150px;"></div>
         <div class="text-center cl-bg-primary py-5 cl-white" style="overflow-x:visible;">
             <p class="text-center col-12 h2 mb-4">Masz pytania?</p>
-            <button class="btn btn-secondary btn-lg mx-auto fw-bold py-3" @click="$router.push('/help')">ZAPRASZAMY DO KONTAKTU</button>
+            <button class="btn btn-secondary btn-lg mx-auto fw-bold py-3" @click="$router.push('/help')">ZAPRASZAMY DO
+                KONTAKTU</button>
         </div>
         <div class="divider-bottom" style="height: 150px;"></div>
         <div class="cl-break"></div>
@@ -234,12 +260,12 @@
 
             </div>
         </div>
-        <div class="col-12 col-lg-10 col-xl-8 mx-auto my-5 px-lg-5 px-0" v-for="i in 5">
+        <div class="col-12 col-lg-10 col-xl-8 mx-auto my-5 px-lg-5 px-0" v-for="i in 1">
             <div class="border border-2 p-3 bg-white position-relative rounded-2">
                 <div class="d-flex gx-3 mb-2 flex-column flex-sm-row">
                     <div class="col-8 d-flex mb-5 align-items-end mb-lg-0">
                         <span> <i>Wystawiono dnia: data</i></span>
-                        <vue3starRatings v-bind="stars" :rating="3.8" :read-only="true" :increment="0.01" class="ms-3" />
+                        <vue3starRatings v-bind="stars" :rating="4" :read-only="true" :increment="0.01" class="ms-3" />
                     </div>
 
                     <div class="d-none d-sm-block col">
@@ -279,7 +305,7 @@
                                     class="border rounded-2 img-md">
                             </div>
                             <div class="row text-center">
-                                <span>Nick</span>
+                                <span>JanKwiat</span>
                             </div>
                             <div class="row text-center">
                                 <span style="font-size: 8pt;"><i>Członek od: 2000-01-01</i></span>
@@ -287,14 +313,10 @@
                         </div>
                     </div>
                     <div class="col">
-                        <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas suscipit pretium mauris, vel
-                            sollicitudin sapien consectetur quis. Etiam eget eleifend enim. Nam lacinia euismod felis
-                            consectetur egestas. Praesent in leo ac erat accumsan bibendum quis eu eros. Donec iaculis,
-                            lectus varius porttitor convallis, mi eros blandit enim, at posuere turpis nibh ornare lorem.
-                            Phasellus ac ultricies ligula. Donec commodo elit a eleifend blandit. Praesent non molestie
-                            lorem. Duis ac laoreet est. Vestibulum tempus vulputate urna, eu blandit nunc tempor eu.
-                            Maecenas neque ligula, accumsan gravida velit nec, ultrices sagittis quam. Phasellus quis risus
-                            augue. Fusce ultricies nisi quis porta malesuada. Integer vitae finibus diam.</span>
+                        <span>Roślinka w porządku jednak podatna bardzo na przelanie. Strasznie szybko listki żółkną, a
+                            pająki lgną do niej bardzo
+
+                        </span>
                     </div>
                 </div>
             </div>
@@ -303,15 +325,19 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, type Ref } from 'vue';
+import { onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect, type Ref } from 'vue';
 //@ts-ignore
 import vue3starRatings from 'vue-star-rating';
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/swiper.scss";
 import "swiper/components/pagination/pagination.min.css";
 import "swiper/components/navigation/navigation.min.css";
+import gql from 'graphql-tag';
 //@ts-ignore
 import SwiperCore, { Autoplay, Pagination, Navigation } from "swiper/core";
+import { useRoute } from 'vue-router';
+import { useQuery } from '@vue/apollo-composable';
+import router from '@/router';
 SwiperCore.use([Autoplay, Pagination, Navigation]);
 
 const test = ref({
@@ -322,12 +348,20 @@ const test = ref({
     showRating: false
 });
 
+const refreshKey = ref(0);
+function remountProductList() {
+  refreshKey.value++;
+  console.log("foo")
+}
+
+
 const handleQuantity = ((operation: string) => {
     switch (operation) {
         case "+":
-            // TO DO maks stock
-            quantity.value += 1;
-            canBuy.value = true;
+            if (quantity.value < product.count) {
+                quantity.value += 1;
+                canBuy.value = true;
+            }
             break;
         case "-":
             if (quantity.value == 0) {
@@ -383,6 +417,150 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', updateScreenWidth);
 });
 
+const goToProduct = ((snowflake: string) => {
+    router.push({ path: `/product/${snowflake}` });
+})
+
+const GET_PRODUCT = gql`
+query getProductBySnowflake($aux: String!) {
+  getProductBySnowflake(aux: $aux) {
+    id,
+    productTypeId,
+    label,
+    isAvailable,
+    categoryId
+    title,
+    pics,
+    fullPrice,
+    price,
+    snowFlake,
+    trivia,
+    description,
+    pointsGiven,
+    shortDescription,
+    count,
+    shippingCost {
+      value
+    },
+    reviews {
+      userId,
+      ratingValue,
+      content,
+      createdAt,
+      positiveRating,
+      negativeRating,
+      comments {
+        userId,
+        content,
+        createdAt,
+        positiveRating,
+        negativeRating
+      }
+    }
+  }
+}
+`;
+
+const GET_CROSS = gql`query getCross($cat: Float!) {
+  getProductsCross(cat: $cat) {
+    pics,
+    title,
+    fullPrice,
+    price,
+    snowFlake,
+    isAvailable,
+    count,
+    reviews {
+      id
+    },
+    label
+  }
+}`;
+
+const route = useRoute();
+const { result: doGetProduct, loading: loadingProduct } = useQuery(GET_PRODUCT,
+    () => ({
+        aux: route.params.productSnowflake as string
+    })
+);
+
+const product = reactive<any>({});
+let flagQuery = ref(false);
+
+watchEffect(() => {
+    if (!loadingProduct.value && doGetProduct.value && doGetProduct.value.getProductBySnowflake) {
+        const productData = doGetProduct.value.getProductBySnowflake;
+        if (productData.productTypeId == 1) {
+            // product.water = productData.
+        }
+
+        const reviewsCount = productData.reviews ? productData.reviews.length : 0;
+        const picsCSV = productData.pics && productData.pics.length > 1 ? productData.pics.split(';') : '';
+
+        product.id = productData.id;
+        product.label = productData.label;
+        product.isAvailable = productData.isAvailable;
+        product.title = productData.title;
+        product.pics = picsCSV;
+        product.fullPrice = productData.fullPrice;
+        product.price = productData.price;
+        product.trivia = productData.trivia;
+        product.description = productData.description;
+        product.pointsGiven = productData.pointsGiven;
+        product.shortDescription = productData.shortDescription;
+        product.count = productData.count;
+        product.rating = productData.rating;
+        product.reviewsCount = reviewsCount;
+        product.typeId = productData.productTypeId;
+        product.catId = productData.categoryId;
+        flagQuery.value = true;
+    }
+});
+
+const products = reactive<any>({});
+
+
+const { result: doGetCross, loading: loadingCross, refetch: refetchGetCross } = useQuery(GET_CROSS,
+    () => ({
+        aux: 1
+    })
+);
+let done = ref(false);
+const productsData = ref();
+watchEffect(() => {
+    if (!loadingCross.value && doGetCross.value) {
+        //@ts-ignore
+        productsData.value = doGetCross.value.getProductsCross.map(product => {
+            const reviewsCount = product.reviews ? product.reviews.length : 0;
+            const picsCSV = product.pics && product.pics.length > 0 ? `${product.pics.split(';')[0]}` : '';
+            return {
+                label: product.label,
+                isAvailable: product.isAvailable,
+                title: product.title,
+                rating: product.rating,
+                fullPrice: product.fullPrice,
+                price: product.price,
+                snowFlake: product.snowFlake,
+                pic: picsCSV,
+                reviewsCount: reviewsCount
+            };
+        });
+        done.value = true;
+    }
+});
+
+watch(() => product.catId, (newCatId, oldCatId) => {
+    if (newCatId && !oldCatId) {
+        console.log(newCatId);
+        //@ts-ignore
+        refetchGetCross({ cat: parseFloat(newCatId) as number });
+        remountProductList();
+    }
+});
+
+
+
+
 
 </script>
 
@@ -412,5 +590,21 @@ onBeforeUnmount(() => {
 .foo {
     font-variation-settings:
         'FILL' 1
+}
+
+.product-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  color: white;
+  font-weight: 700;
+  height: 100%;
+  width: 100%;
+  font-size: 0.8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4b674fb9;
 }
 </style>

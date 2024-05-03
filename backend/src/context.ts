@@ -18,10 +18,6 @@ export async function createContext(
   initialContext: YogaInitialContext & { connectionParams?: { token?: string } }
 ): Promise<Context> {
   let token = "";
-  if (initialContext.connectionParams) {
-    token = parseToken(initialContext.connectionParams?.token);
-  }
-
   if (initialContext.request) {
     token = parseToken(
       initialContext.request.headers.get("authorization") ?? undefined

@@ -432,6 +432,14 @@ const closeAction = () => {
     }
 }
 
+const imgTitle = ref("");
+const imgAlt = ref("");
+const imgDescription = ref("");
+const imgRef = ref("");
+
+const isCarousel = ref(false);
+const isProfile = ref(false);
+
 
 //RESOLVERS
 const UPLOAD_FILE = gql`
@@ -455,14 +463,7 @@ const UPLOAD_FILE = gql`
     )
   }
 `;
-
-const imgTitle = ref("");
-const imgAlt = ref("");
-const imgDescription = ref("");
-const isCarousel = ref(false);
-const isProfile = ref(false);
 const { mutate: fileUpload } = useMutation(UPLOAD_FILE);
-
 const doUploadFile = async () => {
     loadingUpload.value = true;
     const file = fileInput.value?.files?.[0];
@@ -476,7 +477,7 @@ const doUploadFile = async () => {
             title: imgTitle.value,
             description: imgDescription.value,
             altString: imgAlt.value,
-            refLink: 'Your Ref Link',
+            refLink: imgRef.value,
             isCarousel: isCarousel.value,
             isProfile: isProfile.value,
         });

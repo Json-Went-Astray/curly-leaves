@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid d-flex p-0 m-0 flex-column vh-100">
+    <div class="container-fluid d-flex p-0 m-0 flex-column">
         <Header></Header>
         <div class="flex-grow-1 px-0">
             <PottedPlant></PottedPlant>

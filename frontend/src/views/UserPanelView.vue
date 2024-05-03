@@ -352,16 +352,16 @@
 
 
             <div class="col-lg-3 p-2 cl-border rounded cl-shadown-down h-100">
-                <div class="row my-2 w-75 mx-auto">
+                <div class="row my-5 w-75 mx-auto">
                     <button class="btn btn-success">Moje zamówienia</button>
                 </div>
-                <div class="row my-2 w-75 mx-auto">
+                <div class="row my-5 w-75 mx-auto">
                     <button class="btn btn-success">Moje wątki</button>
                 </div>
-                <div class="row my-2 w-75 mx-auto">
+                <div class="row my-5 w-75 mx-auto">
                     <button class="btn btn-success">Moje powiadomienia</button>
                 </div>
-                <div class="row my-2 w-75 mx-auto">
+                <div class="row my-5 w-75 mx-auto">
                     <button class="btn btn-success">Ustawienia konta</button>
                 </div>
             </div>

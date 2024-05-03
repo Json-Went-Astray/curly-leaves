@@ -27,9 +27,15 @@ const meQuery =
       name
       surname
       points
+      cart {
+        products {
+          id
+        }
+      }
       createdAt
       profilePics {
         id
+        source
       }
       addressesSets {
         isTemporary,
@@ -47,7 +53,7 @@ const meQuery =
   }`;
 
 
-export const { refetch: fetchMe } = useQuery(meQuery);
+export const { refetch: fetchMe, result: userData } = useQuery(meQuery);
 
 export const activateUser = async (
   link: string
@@ -76,6 +82,10 @@ export const activateUser = async (
   return false;
 }
 
+export const isElevatedQuery = async () => {
+  return true;
+}
+
 export const loginUser = async (
   userLogin: String,
   userPassword: String
@@ -101,10 +111,11 @@ export const loginUser = async (
     userPassword
   });
 
-  if (res?.data?.userLogin.token) {
-    localStorage.setItem("token", res.data.userLogin.token);
+  if (res?.data?.loginUser.token) {
+    localStorage.setItem("token", res.data.loginUser.token);
     isLoggedIn.value = true;
     fetchMe();
+    router.push("/");
     return true;
   }
   return false;

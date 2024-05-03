@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id              Int      @id @default(autoincrement())
-  picId           Int      @default(0)
+  picId           String   @default("profile1.png")
   activationLink  String   @unique
   resetLink       String?  @unique
   createdAt       DateTime @default(now())
@@ -24,8 +24,9 @@ model User {
   isActive        Boolean  @default(false)
 
   addressesSets AdressSet[] @relation("owner")
-  IssuesCreated Issue[]     @relation("issuesCreated")
-  IssueHandled  Issue[]     @relation("issuesHandled")
+  issuesCreated Issue[]     @relation("issuesCreated")
+  issuesHandled Issue[]     @relation("issuesHandled")
+  cart          Cart?       @relation("userCart")
 }
 
 model Image {
@@ -48,8 +49,11 @@ model Review {
   createdAt      DateTime @default(now())
   positiveRating Int      @default(0)
   negativeRating Int      @default(0)
+  flagged        Boolean  @default(false)
 
-  comments Comment[] @relation("reviewComment")
+  comments  Comment[] @relation("reviewComment")
+  productId Int
+  product   Product   @relation(fields: [productId], references: [id])
 }
 
 model Motd {
@@ -84,34 +88,6 @@ model AdressSet {
 
   owner  User    @relation("owner", fields: [ownerId], references: [id])
   orders Order[] @relation("ordersSets")
-}
-
-model Product {
-  id            Int     @id @default(autoincrement())
-  productTypeId Int
-  isPrize       Boolean @default(false)
-  pointsGiven   Int     @default(0)
-  pointsCost    Int?
-  isAvailable   Boolean @default(true)
-  label         String?
-  fullPrice     Float?
-  price         Float?
-  title         String
-  description   String?
-  trivia        String?
-  rating        Float?
-  snowFlake     String
-
-  productType  ProductType   @relation("products", fields: [productTypeId], references: [id])
-  shippingCost ShippingCost? @relation(fields: [shippingCostId], references: [id])
-  category     Category?      @relation(fields: [categoryId], references: [id])
-
-  orders         Order[]     @relation("productList")
-  carts          Cart[]      @relation("cartElements")
-  shippingCostId Int?
-  categoryId     Int?
-
-  PlantInfo      PlantInfo[]
 }
 
 model ShippingCost {
@@ -194,10 +170,20 @@ model OrderStatus {
 }
 
 model Cart {
-  id     Int @id @default(autoincrement())
-  userId Int
+  id       Int        @id @default(autoincrement())
+  userId   Int        @unique
+  user     User       @relation("userCart", fields: [userId], references: [id])
+  CartItem CartItem[]
+}
 
-  products Product[] @relation("cartElements")
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int
+  productId Int
+  cartId    Int
+  isPrize   Boolean
+  product   Product @relation(fields: [productId], references: [id])
+  Cart      Cart    @relation(fields: [cartId], references: [id])
 }
 
 model Category {
@@ -207,13 +193,46 @@ model Category {
 }
 
 model PlantInfo {
-  id         Int @id @default(autoincrement())
-  sunlight   Int @default(0)
-  ground     Int @default(0)
-  fertilizer Int @default(0)
-  water      Int @default(0)
-  isToxic    Int @default(0)
+  id         Int     @id @default(autoincrement())
+  sunlight   Int     @default(0)
+  ground     Int     @default(0)
+  fertilizer Int     @default(0)
+  water      Int     @default(0)
+  isToxic    Boolean @default(false)
 
-  product   Product? @relation(fields: [productId], references: [id])
-  productId Int?
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int     @unique
+}
+
+model Product {
+  id               Int     @id @default(autoincrement())
+  productTypeId    Int
+  isPrize          Boolean @default(false)
+  pointsGiven      Int     @default(0)
+  pointsCost       Int?
+  isAvailable      Boolean @default(true)
+  isEdited         Boolean @default(false)
+  label            String?
+  fullPrice        Float?
+  price            Float?
+  title            String
+  description      String?
+  trivia           String?
+  rating           Float?
+  snowFlake        String  @unique
+  pics             String?
+  shortDescription String?
+  count            Int     @default(0)
+
+  productType  ProductType   @relation("products", fields: [productTypeId], references: [id])
+  shippingCost ShippingCost? @relation(fields: [shippingCostId], references: [id])
+  category     Category?     @relation(fields: [categoryId], references: [id])
+
+  orders         Order[] @relation("productList")
+  shippingCostId Int?
+  categoryId     Int?
+
+  PlantInfo PlantInfo?
+  reviews   Review[]
+  CartItem  CartItem[]
 }

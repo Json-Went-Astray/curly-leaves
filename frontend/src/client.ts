@@ -17,7 +17,6 @@ import {
   import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
   
   const authMiddleware = new ApolloLink((operation, forward) => {
-    // add the authorization to the headers
     const token = localStorage.getItem("token");
     operation.setContext({
       headers: {

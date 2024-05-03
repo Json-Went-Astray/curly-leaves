@@ -81,7 +81,7 @@
                                 <ul class="dropdown-menu w-100">
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                            href="#" @click="selectDropdownProductType('potted_plant', 'Roślina')">
+                                            href="#" @click="selectDropdownProductType('potted_plant', 'Roślina', 1)">
                                             <div class="col-2">
                                                 <span class="material-symbols-outlined">
                                                     potted_plant
@@ -95,7 +95,7 @@
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
                                             href="#"
-                                            @click="selectDropdownProductType('garden_cart', 'Art. ogrodniczy')">
+                                            @click="selectDropdownProductType('garden_cart', 'Art. ogrodniczy', 2)">
                                             <div class="col-2">
                                                 <span class="material-symbols-outlined">
                                                     garden_cart
@@ -108,7 +108,7 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                            href="#" @click="selectDropdownProductType('pergola', 'Inny')">
+                                            href="#" @click="selectDropdownProductType('pergola', 'Inny', 3)">
                                             <div class="col-2">
                                                 <span class="material-symbols-outlined">
                                                     pergola
@@ -207,9 +207,14 @@
                                         <li v-if="categoryValue.length > 0" v-for="(cat, index) in categoryValue"
                                             :key="index">
                                             <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                                href="#" @click="selectCategory('foo')">
+                                                href="#" @click="
+            //@ts-ignore
+            selectCategory(cat.title)
+            ">
                                                 <div class="col-12 text-center">
-
+                                                    {{ //@ts-ignore
+            cat.title
+                                                    }}
                                                 </div>
                                             </a>
                                         </li>
@@ -232,7 +237,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-lg col-7 p-3 btn-success my-5">
+                <button class="btn btn-lg col-7 p-3 btn-success my-5" @click="doCreate()">
                     Dodaj produkt
                 </button>
             </div>
@@ -296,26 +301,27 @@
                         <div class="row">
                             <h5>Dane rośliny</h5>
                         </div>
+                        <h6>Nasycenie słoneczne [godziny]</h6>
                         <v-slider step="1" show-ticks="always" tick-size="1" :max="3" :ticks="sunTicks"
-                            track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
+                            track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f' v-model="sunTicksValue">
                         </v-slider>
                         <div class="row mt-3">
                             <h6>Częstość podlewania [dni]</h6>
                         </div>
                         <v-slider step="1" show-ticks="always" tick-size="1" :max="4" :ticks="waterTicks"
-                            track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
+                            v-model="waterTicksValue" track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
                         </v-slider>
                         <div class="row mt-3">
                             <h6>PH gleby</h6>
                         </div>
                         <v-slider step="1" show-ticks="always" tick-size="1" :max="3" :ticks="groundTicks"
-                            track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
+                            v-model="groundTicksValue" track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
                         </v-slider>
                         <div class="row mt-3">
                             <h6>Częstość nawożenia [tygodnie]</h6>
                         </div>
                         <v-slider step="1" show-ticks="always" tick-size="1" :max="2" :ticks="fertilizerTicks"
-                            track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
+                            v-model="fertilizerTicksValue" track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
                         </v-slider>
                         <div class="d-flex flex-wrap">
                             <h6 class="me-5">Czy jest toksyczna?</h6>
@@ -335,12 +341,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
+import { reactive, ref, watch, watchEffect } from 'vue';
 import Toggle from '@vueform/toggle'
 import MediaLibrary from '../MediaLibrary.vue';
+import gql from 'graphql-tag';
+import { useMutation, useQuery } from '@vue/apollo-composable';
+import { onMounted } from 'vue';
 
-const productTitle = ref("");
+const productTitle = ref("tytuł");
 const productSnowflake = ref("");
+const productSnowflakeValue = ref("");
 const copied = ref(false);
 
 const generateProductSnowflake = (title: string) => {
@@ -353,18 +363,20 @@ const generateProductSnowflake = (title: string) => {
 }
 
 watch(productTitle, (newValue) => {
-    if (generateProductSnowflake(newValue) == "")
+    if (generateProductSnowflake(newValue) == "") {
         productSnowflake.value = "";
-    else
+        productSnowflakeValue.value = "";
+    }
+    else {
         productSnowflake.value = ((`http://localhost:4000/product/`) + generateProductSnowflake(newValue));
+        productSnowflakeValue.value = generateProductSnowflake(newValue);
+    }
 });
 
 const copyToClipboard = async (text: string) => {
     try {
         await navigator.clipboard.writeText(text);
         copied.value = true;
-
-        // Ustawienie flagi copied na false po 1 sekundzie, aby ukryć komunikat
         setTimeout(() => {
             copied.value = false;
         }, 1000);
@@ -383,16 +395,24 @@ const productDescription = ref("");
 const productShortDescription = ref("");
 const productLabel = ref("");
 const netPrice = ref();
-const isPrize = ref("");
+const isPrize = ref(false);
 const prizePrice = ref();
 const valuePoints = ref(0);
-const categoryValue = ref([])
+let categoryValue = ref([])
 const plantTrivia = ref("");
+let productTypeId = ref(1);
 
-const isDiscount = ref("");
+let sunTicksValue = ref(0);
+let waterTicksValue = ref(0);
+let fertilizerTicksValue = ref(0);
+let groundTicksValue = ref(1);
+
+
+const isDiscount = ref(false);
 const discountedPrice = ref();
-const isToxic = ref("");
+const isToxic = ref(false);
 const category = ref("Wybierz kategorię");
+let pics = ref("");
 
 const selectCategory = (valueS: string) => category.value = valueS;
 
@@ -425,6 +445,7 @@ const fertilizerTicks = ref({
 });
 
 
+
 const handleCloseAction = (flag: boolean) => {
     mediaLibOpen.value = flag;
     mediaMode.value = "";
@@ -450,10 +471,124 @@ const selectedDropdownProductType = reactive({
     text: "Roślina"
 });
 
-const selectDropdownProductType = ((icon: string, text: string) => {
+const selectDropdownProductType = ((icon: string, text: string, id: number) => {
     selectedDropdownProductType.icon = icon;
     selectedDropdownProductType.text = text;
+    productTypeId.value = id;
+    console.log(productTypeId.value)
 });
+
+
+
+
+const { mutate: createProduct } = useMutation(
+    gql`
+      mutation addProduct(
+        $productData: ProductCreateInput!
+        $productExtra: ProductCreateExtra!
+      ) {
+        addProduct(productData: $productData, productExtra: $productExtra) {
+          id
+        }
+      } 
+    `
+);
+
+
+
+
+
+const { result: doGetCategories, loading, refetch: fetchCategory } = useQuery(
+    gql`
+        query getCategories {
+            getCategories {
+                id
+                title
+                products {
+                    id
+                }
+            }
+        }
+    `
+);
+
+watchEffect(() => {
+    if (!loading.value && doGetCategories.value) {
+        //@ts-ignore
+        categoryValue.value = doGetCategories.value.getCategories.map(category => {
+            return {
+                title: category.title,
+            };
+        });
+    }
+});
+
+
+const doCreate = (async () => {
+    console.log(productSnowflake.value);
+    if (!isToxic.value) isToxic.value = false;
+    if (!isPrize.value) isPrize.value = false;
+    pics.value = "";
+    pics.value += titleImage.value + ";";
+    pics.value += productImages.value.join(";");
+
+    const productData = reactive({
+        title: productTitle.value,
+        description: productDescription.value,
+        label: productLabel.value,
+        fullPrice: netPrice,
+        price: discountedPrice.value,
+        isPrize: isPrize.value,
+        isAvailable: true,
+        pointsCost: prizePrice.value,
+        pointsGiven: valuePoints.value,
+        trivia: plantTrivia.value,
+        rating: 0,
+        productTypeId: productTypeId.value,
+        snowflake: productSnowflakeValue.value,
+        productImages: pics.value,
+    });
+
+    const productExtra = reactive({
+        ground: groundTicksValue.value,
+        water: waterTicksValue.value,
+        fertilizer: fertilizerTicksValue.value,
+        sunlight: sunTicksValue.value,
+        isToxic: isToxic.value,
+    });
+
+    try {
+        const res = await createProduct({
+            productData,
+            productExtra
+        });
+        console.log(res, "ok");
+    } catch (exception: any) {
+        exception.graphQLErrors.forEach((error: any) => {
+            console.log(error)
+        });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -484,5 +619,4 @@ const selectDropdownProductType = ((icon: string, text: string) => {
 .v-leave-to {
     opacity: 0;
 }
-
 </style>

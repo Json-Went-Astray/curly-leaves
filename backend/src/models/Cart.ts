@@ -10,6 +10,18 @@ export class Cart {
   @Field((type) => Int)
   userId: number;
 
-  @Field((type) => [Product])
-  products: Product[];
+  @Field((type) => [CartItem])
+  items: CartItem[];
+}
+
+@ObjectType()
+export class CartItem {
+  @Field((type) => Product)
+  product: Product;
+
+  @Field((type) => Int)
+  quantity: number;
+
+  @Field((type) => Boolean)
+  isPrize: boolean;
 }

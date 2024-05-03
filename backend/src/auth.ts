@@ -27,7 +27,7 @@ export async function authenticateUser(
 export const IsLoggedIn: MiddlewareFn<Context> = async ({ context }, next) => {
   const user = context.user;
   if (user === null) {
-    throw new GraphQLError("Unauthorized");
+    throw new GraphQLError("Unauthorized - nonlogon");
   }
   return next();
 };

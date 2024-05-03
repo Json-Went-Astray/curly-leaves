@@ -15,15 +15,30 @@
                 <!-- KOSZYK  -->
 
                 <Slide right :burgerIcon="false" :isOpen="cartOpen" @closeMenu="cartOpen = false">
-                    <div class="d-flex w-100 my-3">
-                        <span class="material-symbols-outlined">
-                            shopping_cart
-                        </span>
-                        <span>KOSZYK</span>
+                    <div class="d-flex w-100 my-0 flex-column justify-content-center">
+                        <div class="text-center">
+                            <span class="material-symbols-outlined">
+                                shopping_cart
+                            </span>
+                            <span>KOSZYK</span>
+                        </div>
+                        <span style="font-size: 11px; text-align: center; font-weight: 300;">Dodanie produktu do koszyka nie rezerwuje go</span>
                     </div>
 
-                    <div class="bg-danger" style="max-height: 60vh; height: 60vh;">
-
+                    <div class="" style="max-height: 60vh; height: 60vh; width: 110%;">
+                        <div class="row my-2 border border-2 bg-white rounded-2" style="height: 20%; width: 100%;">
+                            <div class="col-6 d-flex justify-content-center align-items-center ps-0 py-0">
+                                <img src="@/assets/static/Products/rose-test.jpg" alt="" class="rounded-2" width="100%"
+                                    height="100%"
+                                    style="border-top-right-radius: 0px !important; border-bottom-right-radius: 0px !important;">
+                            </div>
+                            <div class="col d-flex flex-column align-items-start py-2">
+                                <span class="" style="font-size: 10pt;">Róża ziemowitka</span>
+                                <span style="font-size: 10pt;">x2 <strong>9 zł</strong></span>
+                                <hr>
+                                <span style="font-size: 10pt;"><strong>Łącznie: 18 zł</strong></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="w-100">
                         <button class="btn btn-success w-100 p-3 my-1">Przejdź do zapłaty</button>
@@ -72,7 +87,8 @@
                         Produkty
                     </a>
                     <div class="dropdown-menu cl-bg-primary cl-white" aria-labelledby="navbarDarkDropdownMenuLink">
-                        <li v-for="i in 10" class="cl-white"><a class="dropdown-item cl-white" href="#">kat {{ i }}</a></li>
+                        <li v-for="i in 10" class="cl-white"><a class="dropdown-item cl-white" href="#">kat {{ i }}</a>
+                        </li>
                     </div>
 
 
@@ -97,29 +113,38 @@
             <!-- Right elements -->
             <div class="d-flex align-items-center me-5">
 
-                <a class="mx-5 d-none d-md-flex align-items-center unselectable cursor-pointer" @click="cartOpen = true">
+                <a class="mx-5 d-none d-md-flex align-items-center unselectable cursor-pointer"
+                    @click="cartOpen = true">
                     <span>Koszyk</span>
                     <span class="material-symbols-outlined">
                         shopping_cart
                     </span>
-                    <div class="bg-danger rounded-circle position-absolute pill-indicator"
+                    <div class="bg-danger rounded-circle position-absolute pill-indicator" v-if="cartCount != 1"
                         style="font-size: 8pt; top: -40%">
-                        99
+                        {{ cartCount }}
                     </div>
                 </a>
 
-                <a class="mx-0 mx-sm-5 d-flex align-items-center unselectable cursor-pointer">
+                <a class="mx-0 mx-sm-5 d-flex align-items-center unselectable cursor-pointer" v-if="isLoggedIn">
                     <div class="bg-white p-3 rounded-circle">
-
+                        <img :src="`http://localhost:4000/uploads/user-avatars/${data.picId}`" class="rounded-circle" style="width: 35px; position: absolute; top: 0; left: 0">
                     </div>
-                    <div class="bg-danger rounded-circle position-absolute pill-indicator" style="font-size: 8pt;">
-                        99
-                    </div>
+                    <!-- <div class="bg-danger rounded-circle position-absolute pill-indicator" style="font-size: 8pt;">
+                    </div> -->
+                        <!-- powiadomienia usera -->
                 </a>
 
 
-                <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer" @click="$router.push('/signup')">
+                <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer"
+                    @click="$router.push('/signup')"
+                    v-if="!isLoggedIn">
                     Login / Rejestracja
+                </a>
+                
+                <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer"
+                    @click="logout()"
+                    v-else>
+                    Wyloguj się
                 </a>
 
             </div>
@@ -155,13 +180,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
+import { ref, watch, watchEffect, type Ref } from 'vue';
 // @ts-ignore
 import { Slide } from 'vue3-burger-menu';
+import { isLoggedIn, fetchMe, userData, logout } from '@/me';
 
 const cartOpen = ref(false);
+const data = ref();
+let hasFetched = false;
+const cartCount = ref(0);
 
-
+watchEffect(() => {
+    (async () => {
+        if (isLoggedIn && !hasFetched) {
+            const userDataResponse = await fetchMe();
+            data.value = userDataResponse?.data.me;
+            console.log(data.value);
+            hasFetched = true;
+            cartCount.value = data.value?.cart?.length ?? 0;
+        }
+    })();
+});
 
 </script>
 

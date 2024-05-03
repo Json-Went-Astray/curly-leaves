@@ -150,7 +150,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" v-model="tos">
                                     <label class="form-check-label" for="flexCheckDefault">
-                                        TOS
+                                        Akceptuję <a href="#">zasady</a> obowiązujące na stronie
                                     </label>
                                 </div>
                                 <span class="text-danger" v-if="errors.tosError">Należy zaakceptować zasady</span>
@@ -395,7 +395,7 @@
                                 <button class="btn btn-outline-success w-75">Dział pomocy</button>
                             </div>
                             <div class="col-lg-6 text-center my-2">
-                                <button class="btn btn-outline-success w-75">Zaloguj się</button>
+                                <button class="btn btn-outline-success w-75">Wyślij link</button>
                             </div>
                         </div>
 

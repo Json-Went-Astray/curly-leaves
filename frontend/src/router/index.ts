@@ -11,6 +11,7 @@ import ProductViewVue from '@/views/ProductView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
 import CheckoutSummaryView from '@/views/CheckoutSummaryView.vue'
 import ActivateAccountView from '@/views/ActivateAccountView.vue'
+import { isElevatedQuery } from '@/me'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -62,13 +63,18 @@ const router = createRouter({
       component: UserPanelViewVue
     },
     {
-      //TO DO SNOWFLAKE
       path: '/admin/panel',
       name: 'admin-panel',
-      component: AdminPanelView
+      component: AdminPanelView,
+      beforeEnter: async (to, from, next) => {
+        if (await isElevatedQuery()) {
+          next();
+        } else {
+          next('/404/');
+        }
+      }
     },
     {
-      //TO DO SNOWFLAKE
       path: '/product/:productSnowflake',
       name: 'product',
       props: true,
