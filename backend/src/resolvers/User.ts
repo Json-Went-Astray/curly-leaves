@@ -16,6 +16,7 @@ import { IsEmail, IsStrongPassword, MaxLength } from "class-validator";
 import { prisma } from "../context.js";
 import { type Context } from "../context.js";
 import { User } from "../models/User.js";
+import { Cart, CartItem } from "../models/Cart.js";
 
 import * as crypto from "crypto";
 import validator from "validator";
@@ -98,16 +99,27 @@ export class UserResolver {
     return true;
   }
 
-  @Query((returns) => User, { nullable: false })
+  @Query((returns) => User, { nullable: true })
   @UseMiddleware(IsLoggedIn)
   async me(@Ctx() ctx: Context) {
-    return ctx.prisma.user.findUniqueOrThrow({
+    return ctx.prisma.user.findUnique({
       where: {
         id: ctx.user!.id,
       },
+      include: {
+        cart: {
+          include: {
+            CartItem: {
+              include: {
+                product: true
+              }
+            }
+          }
+        }
+      },
     });
   }
-  
+
   @Query((returns) => User)
   async resendActivationLink(
     @Ctx() ctx: Context,
@@ -170,14 +182,11 @@ export class UserResolver {
   }
 
   @Mutation((returns) => User)
-  async userActivate(
-    @Arg("link") link: string,
-    @Ctx() ctx: Context
-  ) {
+  async userActivate(@Arg("link") link: string, @Ctx() ctx: Context) {
     const found = await ctx.prisma.user.findFirst({
       where: {
         activationLink: link,
-      }
+      },
     });
 
     if (found && !found.isActive) {
@@ -312,7 +321,7 @@ export class UserResolver {
       throw combinedError;
     }
     const hashedPassword = await bcrypt.hash(userData.password_1, 20);
-    
+
     const activationLink = crypto.randomBytes(32).toString("hex");
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -328,7 +337,7 @@ export class UserResolver {
         const subject =
           "Witamy w serwisie Curly-Leaves - potwierdź rejestrację!";
         const text = `Witamy w naszym serwisie! W celu aktywacji konta proszę kliknąć w poniższy link http://localhost:5173/activate-account/${activationLink}`;
-        
+
         const mailOptions = {
           from: "curly.leaves.mailer@gmail.com",
           to: to,
@@ -381,25 +390,27 @@ export class UserResolver {
         email: login,
       },
     });
-  
+
     if (!user) {
       throw new GraphQLError("Nieprawidłowy email lub hasło");
     }
-  
+
     const passwordMatch = await bcrypt.compare(password, user.password);
-  
+
     if (!passwordMatch) {
-      throw new GraphQLError("Nieprawidłowy email lub hasło2 " + password + " " + user.password);
+      throw new GraphQLError(
+        "Nieprawidłowy email lub hasło2 " + password + " " + user.password
+      );
     }
-  
+
     if (user.suspended) {
       throw new GraphQLError("Użytkownik zawieszony");
     }
-  
+
     if (!user.isActive) {
       throw new GraphQLError("Użytkownik nieaktywny");
     }
-  
+
     const token = jwt.sign({ sub: user.id }, process.env.APP_SECRET!);
     return { token, user };
   }

@@ -10,8 +10,8 @@ export class Cart {
   @Field((type) => Int)
   userId: number;
 
-  @Field((type) => [CartItem])
-  items: CartItem[];
+  @Field((type) => [CartItem], { nullable: true })
+  CartItem: CartItem[] | [];
 }
 
 @ObjectType()

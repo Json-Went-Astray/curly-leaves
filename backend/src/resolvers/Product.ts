@@ -224,10 +224,14 @@ export class ProductResolver {
       where: {
         userId: userId,
       },
+      include: {
+        CartItem: true,
+      },
     });
 
     // Jeśli użytkownik nie ma jeszcze koszyka, tworzymy nowy
     if (!userCart) {
+      //@ts-ignore
       userCart = await ctx.prisma.cart.create({
         data: {
           userId: userId,
@@ -235,15 +239,31 @@ export class ProductResolver {
       });
     }
 
-    // Dodajemy produkt do koszyka
-    await ctx.prisma.cartItem.create({
-      data: {
-        quantity: quantity,
-        productId: productId,
-        isPrize: isPrize,
-        cartId: userCart.id,
-      },
-    });
+    //@ts-ignore
+    const existingCartItem = userCart.CartItem.find(
+      (item) => item.productId === productId
+    );
+
+    if (existingCartItem) {
+      await ctx.prisma.cartItem.update({
+        where: {
+          id: existingCartItem.id,
+        },
+        data: {
+          quantity: existingCartItem.quantity + quantity,
+        },
+      });
+    } else {
+      await ctx.prisma.cartItem.create({
+        data: {
+          quantity: quantity,
+          productId: productId,
+          isPrize: isPrize,
+          //@ts-ignore
+          cartId: userCart.id,
+        },
+      });
+    }
 
     return `Dodano produkt do koszyka`;
   }
@@ -274,39 +294,41 @@ export class ProductResolver {
   }
 
   @Mutation(() => String)
-async removeProductFromCart(
-  @Arg("userId") userId: number,
-  @Arg("productId") productId: number,
-  @Ctx() ctx: Context
-): Promise<string> {
-  // Znajdujemy koszyk użytkownika
-  const userCart = await ctx.prisma.cart.findUnique({
-    where: {
-      userId: userId
-    },
-    include: {
-      CartItem: true
+  async removeProductFromCart(
+    @Arg("userId") userId: number,
+    @Arg("productId") productId: number,
+    @Ctx() ctx: Context
+  ): Promise<string> {
+    // Znajdujemy koszyk użytkownika
+    const userCart = await ctx.prisma.cart.findUnique({
+      where: {
+        userId: userId,
+      },
+      include: {
+        CartItem: true,
+      },
+    });
+
+    if (!userCart) {
+      return "Koszyk użytkownika nie istnieje.";
     }
-  });
 
-  if (!userCart) {
-    return "Koszyk użytkownika nie istnieje.";
-  }
+    const productInCart = userCart.CartItem.find(
+      (item) => item.productId === productId
+    );
 
-  const productInCart = userCart.CartItem.find((item) => item.productId === productId);
-
-  if (!productInCart) {
-    return "Podany produkt nie znajduje się w koszyku.";
-  }
-
-  await ctx.prisma.cartItem.delete({
-    where: {
-      id: productInCart.id
+    if (!productInCart) {
+      return "Podany produkt nie znajduje się w koszyku.";
     }
-  });
 
-  return `Usunięto produkt o identyfikatorze ${productId} z koszyka użytkownika.`;
-}
+    await ctx.prisma.cartItem.delete({
+      where: {
+        id: productInCart.id,
+      },
+    });
+
+    return `Usunięto produkt o identyfikatorze ${productId} z koszyka użytkownika.`;
+  }
 
   @Query((returns) => [Category])
   // @UseMiddleware(IsElevated)
@@ -423,6 +445,9 @@ async removeProductFromCart(
       where: {
         snowFlake: aux,
       },
+      include: {
+        PlantInfo: true
+      }
     });
 
     if (!product) {

@@ -46,8 +46,8 @@ export class User {
   @Field((type) => Date)
   createdAt: Date;
 
-  @Field((type) => [Cart], { nullable: true })
-  cart?: Cart[] | null;
+  @Field((type) => Cart, { nullable: true })
+  cart?: Cart | null;
 
   @Field((type) => [Image], { nullable: true })
   profilePics?: Image[] | null;

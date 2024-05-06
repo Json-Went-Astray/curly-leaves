@@ -22,30 +22,43 @@
                             </span>
                             <span>KOSZYK</span>
                         </div>
-                        <span style="font-size: 11px; text-align: center; font-weight: 300;">Dodanie produktu do koszyka nie rezerwuje go</span>
+                        <span style="font-size: 11px; text-align: center; font-weight: 300;">Dodanie produktu do koszyka
+                            nie rezerwuje go</span>
                     </div>
 
-                    <div class="" style="max-height: 60vh; height: 60vh; width: 110%;">
-                        <div class="row my-2 border border-2 bg-white rounded-2" style="height: 20%; width: 100%;">
+                    <div class=""
+                        style="max-height: 60vh; max-height: 60vh; width: 110%; flex-direction: column; overflow-y: scroll;">
+                        <div class="row my-2 border border-2 bg-white rounded-2" style="height: 20%; width: 100%;"
+                            v-if="cartArray" v-for="cartProduct in cartArray">
                             <div class="col-6 d-flex justify-content-center align-items-center ps-0 py-0">
-                                <img src="@/assets/static/Products/rose-test.jpg" alt="" class="rounded-2" width="100%"
-                                    height="100%"
+                                <img :src="cartProduct.product.pics ? `http://localhost:4000${cartProduct.product.pics.split(';')[0]}` : 'http://placehold.co/20x10'"
+                                    alt="" class="rounded-2" width="100%"
                                     style="border-top-right-radius: 0px !important; border-bottom-right-radius: 0px !important;">
                             </div>
                             <div class="col d-flex flex-column align-items-start py-2">
-                                <span class="" style="font-size: 10pt;">Róża ziemowitka</span>
-                                <span style="font-size: 10pt;">x2 <strong>9 zł</strong></span>
+                                <span class="" style="font-size: 10pt;">{{ cartProduct.product.title }}</span>
+                                <span v-if="cartProduct.product.price" style="font-size: 10pt;">x{{ cartProduct.quantity
+                                    }} <strong>{{ cartProduct.product.price }} zł</strong></span>
+                                <span v-else style="font-size: 10pt;">x{{ cartProduct.quantity }} <strong>{{
+                    cartProduct.product.fullPrice }} zł</strong></span>
+
                                 <hr>
-                                <span style="font-size: 10pt;"><strong>Łącznie: 18 zł</strong></span>
+                                <span v-if="cartProduct.product.price" style="font-size: 10pt;"><strong>Łącznie: {{
+                    cartProduct.quantity * cartProduct.product.price }} zł</strong></span>
+                                <span v-else style="font-size: 10pt;"><strong>Łącznie: {{ cartProduct.quantity *
+                    cartProduct.product.fullPrice }} zł</strong></span>
+
                             </div>
                         </div>
                     </div>
+
                     <div class="w-100">
                         <button class="btn btn-success w-100 p-3 my-1">Przejdź do zapłaty</button>
                     </div>
 
                     <div class="w-100">
-                        <button class="btn btn-secondary w-100 p-3">Opróżnij koszyk</button>
+                        <button class="btn btn-secondary w-100 p-3" @click="removeAllProductsFromCart()">Opróżnij
+                            koszyk</button>
                     </div>
                 </Slide>
 
@@ -119,7 +132,7 @@
                     <span class="material-symbols-outlined">
                         shopping_cart
                     </span>
-                    <div class="bg-danger rounded-circle position-absolute pill-indicator" v-if="cartCount != 1"
+                    <div class="bg-danger rounded-circle position-absolute pill-indicator" v-if="cartCount != 0"
                         style="font-size: 8pt; top: -40%">
                         {{ cartCount }}
                     </div>
@@ -127,22 +140,21 @@
 
                 <a class="mx-0 mx-sm-5 d-flex align-items-center unselectable cursor-pointer" v-if="isLoggedIn">
                     <div class="bg-white p-3 rounded-circle">
-                        <img :src="`http://localhost:4000/uploads/user-avatars/${data.picId}`" class="rounded-circle" style="width: 35px; position: absolute; top: 0; left: 0">
+                        <img :src="data && data.picId ? `http://localhost:4000/uploads/user-avatars/${data.picId}` : ''"
+                            class="rounded-circle" style="width: 35px; position: absolute; top: 0; left: 0">
                     </div>
                     <!-- <div class="bg-danger rounded-circle position-absolute pill-indicator" style="font-size: 8pt;">
                     </div> -->
-                        <!-- powiadomienia usera -->
+                    <!-- powiadomienia usera -->
                 </a>
 
 
                 <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer"
-                    @click="$router.push('/signup')"
-                    v-if="!isLoggedIn">
+                    @click="$router.push('/signup')" v-if="!isLoggedIn">
                     Login / Rejestracja
                 </a>
-                
-                <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer"
-                    @click="logout()"
+
+                <a class="mx-3 d-none d-sm-flex align-items-center unselectable cursor-pointer" @click="logout()"
                     v-else>
                     Wyloguj się
                 </a>
@@ -180,29 +192,88 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, watchEffect, type Ref } from 'vue';
+import { onMounted, ref, watch, watchEffect, type Ref } from 'vue';
 // @ts-ignore
 import { Slide } from 'vue3-burger-menu';
 import { isLoggedIn, fetchMe, userData, logout } from '@/me';
-
+import { useMutation } from '@vue/apollo-composable';
+import gql from 'graphql-tag';
+//@ts-ignore
+import ProductPage from './ProductTemplates/PottedPlant.vue';
+import { inject } from 'vue';
+const props = defineProps(['message']);
 const cartOpen = ref(false);
 const data = ref();
 let hasFetched = false;
 const cartCount = ref(0);
+const cartArray = ref();
 
 watchEffect(() => {
     (async () => {
         if (isLoggedIn && !hasFetched) {
+
             const userDataResponse = await fetchMe();
             data.value = userDataResponse?.data.me;
-            console.log(data.value);
             hasFetched = true;
-            cartCount.value = data.value?.cart?.length ?? 0;
+            cartCount.value = 0;
+            if (data.value.cart?.CartItem && data.value.cart.CartItem.length > 0) {
+                for (let i = 0; i < data.value.cart.CartItem.length; i++) {
+                    cartCount.value += data.value.cart.CartItem[i].quantity;
+                }
+            }
+            cartArray.value = data.value.cart.CartItem;
+
         }
     })();
 });
 
+const { mutate: removeAll } = useMutation(
+    gql`
+    mutation removeAllProductsFromCart($userId: Float!){
+        removeAllProductsFromCart(userId: $userId)
+    }
+    `
+);
+
+const removeAllProductsFromCart = async () => {
+    try {
+        if (!userData.value.me.id) {
+            console.log("nope");
+            return;
+        }
+        const res = await removeAll({
+            userId: parseFloat(userData.value.me.id),
+        });
+        const userDataResponse = await fetchMe();
+        data.value = userDataResponse?.data.me;
+        cartArray.value = data.value.cart.CartItem;
+        cartCount.value = 0;
+
+    } catch (error) {
+    }
+};
+
+const message = ref(props.message);
+
+const fetchData = async () => {
+    const userDataResponse = await fetchMe();
+    data.value = userDataResponse?.data.me;
+    cartArray.value = data.value.cart.CartItem;
+    cartCount.value = 0;
+    for (let i = 0; i < data.value.cart.CartItem.length; i++) {
+        cartCount.value += data.value.cart.CartItem[i].quantity;
+    }
+    cartOpen.value = true;
+};
+
+watch(() => props.message, (newValue, oldValue) => {
+    // Reakcja na zmianę wartości propsa
+    fetchData()
+    message.value = newValue; // Aktualizacja lokalnej kopii propsa
+});
 </script>
+
+
 
 <style scoped>
 .top-navbar span:not(.bm-item-list span),

@@ -1,5 +1,6 @@
 <template>
-    <div class="container-fluid my-4 px-0">
+    <div class="container-fluid mb-4 px-0">
+        <Header :message="flag"></Header>
         <div class="row mx-0 my-3 gx-5 justify-content-between px-lg-5">
             <span class="h2">{{ product.title }}
             </span>
@@ -32,13 +33,15 @@
                         </div>
 
                         <div class="col-4 d-lg-flex align-items-center d-none">
-                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
-                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
-                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto" v-for="i in product.water">
                         </div>
 
                         <div class="col-lg-4 col-6 d-flex align-items-center">
-                            <span>Raz w tygodniu</span>
+                            <span v-if="product.water == 1">raz na 3 miesiące</span>
+                            <span v-else-if="product.water == 2">raz w miesiącu</span>
+                            <span v-else-if="product.water == 3">raz na 2 tygodnie</span>
+                            <span v-else-if="product.water == 4">raz w tygodniu</span>
+                            <span v-else-if="product.water == 5">2 razy w tygodniu</span>
                         </div>
                     </div>
 
@@ -48,13 +51,16 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img class="mx-3" src="@/assets/static/svg/sun.svg" alt="" width="30px" height="auto">
-                            <img class="mx-3" src="@/assets/static/svg/sun.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/sun.svg" alt="" width="30px" height="auto" v-for="i in product.sunlight">
                         </div>
 
 
                         <div class="col-6 col-lg-4 d-flex align-items-center">
-                            <span>od 3 do 5 godzin</span>
+                            <span v-if="product.sunlight == 1">od 0 do 2 godzin</span>
+                            <span v-else-if="product.sunlight == 2">od 3 do 5 godzin</span>
+                            <span v-else-if="product.sunlight == 3">od 6 do 8 godzin</span>
+                            <span v-else-if="product.sunlight == 4">conajmniej 8 godzin</span>
+
                         </div>
                     </div>
 
@@ -64,12 +70,14 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img class="mx-3" src="@/assets/static/svg/soil.svg" alt="" width="30px" height="auto">
-                            <img class="mx-3" src="@/assets/static/svg/soil.svg" alt="" width="30px" height="auto">
-
+                            <img class="mx-3" src="@/assets/static/svg/soil.svg" alt="" width="30px" height="auto" v-for="i in product.ground">
                         </div>
                         <div class="col-6 col-lg-4 d-flex align-items-center">
-                            <span>od 6 do 6,5 pH</span>
+                            <span v-if="product.ground == 1">od 5,5 do 6,0 pH</span>
+                            <span v-else-if="product.ground == 2">od 6,0 do 6,5 pH</span>
+                            <span v-else-if="product.ground == 3">od 7,0 do 7,5 pH</span>
+                            <span v-else-if="product.ground == 4">od 7,5 do 8,0 pH</span>
+
                         </div>
                     </div>
 
@@ -79,11 +87,13 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img class="mx-3" src="@/assets/static/svg/shovel.svg" alt="" width="30px" height="auto">
+                            <img class="mx-3" src="@/assets/static/svg/shovel.svg" alt="" width="30px" height="auto" v-for="i in product.fertilizer">
                         </div>
 
                         <div class="col-6 col-lg-4 d-flex align-items-center">
-                            <span>Raz na 3 miesiące</span>
+                            <span v-if="product.fertilizer == 1">Raz na miesiąc (zima)/2 razy na miesiąc (lato)</span>
+                            <span v-else-if="product.fertilizer == 2">Co 6 tygodni (zima)/raz na miesiąc (lato)</span>
+                            <span v-else-if="product.fertilizer == 3">Raz na 3 miesiące (zima)/raz na miesiąc (lato)</span>
                         </div>
                     </div>
                 </div>
@@ -115,7 +125,8 @@
             </div>
             <div class="col-xl-6 d-flex align-items-center justify-content-center flex-column flex-lg-row col-12">
                 <div class="col-lg-3 d-flex justify-content-start align-items-center my-3 my-lg-0">
-                    <vue3starRatings v-bind="test" :rating="product.rating" :read-only="true" :increment="0.01":starSize="24"  />
+                    <vue3starRatings v-bind="test" :rating="product.rating" :read-only="true" :increment="0.01"
+                        :starSize="24" />
                     <span>({{ product.reviewsCount }})</span>
                 </div>
                 <div class="col-12 col-lg-4 d-flex justify-content-center my-3 my-lg-0">
@@ -129,7 +140,7 @@
                 </div>
                 <div class="col-lg-5 d-flex justify-content-end my-3 my-lg-0">
                     <div class="d-flex">
-                        <button class="btn btn-success btn-lg d-flex align-items-center"
+                        <button class="btn btn-success btn-lg d-flex align-items-center" @click="addToCart()"
                             style="border-radius: 10px 0 0 10px;" :disabled="!canBuy"><span
                                 class="fs-2 material-symbols-outlined">
                                 add_shopping_cart
@@ -325,7 +336,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect, type Ref } from 'vue';
+import { getCurrentInstance, onBeforeUnmount, onMounted, provide, reactive, ref, watch, watchEffect, type Ref } from 'vue';
 //@ts-ignore
 import vue3starRatings from 'vue-star-rating';
 import { Swiper, SwiperSlide } from "swiper/vue";
@@ -333,11 +344,17 @@ import "swiper/swiper.scss";
 import "swiper/components/pagination/pagination.min.css";
 import "swiper/components/navigation/navigation.min.css";
 import gql from 'graphql-tag';
+import { defineProps, defineEmits } from 'vue'
 //@ts-ignore
 import SwiperCore, { Autoplay, Pagination, Navigation } from "swiper/core";
 import { useRoute } from 'vue-router';
-import { useQuery } from '@vue/apollo-composable';
+import { useMutation, useQuery } from '@vue/apollo-composable';
 import router from '@/router';
+import { fetchMe, userData } from '@/me';
+//@ts-ignore
+import { eventBus } from '@/eventBus.ts';
+import Header from '@/components/Header.vue';
+
 SwiperCore.use([Autoplay, Pagination, Navigation]);
 
 const test = ref({
@@ -348,10 +365,11 @@ const test = ref({
     showRating: false
 });
 
+const instance = getCurrentInstance();
+
 const refreshKey = ref(0);
 function remountProductList() {
-  refreshKey.value++;
-  console.log("foo")
+    refreshKey.value++;
 }
 
 
@@ -428,7 +446,6 @@ query getProductBySnowflake($aux: String!) {
     productTypeId,
     label,
     isAvailable,
-    categoryId
     title,
     pics,
     fullPrice,
@@ -439,6 +456,14 @@ query getProductBySnowflake($aux: String!) {
     pointsGiven,
     shortDescription,
     count,
+    PlantInfo {
+      ground,
+      water,
+      fertilizer,
+      sunlight,
+      isToxic
+    }
+    categoryId,
     shippingCost {
       value
     },
@@ -514,6 +539,13 @@ watchEffect(() => {
         product.typeId = productData.productTypeId;
         product.catId = productData.categoryId;
         flagQuery.value = true;
+
+        product.water = productData.PlantInfo.water + 1;
+        product.ground = productData.PlantInfo.ground + 1;
+        product.sunlight = productData.PlantInfo.sunlight + 1;
+        product.fertilizer = productData.PlantInfo.fertilizer + 1;
+        product.isToxic = productData.PlantInfo.isToxic;
+
     }
 });
 
@@ -551,12 +583,45 @@ watchEffect(() => {
 
 watch(() => product.catId, (newCatId, oldCatId) => {
     if (newCatId && !oldCatId) {
-        console.log(newCatId);
         //@ts-ignore
         refetchGetCross({ cat: parseFloat(newCatId) as number });
         remountProductList();
     }
 });
+
+const { mutate: doAddToCart } = useMutation(
+    gql`
+        mutation addToCart($userId: Float!, $productId: Float!, $quantity: Float!, $isPrize: Boolean!) {
+            addProductToCart(isPrize: $isPrize, userId: $userId, productId: $productId, quantity: $quantity)
+        }
+    `
+);
+const data = ref();
+const flag = ref(false);
+
+
+const addToCart = async () => {
+    try {
+        if (!userData.value.me.id) {
+            console.log("nope");
+            return;
+        }
+        const res = await doAddToCart({
+            userId: parseFloat(userData.value.me.id),
+            productId: parseFloat(product.id),
+            quantity: quantity.value,
+            isPrize: false
+        });
+        console.log('Odpowiedź z mutacji addToCart:', res);
+        const userDataResponse = await fetchMe();
+        data.value = userDataResponse?.data.me;
+        flag.value = !flag.value;
+
+
+    } catch (error) {
+        console.error('Błąd podczas wywoływania mutacji addToCart:', error);
+    }
+};
 
 
 
@@ -593,18 +658,26 @@ watch(() => product.catId, (newCatId, oldCatId) => {
 }
 
 .product-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  color: white;
-  font-weight: 700;
-  height: 100%;
-  width: 100%;
-  font-size: 0.8vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #4b674fb9;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    color: white;
+    font-weight: 700;
+    height: 100%;
+    width: 100%;
+    font-size: 0.8vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4b674fb9;
+}
+
+.v-responsive {
+    overflow: unset !important;
+}
+
+.v-carousel__controls {
+    width: 99% !important;
 }
 </style>

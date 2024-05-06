@@ -108,7 +108,7 @@ export class Product {
   categoryId: number;
 
   @Field((type) => PlantInfo, { nullable: true })
-  plantInfo?: PlantInfo;
+  PlantInfo?: PlantInfo;
 
   @Field((type) => [Review], { nullable: true })
   reviews?: Review[];

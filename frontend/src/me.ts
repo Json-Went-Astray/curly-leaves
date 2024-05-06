@@ -28,8 +28,17 @@ const meQuery =
       surname
       points
       cart {
-        products {
-          id
+        id
+        CartItem {
+          quantity
+          isPrize
+          product {
+            pics
+            price
+            fullPrice
+            isAvailable
+            title
+          }
         }
       }
       createdAt
