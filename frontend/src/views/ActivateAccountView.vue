@@ -29,8 +29,10 @@ const loading = ref(true);
 const doActivate = async () => {
     try {
         const result = await activateUser(activationKey.value);
+        console.log(result);
     } catch (error: any) {
-        router.push("/");
+        console.log(error)
+        //router.push("/");
     } finally {
         loading.value = false;
     }

@@ -11,29 +11,29 @@ export class AdressSet {
   @Field((type) => Int)
   ownerId: number;
 
-  @Field((type) => String)
-  city?: string;
-
-  @Field((type) => String)
-  county?: string;
-
-  @Field((type) => String)
-  street?: string;
-
-  @Field((type) => Int)
-  houseNumber?: number;
-
-  @Field((type) => String)
-  phoneNumber?: string;
-
-  @Field((type) => String)
-  postalCode?: string;
-
-  @Field((type) => String)
-  nip?: string;
-
-  @Field((type) => String)
-  companyName?: string;
+  @Field((type) => String, { nullable: true })
+  city?: string | null;
+  
+  @Field((type) => String, { nullable: true })
+  county?: string | null;
+  
+  @Field((type) => String, { nullable: true })
+  street?: string | null;
+  
+  @Field((type) => Int, { nullable: true })
+  houseNumber?: number | null;
+  
+  @Field((type) => String, { nullable: true })
+  phoneNumber?: string | null;
+  
+  @Field((type) => String, { nullable: true })
+  postalCode?: string | null;
+  
+  @Field((type) => String, { nullable: true })
+  nip?: string | null;
+  
+  @Field((type) => String, { nullable: true })
+  companyName?: string | null;
 
   @Field((type) => Boolean)
   isTemporary: boolean;

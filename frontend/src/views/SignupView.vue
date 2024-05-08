@@ -755,12 +755,14 @@ const doLogin = async () => {
     }
 
     try {
+        loginErrors.email = false;
         const success = await loginUser(
             loginEmail.value,
             loginPassword.value,
         );
     } catch (error: any) {
         console.log(error.message);
+        loginErrors.email = true;
         if (error.message == "user does not exist") {
             loginErrors.email = true;
             loginErrors.password = true;

@@ -1,34 +1,68 @@
 <template>
-    <div class="container-fluid py-2">
+    <Transition mode="out-in">
+        <div v-if="added == true"
+            class="container-fluid py-2 align-items-center justify-content-center d-flex flex-column"
+            style="min-height: 80vh;">
 
-        <MediaLibrary v-if="mediaLibOpen" :mode="mediaMode" @closeAction="handleCloseAction"
-            @getImageArrays="handleImageArrays" :title-image="titleImage" :product-images="productImages">
-        </MediaLibrary>
+            <p class="fs-1 fw-bold cl-text-primary w-100 text-center">Produkt został pomyślnie dodany!</p>
+            <button class="btn btn-lg btn-success-outline d-flex" @click="added = false">
+                <span class="material-symbols-outlined fs-2 me-2">
+                    frame_reload
+                </span> Dodaj kolejny
+            </button>
 
-        <br>
-        <div class="d-flex w-100 fs-3 align-items-center cl-text-secondary fw-bold mb-2">
-            Nowy produkt <span class="material-symbols-outlined ms-2 fs-1">library_add</span>
         </div>
-        <div class="row gx-5 my-3">
-            <div class="col-8">
-                <div class="cl-border rounded p-3">
-                    <div class="row">
-                        <div class="col-4 d-flex flex-wrap justify-content-center">
-                            <h5>Obraz główny produktu</h5>
+
+        <div v-else-if="added == false" class="container-fluid py-2">
+
+            <MediaLibrary v-if="mediaLibOpen" :mode="mediaMode" @closeAction="handleCloseAction"
+                @getImageArrays="handleImageArrays" :title-image="titleImage" :product-images="productImages">
+            </MediaLibrary>
+
+            <br>
+            <div class="d-flex w-100 fs-3 align-items-center cl-text-secondary fw-bold mb-2">
+                Nowy produkt <span class="material-symbols-outlined ms-2 fs-1">library_add</span>
+            </div>
+            <div class="row gx-5 my-3">
+                <div class="col-8">
+                    <div class="cl-border rounded p-3">
+                        <div class="row">
+                            <div class="col-4 d-flex flex-wrap justify-content-center">
+                                <h5>Obraz główny produktu</h5>
+                            </div>
+                            <div class="col-8">
+                                <h5>Galeria produktu</h5>
+                            </div>
                         </div>
-                        <div class="col-8">
-                            <h5>Galeria produktu</h5>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-4 d-flex flex-wrap justify-content-center">
-                            <div @click="mediaMode = 'singleSelect'; mediaLibOpen = true"
-                                class="cl-border rounded w-50 p-1 d-flex justify-content-center cl-border-hover cl-shadow cursor-pointer">
-                                <img v-if="titleImage != ''" :src="`http://localhost:4000` + titleImage"
-                                    alt="dodaj produkt" class="unselectable w-50">
-                                <img v-else src="@/assets/static/svg/box.svg" alt="dodaj produkt"
-                                    class="unselectable w-50">
-                                <span v-if="titleImage == ''"
+                        <div class="row">
+                            <div class="col-4 d-flex flex-wrap justify-content-center">
+                                <div @click="mediaMode = 'singleSelect'; mediaLibOpen = true"
+                                    class="cl-border rounded w-50 p-1 d-flex justify-content-center cl-border-hover cl-shadow cursor-pointer">
+                                    <img v-if="titleImage != ''" :src="`http://localhost:4000` + titleImage"
+                                        alt="dodaj produkt" class="unselectable w-50">
+                                    <img v-else src="@/assets/static/svg/box.svg" alt="dodaj produkt"
+                                        class="unselectable w-50">
+                                    <span v-if="titleImage == ''"
+                                        class="material-symbols-outlined position-absolute end-0 bottom-0">
+                                        add_circle
+                                    </span>
+                                    <span v-else class="material-symbols-outlined position-absolute end-0 bottom-0">
+                                        cameraswitch
+                                    </span>
+                                </div>
+                            </div>
+                            <div @click="mediaMode = 'select'; mediaLibOpen = true"
+                                class="col-7 d-flex position-relative justify-content-start cl-border cl-shadow cl-border-hover rounded cursor-pointer"
+                                style="overflow-x: overlay; max-width: 65%; min-width: 65%; overflow-y: hidden;">
+                                <div v-if="productImages.length == 0" v-for="i in 7" class=" rounded p-1 d-inline-flex">
+                                    <img src="@/assets/static/svg/box.svg" alt="dodaj produkt"
+                                        class="unselectable img-sm">
+                                </div>
+                                <div v-else v-for="(image, index) in productImages" :key="index"
+                                    class="rounded p-1 d-inline-flex m-3">
+                                    <img :src="`http://localhost:4000${image}`" class="unselectable img-sm">
+                                </div>
+                                <span v-if="productImages.length == 0"
                                     class="material-symbols-outlined position-absolute end-0 bottom-0">
                                     add_circle
                                 </span>
@@ -37,307 +71,295 @@
                                 </span>
                             </div>
                         </div>
-                        <div @click="mediaMode = 'select'; mediaLibOpen = true"
-                            class="col-7 d-flex position-relative justify-content-start cl-border cl-shadow cl-border-hover rounded cursor-pointer"
-                            style="overflow-x: overlay; max-width: 65%; min-width: 65%; overflow-y: hidden;">
-                            <div v-if="productImages.length == 0" v-for="i in 7" class=" rounded p-1 d-inline-flex">
-                                <img src="@/assets/static/svg/box.svg" alt="dodaj produkt" class="unselectable img-sm">
-                            </div>
-                            <div v-else v-for="(image, index) in productImages" :key="index"
-                                class="rounded p-1 d-inline-flex m-3">
-                                <img :src="`http://localhost:4000${image}`" class="unselectable img-sm">
-                            </div>
-                            <span v-if="productImages.length == 0"
-                                class="material-symbols-outlined position-absolute end-0 bottom-0">
-                                add_circle
-                            </span>
-                            <span v-else class="material-symbols-outlined position-absolute end-0 bottom-0">
-                                cameraswitch
-                            </span>
-                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-4">
-                <div class="cl-border rounded p-3">
-                    <div class="row flex-nowrap justify-content-around">
-                        <div class="col-6 d-flex align-items-center">
-                            <span class="fs-5">Rodzaj produktu</span>
-                        </div>
-                        <div class="col-6">
-                            <div class="btn-group w-100">
-                                <button type="button"
-                                    class="btn btn-success-outline dropdown-toggle d-flex align-items-center justify-content-around px-4"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="col-2">
-                                        <span class="material-symbols-outlined">
-                                            {{ selectedDropdownProductType.icon }}
-                                        </span>
-                                    </div>
-                                    <div class="col-10 text-center">
-                                        {{ selectedDropdownProductType.text }}
-                                    </div>
-                                </button>
-                                <ul class="dropdown-menu w-100">
-                                    <li>
-                                        <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                            href="#" @click="selectDropdownProductType('potted_plant', 'Roślina', 1)">
-                                            <div class="col-2">
-                                                <span class="material-symbols-outlined">
-                                                    potted_plant
-                                                </span>
-                                            </div>
-                                            <div class="col-10 text-center">
-                                                Roślina
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                            href="#"
-                                            @click="selectDropdownProductType('garden_cart', 'Art. ogrodniczy', 2)">
-                                            <div class="col-2">
-                                                <span class="material-symbols-outlined">
-                                                    garden_cart
-                                                </span>
-                                            </div>
-                                            <div class="col-10 text-center">
-                                                Art. ogrodniczy
-                                            </div>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                            href="#" @click="selectDropdownProductType('pergola', 'Inny', 3)">
-                                            <div class="col-2">
-                                                <span class="material-symbols-outlined">
-                                                    pergola
-                                                </span>
-                                            </div>
-                                            <div class="col-10 text-center">
-                                                Inny
-                                            </div>
-                                        </a>
-                                    </li>
-                                </ul>
+                <div class="col-4">
+                    <div class="cl-border rounded p-3">
+                        <div class="row flex-nowrap justify-content-around">
+                            <div class="col-6 d-flex align-items-center">
+                                <span class="fs-5">Rodzaj produktu</span>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row gx-5 my-3">
-            <div class="col-8 text-center">
-                <div class="cl-border rounded p-3">
-                    <div class="row">
-                        <h5>Podstawowe informacje</h5>
-                    </div>
-                    <div class="row">
-                        <div class="form-floating my-2 px-1 w-50">
-                            <input type="text" class="form-control" placeholder="Nazwa" v-model="productTitle">
-                            <label>Nazwa</label>
-                        </div>
-                        <div class="form-floating my-2 px-1 w-50">
-                            <input v-model="productSnowflake" type="text" class="form-control"
-                                placeholder="Link produktu (generowany automatycznie)" disabled>
-                            <label>Link produktu (generowany automatycznie)</label>
-                            <span class="material-symbols-outlined position-absolute cursor-pointer"
-                                @click="copyToClipboard(productSnowflake)"
-                                style="bottom: 5px; right: 10px; background: beige;">
-                                content_copy
-                            </span>
-                            <transition>
-                                <div v-show="copied" class="p-2 bg-background rounded-2 position-absolute w-25 border"
-                                    style="width: auto; right: 0; top: 80%; z-index: 50;">
-                                    Skopiowano!
-                                </div>
-                            </transition>
-                        </div>
-
-                        <div class="d-flex w-100 flex-nowrap">
-                            <span v-if="productSnowflake" class="text-danger mx-2">&nbsp;</span>
-                            <span v-else class="text-danger mx-2">Nazwa nie może być pusta</span>
-                        </div>
-                        <div class="form-floating my-2 px-1">
-                            <textarea class="form-control" placeholder="Opis produktu" rows="6"
-                                v-model="productDescription" style="resize: none; height: 100%;"></textarea>
-                            <label>Opis produktu</label>
-                        </div>
-                        <div class="d-flex w-100 flex-nowrap">
-                            <span v-if="productDescription" class="text-warning mx-2">&nbsp</span>
-                            <span v-else class="text-warning mx-2">Opis jest pusty</span>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-7 p-0">
-                            <div class="form-floating my-2 px-1">
-                                <textarea v-model="productShortDescription" class="form-control"
-                                    placeholder="Opis produktu" rows="6" style="resize: none; height: 100%;"></textarea>
-                                <label>Opis produktu na liście</label>
-                            </div>
-                            <div class="d-flex w-100 flex-nowrap">
-                                <span v-if="productShortDescription" class="text-warning mx-2">&nbsp</span>
-                                <span v-else class="text-warning mx-2">Opis jest pusty</span>
-                            </div>
-                        </div>
-                        <div class="col-5">
-                            <div class="row">
-                                <div class="form-floating my-2 px-1 w-100 ">
-                                    <input type="text" class="form-control" v-model="productLabel"
-                                        placeholder="Etykieta" maxlength="12">
-                                    <label>Etykieta</label>
-                                    <span class="position-absolute bottom-0" style="right:5%"> {{ productLabel.length }}
-                                        / 12
-                                    </span>
-                                </div>
-                            </div>
-
-
-                            <div class="col-12 my-3">
+                            <div class="col-6">
                                 <div class="btn-group w-100">
                                     <button type="button"
-                                        class="btn btn-success dropdown-toggle cl-white d-flex align-items-center justify-content-around px-4"
+                                        class="btn btn-success-outline dropdown-toggle d-flex align-items-center justify-content-around px-4"
                                         data-bs-toggle="dropdown" aria-expanded="false">
-                                        <div class="col-12 text-center cl-white">
-                                            {{ category }}
+                                        <div class="col-2">
+                                            <span class="material-symbols-outlined">
+                                                {{ selectedDropdownProductType.icon }}
+                                            </span>
+                                        </div>
+                                        <div class="col-10 text-center">
+                                            {{ selectedDropdownProductType.text }}
                                         </div>
                                     </button>
                                     <ul class="dropdown-menu w-100">
-
-                                        <li v-if="categoryValue.length > 0" v-for="(cat, index) in categoryValue"
-                                            :key="index">
+                                        <li>
                                             <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                                href="#" @click="
-            //@ts-ignore
-            selectCategory(cat.title)
-            ">
-                                                <div class="col-12 text-center">
-                                                    {{ //@ts-ignore
-            cat.title
-                                                    }}
+                                                href="#"
+                                                @click="selectDropdownProductType('potted_plant', 'Roślina', 1)">
+                                                <div class="col-2">
+                                                    <span class="material-symbols-outlined">
+                                                        potted_plant
+                                                    </span>
+                                                </div>
+                                                <div class="col-10 text-center">
+                                                    Roślina
                                                 </div>
                                             </a>
                                         </li>
-
-                                        <li v-else>
+                                        <li>
                                             <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
-                                                href="#">
-                                                <div class="col-12 text-center">
-                                                    Brak kategorii, dodaj je w zakładce `Kategorie`
+                                                href="#"
+                                                @click="selectDropdownProductType('garden_cart', 'Art. ogrodniczy', 2)">
+                                                <div class="col-2">
+                                                    <span class="material-symbols-outlined">
+                                                        garden_cart
+                                                    </span>
+                                                </div>
+                                                <div class="col-10 text-center">
+                                                    Art. ogrodniczy
                                                 </div>
                                             </a>
                                         </li>
-
-
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
+                                                href="#" @click="selectDropdownProductType('pergola', 'Inny', 3)">
+                                                <div class="col-2">
+                                                    <span class="material-symbols-outlined">
+                                                        pergola
+                                                    </span>
+                                                </div>
+                                                <div class="col-10 text-center">
+                                                    Inny
+                                                </div>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-lg col-7 p-3 btn-success my-5" @click="doCreate()">
-                    Dodaj produkt
-                </button>
             </div>
-
-            <div class="col-4">
-                <div class="cl-border rounded p-3">
-                    <div class="row">
-                        <h5>Ceny</h5>
-                    </div>
-                    <div class="form-floating my-2 px-1">
-                        <input type="number" min="1" step="any" class="form-control" placeholder="Cena NETTO"
-                            v-model="netPrice">
-                        <label>Cena NETTO</label>
-                    </div>
-                    <!-- extend -->
-                    <div class="d-flex w-100 flex-nowrap my-1">
-                        <span class="fw-bold mx-2">Cena BRUTTO: {{ (netPrice * 1.23).toFixed(2) }} zł</span>
-                        <span class="text-danger mx-2">Wpisz poprawną cenę</span>
-                    </div>
-                    <div class="d-flex w-100 flex-nowrap my-1">
-                        <span class="fw-bold mx-2">Cena Dostawy: 16 zł</span>
-                    </div>
-                    <div class="row my-2">
-                        <div class="col-6 d-flex align-items-center">
-                            <span class="me-2">Produkt w promocji&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                            <Toggle v-model="isDiscount" />
+            <div class="row gx-5 my-3">
+                <div class="col-8 text-center">
+                    <div class="cl-border rounded p-3">
+                        <div class="row">
+                            <h5>Podstawowe informacje</h5>
                         </div>
-                        <div class="col-6">
+                        <div class="row">
+                            <div class="form-floating my-2 px-1 w-50">
+                                <input type="text" class="form-control" placeholder="Nazwa" v-model="productTitle">
+                                <label>Nazwa</label>
+                            </div>
+                            <div class="form-floating my-2 px-1 w-50">
+                                <input v-model="productSnowflake" type="text" class="form-control"
+                                    placeholder="Link produktu (generowany automatycznie)" disabled>
+                                <label>Link produktu (generowany automatycznie)</label>
+                                <span class="material-symbols-outlined position-absolute cursor-pointer"
+                                    @click="copyToClipboard(productSnowflake)"
+                                    style="bottom: 5px; right: 10px; background: beige;">
+                                    content_copy
+                                </span>
+                                <transition>
+                                    <div v-show="copied"
+                                        class="p-2 bg-background rounded-2 position-absolute w-25 border"
+                                        style="width: auto; right: 0; top: 80%; z-index: 50;">
+                                        Skopiowano!
+                                    </div>
+                                </transition>
+                            </div>
+
+                            <div class="d-flex w-100 flex-nowrap">
+                                <span v-if="productSnowflake" class="text-danger mx-2">&nbsp;</span>
+                                <span v-else class="text-danger mx-2">Nazwa nie może być pusta</span>
+                            </div>
                             <div class="form-floating my-2 px-1">
-                                <input type="number" min="1" step="any" class="form-control" v-model="discountedPrice"
-                                    placeholder="Cena promocyjna" :disabled="!isDiscount">
-                                <label>Cena promocyjna</label>
+                                <textarea class="form-control" placeholder="Opis produktu" rows="6"
+                                    v-model="productDescription" style="resize: none; height: 100%;"></textarea>
+                                <label>Opis produktu</label>
+                            </div>
+                            <div class="d-flex w-100 flex-nowrap">
+                                <span v-if="productDescription" class="text-warning mx-2">&nbsp</span>
+                                <span v-else class="text-warning mx-2">Opis jest pusty</span>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-7 p-0">
+                                <div class="form-floating my-2 px-1">
+                                    <textarea v-model="productShortDescription" class="form-control"
+                                        placeholder="Opis produktu" rows="6"
+                                        style="resize: none; height: 100%;"></textarea>
+                                    <label>Opis produktu na liście</label>
+                                </div>
+                                <div class="d-flex w-100 flex-nowrap">
+                                    <span v-if="productShortDescription" class="text-warning mx-2">&nbsp</span>
+                                    <span v-else class="text-warning mx-2">Opis jest pusty</span>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div class="row">
+                                    <div class="form-floating my-2 px-1 w-100 ">
+                                        <input type="text" class="form-control" v-model="productLabel"
+                                            placeholder="Etykieta" maxlength="12">
+                                        <label>Etykieta</label>
+                                        <span class="position-absolute bottom-0" style="right:5%"> {{
+            productLabel.length }}
+                                            / 12
+                                        </span>
+                                    </div>
+                                </div>
 
-                    </div>
-                    <div class="row my-2">
-                        <div class="col-6 d-flex align-items-center">
-                            <span>Objęty programem lojalnościowym</span>
-                            <Toggle v-model="isPrize" />
-                        </div>
-                        <div class="col-6">
-                            <div class="form-floating my-2 px-1">
-                                <input type="number" min="1" step="any" class="form-control" v-model="prizePrice"
-                                    placeholder="Cena promocyjna" :disabled="!isPrize">
-                                <label>Cena punktowa</label>
+
+                                <div class="col-12 my-3">
+                                    <div class="btn-group w-100">
+                                        <button type="button"
+                                            class="btn btn-success dropdown-toggle cl-white d-flex align-items-center justify-content-around px-4"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                            <div class="col-12 text-center cl-white">
+                                                {{ category }}
+                                            </div>
+                                        </button>
+                                        <ul class="dropdown-menu w-100">
+
+                                            <li v-if="categoryValue.length > 0" v-for="(cat, index) in categoryValue"
+                                                :key="index">
+                                                <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
+                                                    href="#" @click="
+            //@ts-ignore
+            selectCategory(cat.title)
+            ">
+                                                    <div class="col-12 text-center">
+                                                        {{ //@ts-ignore
+            cat.title
+                                                        }}
+                                                    </div>
+                                                </a>
+                                            </li>
+
+                                            <li v-else>
+                                                <a class="dropdown-item d-flex align-items-center justify-content-around px-2"
+                                                    href="#">
+                                                    <div class="col-12 text-center">
+                                                        Brak kategorii, dodaj je w zakładce `Kategorie`
+                                                    </div>
+                                                </a>
+                                            </li>
+
+
+                                        </ul>
+                                    </div>
+                                </div>
+
+
                             </div>
                         </div>
                     </div>
-                    <div class="form-floating my-2 px-1">
-                        <input type="number" min="1" step="any" class="form-control" v-model="valuePoints"
-                            placeholder="Wartość punktowa">
-                        <label>Wartość punktowa</label>
-                    </div>
-
-
+                    <button class="btn btn-lg col-7 p-3 btn-success my-5" @click="doCreate()">
+                        Dodaj produkt
+                    </button>
                 </div>
 
-                <Transition>
-                    <div class="cl-border rounded p-3 mt-5" v-show="selectedDropdownProductType.text == 'Roślina'">
+                <div class="col-4">
+                    <div class="cl-border rounded p-3">
                         <div class="row">
-                            <h5>Dane rośliny</h5>
+                            <h5>Ceny</h5>
                         </div>
-                        <h6>Nasycenie słoneczne [godziny]</h6>
-                        <v-slider step="1" show-ticks="always" tick-size="1" :max="3" :ticks="sunTicks"
-                            track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f' v-model="sunTicksValue">
-                        </v-slider>
-                        <div class="row mt-3">
-                            <h6>Częstość podlewania [dni]</h6>
+                        <div class="form-floating my-2 px-1">
+                            <input type="number" min="1" step="any" class="form-control" placeholder="Cena NETTO"
+                                v-model="netPrice">
+                            <label>Cena NETTO</label>
                         </div>
-                        <v-slider step="1" show-ticks="always" tick-size="1" :max="4" :ticks="waterTicks"
-                            v-model="waterTicksValue" track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
-                        </v-slider>
-                        <div class="row mt-3">
-                            <h6>PH gleby</h6>
+                        <!-- extend -->
+                        <div class="d-flex w-100 flex-nowrap my-1">
+                            <span class="fw-bold mx-2">Cena BRUTTO: {{ (netPrice * 1.23).toFixed(2) }} zł</span>
+                            <span class="text-danger mx-2" v-if="!netPrice">Wpisz poprawną cenę</span>
                         </div>
-                        <v-slider step="1" show-ticks="always" tick-size="1" :max="3" :ticks="groundTicks"
-                            v-model="groundTicksValue" track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
-                        </v-slider>
-                        <div class="row mt-3">
-                            <h6>Częstość nawożenia [tygodnie]</h6>
+                        <div class="d-flex w-100 flex-nowrap my-1">
+                            <span class="fw-bold mx-2">Cena Dostawy: 16 zł</span>
                         </div>
-                        <v-slider step="1" show-ticks="always" tick-size="1" :max="2" :ticks="fertilizerTicks"
-                            v-model="fertilizerTicksValue" track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
-                        </v-slider>
-                        <div class="d-flex flex-wrap">
-                            <h6 class="me-5">Czy jest toksyczna?</h6>
-                            <Toggle v-model="isToxic" />
+                        <div class="row my-2">
+                            <div class="col-6 d-flex align-items-center">
+                                <span class="me-2">Produkt w promocji&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                <Toggle v-model="isDiscount" />
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating my-2 px-1">
+                                    <input type="number" min="1" step="any" class="form-control"
+                                        v-model="discountedPrice" placeholder="Cena promocyjna" :disabled="!isDiscount">
+                                    <label>Cena promocyjna</label>
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="form-floating my-2 px-1 w-100">
-                            <input type="text" class="form-control" placeholder="Ciekawostka o roślinie"
-                                v-model="plantTrivia">
-                            <label>Ciekawostka o roślinie</label>
+                        <div class="row my-2">
+                            <div class="col-6 d-flex align-items-center">
+                                <span>Objęty programem lojalnościowym</span>
+                                <Toggle v-model="isPrize" />
+                            </div>
+                            <div class="col-6">
+                                <div class="form-floating my-2 px-1">
+                                    <input type="number" min="1" step="any" class="form-control" v-model="prizePrice"
+                                        placeholder="Cena promocyjna" :disabled="!isPrize">
+                                    <label>Cena punktowa</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating my-2 px-1">
+                            <input type="number" min="1" step="any" class="form-control" v-model="valuePoints"
+                                placeholder="Wartość punktowa">
+                            <label>Wartość punktowa</label>
                         </div>
 
+
                     </div>
-                </Transition>
+
+                    <Transition>
+                        <div class="cl-border rounded p-3 mt-5" v-show="selectedDropdownProductType.text == 'Roślina'">
+                            <div class="row">
+                                <h5>Dane rośliny</h5>
+                            </div>
+                            <h6>Nasycenie słoneczne [godziny]</h6>
+                            <v-slider step="1" show-ticks="always" tick-size="1" :max="3" :ticks="sunTicks"
+                                track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f' v-model="sunTicksValue">
+                            </v-slider>
+                            <div class="row mt-3">
+                                <h6>Częstość podlewania [dni]</h6>
+                            </div>
+                            <v-slider step="1" show-ticks="always" tick-size="1" :max="4" :ticks="waterTicks"
+                                v-model="waterTicksValue" track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
+                            </v-slider>
+                            <div class="row mt-3">
+                                <h6>PH gleby</h6>
+                            </div>
+                            <v-slider step="1" show-ticks="always" tick-size="1" :max="3" :ticks="groundTicks"
+                                v-model="groundTicksValue" track-color="#E1E4E9" thumb-color="#4b674f" color='#4b674f'>
+                            </v-slider>
+                            <div class="row mt-3">
+                                <h6>Częstość nawożenia [tygodnie]</h6>
+                            </div>
+                            <v-slider step="1" show-ticks="always" tick-size="1" :max="2" :ticks="fertilizerTicks"
+                                v-model="fertilizerTicksValue" track-color="#E1E4E9" thumb-color="#4b674f"
+                                color='#4b674f'>
+                            </v-slider>
+                            <div class="d-flex flex-wrap">
+                                <h6 class="me-5">Czy jest toksyczna?</h6>
+                                <Toggle v-model="isToxic" />
+                            </div>
+                            <div class="form-floating my-2 px-1 w-100">
+                                <input type="text" class="form-control" placeholder="Ciekawostka o roślinie"
+                                    v-model="plantTrivia">
+                                <label>Ciekawostka o roślinie</label>
+                            </div>
+
+                        </div>
+                    </Transition>
+                </div>
             </div>
         </div>
-    </div>
+    </Transition>
+
 </template>
 
 <script setup lang="ts">
@@ -348,7 +370,7 @@ import gql from 'graphql-tag';
 import { useMutation, useQuery } from '@vue/apollo-composable';
 import { onMounted } from 'vue';
 
-const productTitle = ref("tytuł");
+const productTitle = ref("");
 const productSnowflake = ref("");
 const productSnowflakeValue = ref("");
 const copied = ref(false);
@@ -386,6 +408,8 @@ const copyToClipboard = async (text: string) => {
     }
 };
 
+const added = ref(false);
+
 const mediaLibOpen = ref(false);
 const mediaMode = ref("");
 
@@ -405,7 +429,7 @@ let productTypeId = ref(1);
 let sunTicksValue = ref(0);
 let waterTicksValue = ref(0);
 let fertilizerTicksValue = ref(0);
-let groundTicksValue = ref(1);
+let groundTicksValue = ref(0);
 
 
 const isDiscount = ref(false);
@@ -563,6 +587,35 @@ const doCreate = (async () => {
             productExtra
         });
         console.log(res, "ok");
+
+        mediaLibOpen.value = false;
+        mediaMode.value = "";
+
+        productTitle.value = "";
+        titleImage.value = "";
+        productImages.value = [];
+        productDescription.value = "";
+        productShortDescription.value = "";
+        productLabel.value = "";
+        netPrice.value = null;
+        isPrize.value = false;
+        prizePrice.value = null;
+        valuePoints.value = 0;
+        plantTrivia.value = "";
+        productTypeId.value = 1;
+
+        sunTicksValue.value = 0;
+        waterTicksValue.value = 0;
+        fertilizerTicksValue.value = 0;
+        groundTicksValue.value = 0;
+
+
+        isDiscount.value = false;
+        discountedPrice.value = null;
+        isToxic.value = false;
+        category.value = "Wybierz kategorię";
+        pics.value = "";
+        added.value = true;
     } catch (exception: any) {
         exception.graphQLErrors.forEach((error: any) => {
             console.log(error)

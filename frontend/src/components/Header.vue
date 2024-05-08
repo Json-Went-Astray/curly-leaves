@@ -26,14 +26,13 @@
                             nie rezerwuje go</span>
                     </div>
 
-                    <div class=""
+                    <div
                         style="max-height: 60vh; max-height: 60vh; width: 110%; flex-direction: column; overflow-y: scroll;">
-                        <div class="row my-2 border border-2 bg-white rounded-2" style="height: 20%; width: 100%;"
-                            v-if="cartArray" v-for="cartProduct in cartArray">
+                        <div class="row my-2 border border-2 bg-white rounded-2" style="width: 100%;" v-if="cartArray"
+                            v-for="cartProduct in cartArray">
                             <div class="col-6 d-flex justify-content-center align-items-center ps-0 py-0">
-                                <img :src="cartProduct.product.pics ? `http://localhost:4000${cartProduct.product.pics.split(';')[0]}` : 'http://placehold.co/20x10'"
-                                    alt="" class="rounded-2" width="100%"
-                                    style="border-top-right-radius: 0px !important; border-bottom-right-radius: 0px !important;">
+                                <img :src="cartProduct.product.pics ? `http://localhost:4000${cartProduct.product.pics.split(';')[0]}` : 'http://placehold.co/100x200'"
+                                    alt="" class="rounded-2" width="100%" style="width: auto; max-height: 100px;">
                             </div>
                             <div class="col d-flex flex-column align-items-start py-2">
                                 <span class="" style="font-size: 10pt;">{{ cartProduct.product.title }}</span>
@@ -47,13 +46,15 @@
                     cartProduct.quantity * cartProduct.product.price }} zł</strong></span>
                                 <span v-else style="font-size: 10pt;"><strong>Łącznie: {{ cartProduct.quantity *
                     cartProduct.product.fullPrice }} zł</strong></span>
+                                <a href="#" style="font-size: 10pt; text-decoration: underline" @click="removeProductFromCart(cartProduct.product.id)">Usuń</a>
 
                             </div>
                         </div>
                     </div>
 
                     <div class="w-100">
-                        <button class="btn btn-success w-100 p-3 my-1">Przejdź do zapłaty</button>
+                        <button class="btn btn-success w-100 p-3 my-1" @click="$router.push('/pre-checkout')">Przejdź do
+                            zapłaty</button>
                     </div>
 
                     <div class="w-100">
@@ -139,9 +140,9 @@
                 </a>
 
                 <a class="mx-0 mx-sm-5 d-flex align-items-center unselectable cursor-pointer" v-if="isLoggedIn">
-                    <div class="bg-white p-3 rounded-circle">
-                        <img :src="data && data.picId ? `http://localhost:4000/uploads/user-avatars/${data.picId}` : ''"
-                            class="rounded-circle" style="width: 35px; position: absolute; top: 0; left: 0">
+                    <div class="p-3 rounded-circle">
+                        <img @click="$router.push('/user')" :src="data && data.picId ? `http://localhost:4000/uploads/user-avatars/${data.picId}` : ''"
+                            class="rounded-circle" style="width: 35px; position: absolute; top: 0; left: 0; aspect-ratio: 1 / 1; object-fit:fill;">
                     </div>
                     <!-- <div class="bg-danger rounded-circle position-absolute pill-indicator" style="font-size: 8pt;">
                     </div> -->
@@ -201,7 +202,7 @@ import gql from 'graphql-tag';
 //@ts-ignore
 import ProductPage from './ProductTemplates/PottedPlant.vue';
 import { inject } from 'vue';
-const props = defineProps(['message']);
+const props = defineProps(['message', 'doNotOpen']);
 const cartOpen = ref(false);
 const data = ref();
 let hasFetched = false;
@@ -210,7 +211,7 @@ const cartArray = ref();
 
 watchEffect(() => {
     (async () => {
-        if (isLoggedIn && !hasFetched) {
+        if (isLoggedIn.value && !hasFetched) {
 
             const userDataResponse = await fetchMe();
             data.value = userDataResponse?.data.me;
@@ -220,8 +221,8 @@ watchEffect(() => {
                 for (let i = 0; i < data.value.cart.CartItem.length; i++) {
                     cartCount.value += data.value.cart.CartItem[i].quantity;
                 }
+                cartArray.value = data.value.cart.CartItem;
             }
-            cartArray.value = data.value.cart.CartItem;
 
         }
     })();
@@ -231,6 +232,14 @@ const { mutate: removeAll } = useMutation(
     gql`
     mutation removeAllProductsFromCart($userId: Float!){
         removeAllProductsFromCart(userId: $userId)
+    }
+    `
+);
+
+const { mutate: removeOne } = useMutation(
+    gql`
+    mutation removeProductFromCart($userId: Float!, $productId: Float!) {
+        removeProductFromCart(userId: $userId, productId: $productId)
     }
     `
 );
@@ -253,7 +262,29 @@ const removeAllProductsFromCart = async () => {
     }
 };
 
+const removeProductFromCart = async (productId: any) => {
+    try {
+        if (!userData.value.me.id) {
+            console.log("nope");
+            return;
+        }
+        const res = await removeOne({
+            userId: parseFloat(userData.value.me.id),
+            productId: parseFloat(productId)
+        });
+        const userDataResponse = await fetchMe();
+        data.value = userDataResponse?.data.me;
+        cartArray.value = data.value.cart.CartItem;
+        cartCount.value = 0;
+        console.log(res)
+
+    } catch (error) {
+        console.log(error)
+    }
+};
+
 const message = ref(props.message);
+const doNotOpen = ref(props.doNotOpen !== undefined ? props.doNotOpen : false);
 
 const fetchData = async () => {
     const userDataResponse = await fetchMe();
@@ -263,7 +294,8 @@ const fetchData = async () => {
     for (let i = 0; i < data.value.cart.CartItem.length; i++) {
         cartCount.value += data.value.cart.CartItem[i].quantity;
     }
-    cartOpen.value = true;
+    if (doNotOpen.value == false)
+        cartOpen.value = true;
 };
 
 watch(() => props.message, (newValue, oldValue) => {

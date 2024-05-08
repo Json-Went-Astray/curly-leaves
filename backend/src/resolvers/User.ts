@@ -102,7 +102,7 @@ export class UserResolver {
   @Query((returns) => User, { nullable: true })
   @UseMiddleware(IsLoggedIn)
   async me(@Ctx() ctx: Context) {
-    return ctx.prisma.user.findUnique({
+    const user: any = ctx.prisma.user.findUnique({
       where: {
         id: ctx.user!.id,
       },
@@ -115,9 +115,66 @@ export class UserResolver {
               }
             }
           }
-        }
+        },
+        addressesSets: true,
+          
+        
+        
       },
     });
+
+    if (user && user.cart && user.cart.CartItem) {
+      user.cart.CartItem = user.cart.CartItem.filter((item: any) => {
+        console.log("x",item.quantity, item.product.count)
+
+        if (item.product) {
+          // Jeśli produkt nie jest dostępny, usuń go z koszyka
+          if (!item.product.isAvailable) {
+            ctx.prisma.cartItem.delete({
+              where: {
+                id: item.id
+              }
+            });
+            return false;
+          }
+          
+          if (item.product.count === 0) {
+            ctx.prisma.cartItem.delete({
+              where: {
+                id: item.id
+              }
+            });
+            return false;
+          }
+    
+          if (item.quantity > item.product.count) {
+            console.log("exceeds")
+            item.quantity = item.product.count;
+            ctx.prisma.cartItem.update({
+              where: {
+                id: item.id
+              },
+              data: {
+                quantity: item.product.count
+              }
+            });
+          }
+    
+          return true;
+        }
+    
+        ctx.prisma.cartItem.delete({
+          where: {
+            id: item.id
+          }
+        });
+        return false;
+      });
+    }
+
+
+
+    return user;
   }
 
   @Query((returns) => User)
@@ -161,7 +218,7 @@ export class UserResolver {
         try {
           const subject =
             "Witamy w serwisie Curly-Leaves - potwierdź rejestrację!";
-          const text = `Witamy w naszym serwisie! W celu aktywacji konta proszę kliknąć w poniższy link http://localhost:5173/activate-account/${exists.activationLink}`;
+          const text = `Witamy w naszym serwisie! W celu aktywacji konta proszę kliknąć w poniższy link http://localhost:5173/new-user/${exists.activationLink}`;
 
           const mailOptions = {
             from: "curly.leaves.mailer@gmail.com",
@@ -190,12 +247,21 @@ export class UserResolver {
     });
 
     if (found && !found.isActive) {
-      found.isActive = true;
+      
     } else {
-      throw new GraphQLError("user already activated");
+      throw new GraphQLError("user already activated"); 
     }
 
-    return found;
+    const updatedUser = await ctx.prisma.user.update({
+      where: {
+        id: found.id
+      },
+      data: {
+        isActive: true,
+      },
+    });
+  
+    return updatedUser;
   }
 
   @Mutation((returns) => User)
@@ -251,7 +317,6 @@ export class UserResolver {
       );
     }
 
-    console.log("1");
 
     if (userData.password_1 !== userData.password_2) {
       errors.push(
@@ -320,7 +385,7 @@ export class UserResolver {
 
       throw combinedError;
     }
-    const hashedPassword = await bcrypt.hash(userData.password_1, 20);
+    const hashedPassword = await bcrypt.hash(userData.password_1, 3);
 
     const activationLink = crypto.randomBytes(32).toString("hex");
     const transporter = nodemailer.createTransport({
@@ -336,7 +401,7 @@ export class UserResolver {
       try {
         const subject =
           "Witamy w serwisie Curly-Leaves - potwierdź rejestrację!";
-        const text = `Witamy w naszym serwisie! W celu aktywacji konta proszę kliknąć w poniższy link http://localhost:5173/activate-account/${activationLink}`;
+        const text = `Witamy w naszym serwisie! W celu aktywacji konta proszę kliknąć w poniższy link http://localhost:5173/new-user/${activationLink}`;
 
         const mailOptions = {
           from: "curly.leaves.mailer@gmail.com",
@@ -354,25 +419,35 @@ export class UserResolver {
     await sendEmail(userData.email, activationLink);
     this.activationEmails[userData.email] = Date.now();
 
+    const addressSetData = {
+      city: userExtra.city,
+      county: userExtra.county,
+      postalCode: userExtra.postalCode,
+      phoneNumber: userExtra.phoneNumber,
+      street: userExtra.street,
+      houseNumber: userExtra.houseNumber,
+      nip: userExtra.nip,
+      companyName: userExtra.companyName,
+    };
+    
+
+    const anyFieldNotEmpty = Object.values(addressSetData).some(value => !!value);
+    console.log(anyFieldNotEmpty)
+    
+    const userData2 = {
+      login: userData.login,
+      email: userData.email,
+      password: hashedPassword,
+      name: userData.name,
+      surname: userData.surname,
+      activationLink: activationLink,
+    };
+    
     const user = await ctx.prisma.user.create({
+      //@ts-ignore
       data: {
-        login: userData.login,
-        email: userData.email,
-        password: hashedPassword,
-        name: userData.name,
-        surname: userData.surname,
-        activationLink: activationLink,
-        addressesSets: {
-          create: {
-            city: userExtra.county,
-            postalCode: userExtra.postalCode,
-            phoneNumber: userExtra.phoneNumber,
-            street: userExtra.street,
-            houseNumber: userExtra.houseNumber,
-            nip: userExtra.nip,
-            companyName: userExtra.companyName,
-          },
-        },
+        ...userData2,
+        ...(anyFieldNotEmpty && { addressesSets: { create: addressSetData } }),
       },
     });
 
@@ -394,7 +469,6 @@ export class UserResolver {
     if (!user) {
       throw new GraphQLError("Nieprawidłowy email lub hasło");
     }
-
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
@@ -410,8 +484,213 @@ export class UserResolver {
     if (!user.isActive) {
       throw new GraphQLError("Użytkownik nieaktywny");
     }
-
     const token = jwt.sign({ sub: user.id }, process.env.APP_SECRET!);
     return { token, user };
   }
+
+
+  @Mutation((returns) => Number)
+  @UseMiddleware(IsLoggedIn)
+  async createAddressSet(
+    @Ctx() ctx: Context
+  ) {
+    const user = await ctx.prisma.user.findUnique({
+      where: {
+        email: ctx.user?.email,
+      },
+      include: {
+        addressesSets: true
+      }
+    });
+
+    if (!user) {
+      throw new GraphQLError("Brak danego użytkownika");
+    }
+
+    if (user.addressesSets) {
+      const nonTemporaryAddressSets = user.addressesSets.filter(set => !set.isTemporary);
+      if (nonTemporaryAddressSets.length > 3) {
+        throw new GraphQLError("Przekroczono limit adresów");
+      }
+    }
+
+    const res = await ctx.prisma.adressSet.create({
+      data: {
+        ownerId: user.id
+      }
+    })
+
+
+    return res.id;
+  }
+
+  @Mutation((returns) => String)
+  @UseMiddleware(IsLoggedIn)
+  async modifyAddressLine(
+    @Ctx() ctx: Context,
+    @Arg("setId") setId: number,
+    @Arg("whichLine") whichLine: string,
+    @Arg("line1") line1: string,
+    @Arg("line2", (type) => String, { nullable: true }) line2: string | null,
+  ) {
+    const user = await ctx.prisma.user.findUnique({
+      where: {
+        email: ctx.user?.email,
+      },
+      include: {
+        addressesSets: true
+      }
+    });
+
+    if (!user) {
+      throw new GraphQLError("Brak danego użytkownika");
+    }
+
+    const addressSet = await ctx.prisma.adressSet.findFirst({
+      where: {
+        ownerId: ctx.user?.id,
+        id: setId
+      }
+    });
+
+
+    if (!addressSet) {
+      throw new GraphQLError("Zestaw adresów nie znaleziony");
+    }
+
+    switch (whichLine) {
+      case 'phone':
+       await ctx.prisma.adressSet.update({
+          where: {
+            id: setId
+          },
+          data: {
+            phoneNumber: line1
+          }
+        });
+        break;
+      case 'county':
+        await ctx.prisma.adressSet.update({
+          where: {
+            id: setId
+          },
+          data: {
+            county: line1
+          }
+        });
+        break;
+      case 'postal/city':
+        await ctx.prisma.adressSet.update({
+          where: {
+            id: setId
+          },
+          data: {
+            postalCode: line1,
+            city: line2
+          }
+        });
+        break;
+      case 'street/house':
+        await ctx.prisma.adressSet.update({
+          where: {
+            id: setId
+          },
+          data: {
+            street: line1,
+            //@ts-ignore
+            houseNumber: parseInt(line2)
+          }
+        });
+        break;
+      case 'nip':
+        await ctx.prisma.adressSet.update({
+          where: {
+            id: setId
+          },
+          data: {
+            nip: line1
+          }
+        });
+        break;
+      case 'company':
+        await ctx.prisma.adressSet.update({
+          where: {
+            id: setId
+          },
+          data: {
+            companyName: line1
+          }
+        });
+        break;
+    
+      default:
+        break;
+    }
+    return "ok";
+  }
+
+  @Mutation((returns) => String)
+  @UseMiddleware(IsLoggedIn)
+  async deleteAddressSet(
+    @Ctx() ctx: Context,
+    @Arg("setId") setId: number,
+  ) {
+    const user = await ctx.prisma.user.findUnique({
+      where: {
+        email: ctx.user?.email,
+      },
+      include: {
+        addressesSets: true
+      }
+    });
+
+    if (!user) {
+      throw new GraphQLError("Brak danego użytkownika");
+    }
+
+    const addressSet = await ctx.prisma.adressSet.findFirst({
+      where: {
+        ownerId: ctx.user?.id,
+        id: setId
+      }
+    });
+
+
+    if (!addressSet) {
+      throw new GraphQLError("Zestaw adresów nie znaleziony");
+    }
+
+    await ctx.prisma.adressSet.update({
+      where: {
+        id: setId
+      },
+      data: {
+        isTemporary: true
+      }
+
+    })
+
+    return "ok";
+  }
+
+  @Mutation((returns) => String)
+  @UseMiddleware(IsLoggedIn)
+  async setPfp(
+    @Ctx() ctx: Context,
+    @Arg("picId") picId: string,
+  ) {
+    await ctx.prisma.user.update({
+      where: {
+        id: ctx.user?.id
+      },
+      data: {
+        picId: picId
+      }
+
+    })
+    return "ok";
+  }
 }
+
+
+

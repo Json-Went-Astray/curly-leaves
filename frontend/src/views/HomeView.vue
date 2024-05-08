@@ -119,7 +119,7 @@
                 <img :src="product.pic ? `http://localhost:4000${product.pic}` : 'http://placehold.co/100x200'"
                   alt="alt" class="w-100 rounded-top" style="height: 200px; width: 100%">
 
-                <span class="badge rounded-pill bg-primary product-label" v-if="product.isAvailable && product.count > 0">{{ product.label
+                <span class="badge rounded-pill bg-primary product-label" v-if="product.isAvailable == true && product.count > 0">{{ product.label
                   }}</span>
                 <span class="product-overlay" style="width: 100%" v-else>CHWILOWO NIEDOSTĘPNE</span>
               </div>
@@ -260,6 +260,7 @@ query getDiscountedProducts {
     fullPrice,
     price,
     snowFlake,
+    count,
     reviews {
       id
     }
@@ -284,7 +285,9 @@ watchEffect(() => {
         price: product.price,
         snowFlake: product.snowFlake,
         pic: picsCSV,
-        reviewsCount: reviewsCount
+        reviewsCount: reviewsCount,
+        count: product.count
+
       };
     });
   }
@@ -305,7 +308,8 @@ watchEffect(() => {
         price: product.price,
         snowFlake: product.snowFlake,
         pic: picsCSV,
-        reviewsCount: reviewsCount
+        reviewsCount: reviewsCount,
+        count: product.count
       };
     });
   }

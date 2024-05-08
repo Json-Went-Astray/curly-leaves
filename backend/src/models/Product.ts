@@ -104,8 +104,8 @@ export class Product {
   @Field((type) => Int, { nullable: true })
   shippingCostId?: number;
 
-  @Field((type) => Int)
-  categoryId: number;
+  @Field((type) => Int, { nullable: true })
+  categoryId?: number;
 
   @Field((type) => PlantInfo, { nullable: true })
   PlantInfo?: PlantInfo;

@@ -5,16 +5,17 @@
             <span class="h2">{{ product.title }}
             </span>
             <div class="col-xl-6 d-flex flex-column px-0 px-lg-5">
-                <v-carousel height="'100'" show-arrows="hover" class="rounded-2">
+                <v-carousel height="400" show-arrows="hover" cycle hide-delimiter-background>
                     <v-carousel-item v-for="image in product.pics" v-if="product.pics">
-                        <!-- <v-img cover :src="'https://picsum.photos/id/' + i + '/1280/720'"></v-img> -->
                         <v-img style="height: 400px;"
                             :src="image ? `http://localhost:4000${image}` : 'http://placehold.co/100x200'"></v-img>
-
+                        <span class="product-overlay" style="width: 100%"
+                            v-if="product.isAvailable == false || product.count == 0">CHWILOWO NIEDOSTĘPNE</span>
                     </v-carousel-item>
                     <v-carousel-item v-else>
-                        <!-- <v-img cover :src="'https://picsum.photos/id/' + i + '/1280/720'"></v-img> -->
                         <v-img cover :src="'http://placehold.co/1280x960'"></v-img>
+                        <span class="product-overlay" style="width: 100%"
+                            v-if="product.isAvailable == false || product.count == 0">CHWILOWO NIEDOSTĘPNE</span>
 
                     </v-carousel-item>
                 </v-carousel>
@@ -33,7 +34,9 @@
                         </div>
 
                         <div class="col-4 d-lg-flex align-items-center d-none">
-                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto" v-for="i in product.water">
+                            <img class="mx-3" src="@/assets/static/svg/droplet.svg" alt="" width="30px" height="auto"
+                                :class="{ 'animate-drop': firstLoad }" @load="firstLoad = true"
+                                v-for="i in product.water">
                         </div>
 
                         <div class="col-lg-4 col-6 d-flex align-items-center">
@@ -51,7 +54,9 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img class="mx-3" src="@/assets/static/svg/sun.svg" alt="" width="30px" height="auto" v-for="i in product.sunlight">
+                            <img class="mx-3" src="@/assets/static/svg/sun.svg" alt="" width="30px" height="auto"
+                                :class="{ 'animate-drop': firstLoad }" @load="firstLoad = true"
+                                v-for="i in product.sunlight">
                         </div>
 
 
@@ -70,7 +75,9 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img class="mx-3" src="@/assets/static/svg/soil.svg" alt="" width="30px" height="auto" v-for="i in product.ground">
+                            <img class="mx-3" src="@/assets/static/svg/soil.svg" alt="" width="30px" height="auto"
+                                :class="{ 'animate-drop': firstLoad }" @load="firstLoad = true"
+                                v-for="i in product.ground">
                         </div>
                         <div class="col-6 col-lg-4 d-flex align-items-center">
                             <span v-if="product.ground == 1">od 5,5 do 6,0 pH</span>
@@ -87,13 +94,16 @@
                         </div>
 
                         <div class="col-4 d-none d-lg-flex align-items-center">
-                            <img class="mx-3" src="@/assets/static/svg/shovel.svg" alt="" width="30px" height="auto" v-for="i in product.fertilizer">
+                            <img class="mx-3" src="@/assets/static/svg/shovel.svg" alt="" width="30px" height="auto"
+                                :class="{ 'animate-drop': firstLoad }" @load="firstLoad = true"
+                                v-for="i in product.fertilizer">
                         </div>
 
                         <div class="col-6 col-lg-4 d-flex align-items-center">
-                            <span v-if="product.fertilizer == 1">Raz na miesiąc (zima)/2 razy na miesiąc (lato)</span>
+                            <span v-if="product.fertilizer == 3">Raz na miesiąc (zima)/2 razy na miesiąc (lato)</span>
                             <span v-else-if="product.fertilizer == 2">Co 6 tygodni (zima)/raz na miesiąc (lato)</span>
-                            <span v-else-if="product.fertilizer == 3">Raz na 3 miesiące (zima)/raz na miesiąc (lato)</span>
+                            <span v-else-if="product.fertilizer == 1">Raz na 3 miesiące (zima)/raz na miesiąc
+                                (lato)</span>
                         </div>
                     </div>
                 </div>
@@ -106,6 +116,12 @@
                         package_2
                     </span>
                     <span class="fs-4 fw-bold">W magazynie: {{ product.count }}</span>
+                </div>
+                <div class="text-danger d-flex align-items-center shake-animation" v-if="product.isToxic">
+                    <span class="material-symbols-outlined fs-2 me-2">
+                        crisis_alert
+                    </span>
+                    <span class="fs-4 fw-bold">Uwaga: Roślina jest toksyczna dla ludzi i zwierząt</span>
                 </div>
             </div>
         </div>
@@ -147,7 +163,7 @@
                             </span>&nbsp;Do koszyka</button>
                         <div class="cl-bg-white fw-bold px-5 border align-self-stretch d-flex align-items-center fs-5 text-center justify-content-center"
                             style="min-width: 70px; max-width: 70px;">{{
-                quantity }}</div>
+            quantity }}</div>
                         <div class="d-flex flex-column">
                             <button class="btn btn-success px-3" style="border-radius: 0 10px 0 0;"
                                 @click="handleQuantity('+')">
@@ -429,6 +445,7 @@ const updateScreenWidth = () => {
 onMounted(() => {
     window.addEventListener('resize', updateScreenWidth);
     updateScreenWidth();
+    showAnimation.value = true;
 });
 
 onBeforeUnmount(() => {
@@ -624,6 +641,9 @@ const addToCart = async () => {
 };
 
 
+const showAnimation = ref(false); // Flaga kontrolująca wyświetlanie animacji
+const firstLoad = ref(false); // Flaga kontrolująca pierwsze wczytanie grafiki
+
 
 
 
@@ -679,5 +699,67 @@ const addToCart = async () => {
 
 .v-carousel__controls {
     width: 99% !important;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-1px);
+    }
+
+    50% {
+        transform: translateX(1px);
+    }
+
+    75% {
+        transform: translateX(-1px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.shake-animation {
+    animation: shake 1s ease infinite;
+}
+
+@keyframes drop {
+    0% {
+        transform: translateY(-50%) scale(0.3);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateY(0) scale(1.1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-drop {
+    animation: drop 2s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    color: white;
+    font-weight: 700;
+    height: 100%;
+    width: 100%;
+    font-size: 0.8vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4b674fb9;
 }
 </style>

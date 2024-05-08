@@ -53,9 +53,21 @@ export class MediaResolver {
     console.log(isCarousel, isProfile);
     //@ts-ignore
     const uniqueFilename = `${Date.now()}-${file.filename}`;
-    const mediaDir = join(appRoot.path, "uploads", "media");
-    const path = join(mediaDir, uniqueFilename);
+    let mediaDir = join(appRoot.path, "uploads", "media");
+    let path = join(mediaDir, uniqueFilename);
     let alias = 1;
+
+    let prepath = "/uploads/media/";
+    if (isProfile) {
+      isCarousel = false;
+      prepath = "/uploads/user-avatars/";
+      mediaDir = join(appRoot.path, "uploads", "user-avatars");
+      path = join(mediaDir, uniqueFilename);
+    }
+
+    else if (isCarousel) {
+      isProfile = false;
+    }
 
     const writeStream = createWriteStream(path);
     //@ts-ignore
@@ -83,16 +95,18 @@ export class MediaResolver {
       }
     } while (imageObj);
 
+
+
     const uploadedImage = await ctx.prisma.image.create({
       data: {
         title,
         description,
         altString,
         createdAt: new Date(),
-        source: "/uploads/media/" + uniqueFilename,
+        source: prepath + uniqueFilename,
         refLink,
-        isCarousel,
-        isProfile,
+        isCarousel: isCarousel,
+        isProfile: isProfile,
       },
     });
 
@@ -137,6 +151,18 @@ export class MediaResolver {
   ): Promise<Image[]> {
     const images = await ctx.prisma.image.findMany({
       where: filename ? { title: filename } : undefined,
+    });
+    return images;
+  }
+
+  @Query((returns) => [Image])
+  async getPfps(
+    @Ctx() ctx: Context,
+  ): Promise<Image[]> {
+    const images = await ctx.prisma.image.findMany({
+      where: {
+        isProfile: true
+      }
     });
     return images;
   }

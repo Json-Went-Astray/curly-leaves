@@ -11,10 +11,12 @@ import ProductViewVue from '@/views/ProductView.vue'
 import CheckoutView from '@/views/CheckoutView.vue'
 import CheckoutSummaryView from '@/views/CheckoutSummaryView.vue'
 import ActivateAccountView from '@/views/ActivateAccountView.vue'
-import { isElevatedQuery } from '@/me'
+import { isElevatedQuery, isLoggedIn } from '@/me'
+import PreChceckoutView from '@/views/PreChceckoutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+
   routes: [
     {
       path: "/:catchAll(.*)",
@@ -47,6 +49,11 @@ const router = createRouter({
       component: AdminLoginView
     },
     {
+      path: '/pre-checkout',
+      name: 'preCheckout',
+      component: PreChceckoutView
+    },
+    {
       path: '/checkout',
       name: 'checkout',
       component: CheckoutView
@@ -57,10 +64,16 @@ const router = createRouter({
       component: CheckoutSummaryView
     },
     {
-      //TO DO SNOWFLAKE
       path: '/user',
       name: 'user',
-      component: UserPanelViewVue
+      component: UserPanelViewVue,
+      beforeEnter: async (to, from, next) => {
+        if (isLoggedIn.value) {
+          next();
+        } else {
+          next('/');
+        }
+      }
     },
     {
       path: '/admin/panel',
@@ -95,5 +108,4 @@ const router = createRouter({
     }
   ]
 })
-
 export default router

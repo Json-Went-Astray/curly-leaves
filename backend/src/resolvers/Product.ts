@@ -39,6 +39,7 @@ import { unlink } from "fs/promises";
 import { PlantInfo, Product } from "../models/Product.js";
 import { Category } from "../models/Category.js";
 import { Review } from "../models/Product.js";
+import { Cart, CartItem } from "../models/Cart.js";
 
 //   productType  ProductType   @relation("products", fields: [productTypeId], references: [id])
 //   shippingCost ShippingCost? @relation(fields: [shippingCostId], references: [id])
@@ -83,6 +84,9 @@ export class ProductCreateInput {
 
   @Field((type) => String, { nullable: true })
   description: string;
+
+  @Field((type) => String, { nullable: true })
+  shortDescription: string;
 
   @Field((type) => String, { nullable: true })
   trivia: string;
@@ -240,31 +244,31 @@ export class ProductResolver {
     }
 
     //@ts-ignore
-    const existingCartItem = userCart.CartItem.find(
-      (item) => item.productId === productId
-    );
-
-    if (existingCartItem) {
-      await ctx.prisma.cartItem.update({
-        where: {
-          id: existingCartItem.id,
-        },
-        data: {
-          quantity: existingCartItem.quantity + quantity,
-        },
-      });
-    } else {
-      await ctx.prisma.cartItem.create({
-        data: {
-          quantity: quantity,
-          productId: productId,
-          isPrize: isPrize,
-          //@ts-ignore
-          cartId: userCart.id,
-        },
-      });
+    if (userCart && userCart.CartItem) {
+      const existingCartItem = userCart.CartItem.find(
+        (item) => item.productId === productId
+      );
+      if (existingCartItem) {
+        await ctx.prisma.cartItem.update({
+          where: {
+            id: existingCartItem.id,
+          },
+          data: {
+            quantity: existingCartItem.quantity + quantity,
+          },
+        });
+      } else {
+        await ctx.prisma.cartItem.create({
+          data: {
+            quantity: quantity,
+            productId: productId,
+            isPrize: isPrize,
+            //@ts-ignore
+            cartId: userCart.id,
+          },
+        });
+      }
     }
-
     return `Dodano produkt do koszyka`;
   }
 
@@ -333,7 +337,11 @@ export class ProductResolver {
   @Query((returns) => [Category])
   // @UseMiddleware(IsElevated)
   async getCategories(@Ctx() ctx: Context): Promise<Category[]> {
-    const categories = await ctx.prisma.category.findMany();
+    const categories = await ctx.prisma.category.findMany({
+      include: {
+        products: true
+      }
+    });
     return categories as Category[];
   }
 
@@ -446,8 +454,8 @@ export class ProductResolver {
         snowFlake: aux,
       },
       include: {
-        PlantInfo: true
-      }
+        PlantInfo: true,
+      },
     });
 
     if (!product) {
@@ -472,5 +480,57 @@ export class ProductResolver {
       return null;
     }
     return product as Product[];
+  }
+
+  @Mutation(() => Cart)
+  async getProcessedCart(@Ctx() ctx: Context): Promise<Cart | null> {
+    const userCart = await ctx.prisma.cart.findUnique({
+      where: {
+        userId: ctx.user?.id,
+      },
+      include: {
+        CartItem: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    if (!userCart || !userCart.CartItem) {
+      return null;
+    }
+
+    for (const cartItem of userCart.CartItem) {
+      const product = cartItem.product;
+      if (cartItem.quantity > product.count) {
+        cartItem.quantity = product.count;
+        await ctx.prisma.cartItem.update({
+          where: { id: cartItem.id },
+          data: { quantity: cartItem.quantity }
+        });
+      }
+      if (!product.isAvailable || product.count == 0) {
+        await ctx.prisma.cartItem.delete({
+          where: { id: cartItem.id }
+        });
+      }
+
+    }
+
+    const updatedUserCart = await ctx.prisma.cart.findUnique({
+      where: {
+        userId: ctx.user?.id,
+      },
+      include: {
+        CartItem: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+    
+    return updatedUserCart as Cart;
   }
 }

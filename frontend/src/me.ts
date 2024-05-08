@@ -16,6 +16,7 @@ provideApolloClient(client);
 
 export const isLoggedIn = ref(localStorage.getItem("token") !== null);
 
+
 const meQuery =
   gql`
   query MeQuery {
@@ -33,11 +34,13 @@ const meQuery =
           quantity
           isPrize
           product {
+            id
             pics
             price
             fullPrice
             isAvailable
             title
+            snowFlake
           }
         }
       }
@@ -47,6 +50,7 @@ const meQuery =
         source
       }
       addressesSets {
+        id,
         isTemporary,
         ownerId
         city
@@ -70,12 +74,10 @@ export const activateUser = async (
   const { mutate: sendCredentials } = useMutation(
     gql`
       mutation activateUser(
-        $link: link!
+        $link: String!
       ) {
         userActivate(link: $link) {
-          user {
-            isActive
-          }
+          id
         }
       }
     `
