@@ -41,6 +41,7 @@ import { Category } from "../models/Category.js";
 import { Review } from "../models/Product.js";
 import { Cart, CartItem } from "../models/Cart.js";
 
+
 //   productType  ProductType   @relation("products", fields: [productTypeId], references: [id])
 //   shippingCost ShippingCost? @relation(fields: [shippingCostId], references: [id])
 //   category     Category?      @relation(fields: [categoryId], references: [id])
@@ -482,7 +483,7 @@ export class ProductResolver {
     return product as Product[];
   }
 
-  @Mutation(() => Cart)
+  @Mutation(() => Cart, { nullable: true })
   async getProcessedCart(@Ctx() ctx: Context): Promise<Cart | null> {
     const userCart = await ctx.prisma.cart.findUnique({
       where: {
@@ -530,7 +531,6 @@ export class ProductResolver {
         },
       },
     });
-    
     return updatedUserCart as Cart;
   }
 }

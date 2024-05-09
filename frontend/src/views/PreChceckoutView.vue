@@ -56,7 +56,7 @@
             </div>
             <p v-if="(loaded && !data.cart) || (loaded && !data.cart.CartItem) || (loaded && data.cart.CartItem.length == 0)"
                 class=" w-100 text-center fs-5 cl-text-primary fw-bold me-2">Brak produktów w koszyku, <a href="#"
-                    @click='$router.push("/")'>wróć do strony głównej {{ loaded }}</a></p>
+                    @click='$router.push("/")'>wróć do strony głównej</a></p>
             <table class="table table-striped" 
                 v-if="loaded && data.cart && data.cart.CartItem && data.cart.CartItem.length != 0">
                 <tbody >
@@ -161,7 +161,7 @@ const processCart = async () => {
     }
 };
 watchEffect(() => {
-    loaded.value = !!data.value; // Jeśli data.value istnieje, ustaw loaded na true
+    loaded.value = !!data.value;
 });
 
 const goToProduct = ((snowflake: string) => {

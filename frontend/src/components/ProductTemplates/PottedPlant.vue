@@ -117,6 +117,14 @@
                     </span>
                     <span class="fs-4 fw-bold">W magazynie: {{ product.count }}</span>
                 </div>
+
+                <div class="cl-text-primary d-flex align-items-center">
+                    <span class="material-symbols-outlined fs-3 fw-bold cl-text-accent me-2">
+loyalty
+</span>
+                    <span class="fs-5 fw-bold cl-text-accent" v-if="product">Za ten produkt otrzymasz: {{ product.pointsGiven }} {{ product.pointsGiven === 1 ? "punkt" : (product.pointsGiven < 5 ? "punkty" : "punktów") }}</span>
+                </div>
+
                 <div class="text-danger d-flex align-items-center shake-animation" v-if="product.isToxic">
                     <span class="material-symbols-outlined fs-2 me-2">
                         crisis_alert

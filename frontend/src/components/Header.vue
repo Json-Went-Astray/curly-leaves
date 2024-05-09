@@ -274,7 +274,7 @@ const removeProductFromCart = async (productId: any) => {
         });
         const userDataResponse = await fetchMe();
         data.value = userDataResponse?.data.me;
-        cartArray.value = data.value.cart.CartItem;
+        cartArray.value = data?.value?.cart?.CartItem || [];
         cartCount.value = 0;
         console.log(res)
 
@@ -289,13 +289,16 @@ const doNotOpen = ref(props.doNotOpen !== undefined ? props.doNotOpen : false);
 const fetchData = async () => {
     const userDataResponse = await fetchMe();
     data.value = userDataResponse?.data.me;
-    cartArray.value = data.value.cart.CartItem;
+    cartArray.value = data?.value?.cart?.CartItem || [];
     cartCount.value = 0;
-    for (let i = 0; i < data.value.cart.CartItem.length; i++) {
-        cartCount.value += data.value.cart.CartItem[i].quantity;
+    if (data?.value?.cart?.CartItem) {
+        for (let i = 0; i < data.value.cart.CartItem.length; i++) {
+            cartCount.value += data.value.cart.CartItem[i].quantity;
+        }
     }
-    if (doNotOpen.value == false)
+    if (doNotOpen.value == false) {
         cartOpen.value = true;
+    }
 };
 
 watch(() => props.message, (newValue, oldValue) => {

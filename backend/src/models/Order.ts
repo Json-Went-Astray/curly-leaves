@@ -1,8 +1,9 @@
 import "reflect-metadata";
-import { ObjectType, Field, ID, Int } from "type-graphql";
+import { ObjectType, Field, ID, Int, Float } from "type-graphql";
 import { Product } from "./Product.js";
 import { OrderStatus } from "./OrderStatus.js";
 import { AdressSet } from "./AdressSet.js";
+import { CartItem } from "./Cart.js";
 
 @ObjectType()
 export class Order {
@@ -12,7 +13,7 @@ export class Order {
   @Field((type) => Int)
   orderStatusId: number;
 
-  @Field((type) => Int)
+  @Field((type) => Float)
   netValue: number;
 
   @Field((type) => Int)
@@ -28,8 +29,14 @@ export class Order {
   @Field((type) => AdressSet, { nullable: true })
   standaloneAdress?: AdressSet;
 
-  @Field((type) => [Product])
-  products: Product[];
+  @Field((type) => [CartItem])
+  items: CartItem[];
+
+  @Field((type) => String)
+  paymentTitle: string;
+
+  @Field((type) => String)
+  deliveryTitle: string;
 
   @Field((type) => OrderStatus)
   orderStatus: OrderStatus;

@@ -1,536 +1,603 @@
 <template>
     <div class="container-fluid p-0" style="height: 100vh;">
-        <Header :message="flag"></Header>
-        <div class="w-75 row mx-auto mt-5 justify-content-between">
+        <Header :message="flag" :doNotOpen="true"></Header>
 
-            <div class="col-lg-8 p-2 cl-border rounded cl-shadown-down border-box mb-4 mb-lg-0">
-                <div class="row border-box m-0 p align-items-center">
-                    <!-- TO DO -->
-                    <div class="col-md-7 d-flex align-items-center no-wrap unselectable">
-
-
-                        <div class="position-relative" @mouseover="imgHovered = true" @mouseleave="imgHovered = false"
-                            @click="showPopup">
-
-                            <img v-if="userData"
-                                :src="`http://localhost:4000/uploads/user-avatars/${userData.me.picId}`"
-                                class="img-md rounded-circle"
-                                style="aspect-ratio: 1 / 1; object-fit:fill;"
-                                >
-                            <img v-else :src="`http://placehold.co/50x50`" class="img-md rounded-circle">
-
-                            <div v-if="imgHovered && editStep == 0"
-                                class="img-md rounded-circle d-flex justify-content-center align-items-center start-0 top-50 cursor-pointer position-absolute h-100"
-                                style="z-index: 2; transform: translateY(-50%); background-color: grey; opacity: 0.3;">
+            <div class="w-75 row mx-auto mt-5 justify-content-between">
+    
+                <div  class="col-lg-8 p-2 border-box mb-4 mb-lg-0">
+                    <div class="row border-box m-0 p align-items-center">
+                        <div class="col-md-7 d-flex align-items-center no-wrap unselectable">
+    
+    
+                            <div class="position-relative" @mouseover="imgHovered = true" @mouseleave="imgHovered = false"
+                                @click="showPopup">
+    
+                                <img v-if="userData"
+                                    :src="`http://localhost:4000/uploads/user-avatars/${userData.me.picId}`"
+                                    class="img-md rounded-circle"
+                                    style="aspect-ratio: 1 / 1; object-fit:fill;"
+                                    >
+                                <img v-else :src="`http://placehold.co/50x50`" class="img-md rounded-circle">
+    
+                                <div v-if="imgHovered && editStep == 0 && userPageView == 'Edit'"
+                                    class="img-md rounded-circle d-flex justify-content-center align-items-center start-0 top-50 cursor-pointer position-absolute h-100"
+                                    style="z-index: 2; transform: translateY(-50%); background-color: grey; opacity: 0.3;">
+                                </div>
+    
+                                <span v-if="imgHovered && editStep == 0 && userPageView == 'Edit'"
+                                    class="material-symbols-outlined fs-2 cl-text img-md d-flex justify-content-center align-items-center start-0 top-50 cursor-pointer position-absolute"
+                                    style="z-index: 3; transform: translateY(-50%);">
+                                    edit
+                                </span>
                             </div>
-
-                            <span v-if="imgHovered && editStep == 0"
-                                class="material-symbols-outlined fs-2 cl-text img-md d-flex justify-content-center align-items-center start-0 top-50 cursor-pointer position-absolute"
-                                style="z-index: 3; transform: translateY(-50%);">
-                                edit
-                            </span>
-                        </div>
-                        <div v-if="popupVisible" class="popup-overlay" @click="closePopup">
-                            <div class="popup text-center" @click.stop style="width: 30%;">
-                                <div class="container-fluid">
-                                    <div class="row my-3 justify-content-around">
-                                        <div class="col-md-4 my-3 rounded-circle p-0">
-                                            <img src="http://localhost:4000/uploads/user-avatars/profile1.png" alt=""
-                                            :class="{ 'highlighted': highlighted == 'profile1.png' }"
-                                            @click="highlightHandler('profile1.png')"
-                                                class="cursor-pointer rounded-circle" style="max-width: 100%; height: auto; width: 75px; aspect-ratio: 1 / 1; object-fit: contain;">
+                            <div v-if="popupVisible" class="popup-overlay" @click="closePopup">
+                                <div class="popup text-center" @click.stop style="width: 30%;">
+                                    <div class="container-fluid">
+                                        <div class="row my-3 justify-content-around">
+                                            <div class="col-md-4 my-3 rounded-circle p-0">
+                                                <img src="http://localhost:4000/uploads/user-avatars/profile1.png" alt=""
+                                                :class="{ 'highlighted': highlighted == 'profile1.png' }"
+                                                @click="highlightHandler('profile1.png')"
+                                                    class="cursor-pointer rounded-circle" style="max-width: 100%; height: auto; width: 75px; aspect-ratio: 1 / 1; object-fit: contain;">
+                                            </div>
+    
+                                            <div class="col-md-4 my-3 rounded-circle p-0" v-if="pfpArray" v-for="item in pfpArray.getPfps">
+                                                <img :src="`http://localhost:4000${item.source}`" alt=""
+                                                :class="{ 'highlighted': highlighted == item.source.split('/').pop() }"
+                                                @click="highlightHandler(item.source)"
+                                                    class="rounded-circle cursor-pointer" style="max-width: 100%; height: auto; width: 75px; aspect-ratio: 1 / 1; object-fit:fill;">
+                                            </div>
                                         </div>
-
-                                        <!-- Pętla dla pfpArray -->
-                                        <div class="col-md-4 my-3 rounded-circle p-0" v-if="pfpArray" v-for="item in pfpArray.getPfps">
-                                            <img :src="`http://localhost:4000${item.source}`" alt=""
-                                            :class="{ 'highlighted': highlighted == item.source.split('/').pop() }"
-                                            @click="highlightHandler(item.source)"
-                                                class="rounded-circle cursor-pointer" style="max-width: 100%; height: auto; width: 75px; aspect-ratio: 1 / 1; object-fit:fill;">
+    
+                                    </div>
+                                    <div class="btn-group" role="group"
+                                        style="position: static;">
+                                        <button type="button" class="btn btn-success text-white"
+                                            style="position: static;" @click="setPfp(highlighted)">Wybierz</button>
+                                        <button type="button" class="btn btn-danger text-white" style="position: static;"
+                                            @click="closePopup">Zamknij</button>
+                                    </div>
+                                </div>
+                            </div>
+    
+    
+                            <div class="ms-3 d-flex align-items-center">
+                                <span class="h5 m-0" v-if="userData">{{ userData.me.name }} {{ userData.me.surname }}</span>
+                                <span class="h5 m-0" v-else>--- ---</span>
+                            </div>
+                        </div>
+                        <div class="col-md-5 unselectable text-end d-flex flex-column">
+                           <span v-if="userData" class="fs-4 fw-bold cl-text-warning cl-text-accent">Twoje punkty: {{ userData.me.points }}</span> 
+                           <span v-if="userData" class="fw-bold cl-text-warning cl-text-accent">Punkty otrzymasz za zakup produktów</span>
+    
+                        </div>
+                    </div>
+    
+                    <hr>
+                    <Transition name="fade" mode="in-out">
+                        <div v-show="userPageView == 'Edit'" class="row border-box m-0 p align-items-center mt-2 unselectable">
+                            <!-- TO DO -->
+                            <div class="row flex-row align-items-center">
+                            <span class="material-symbols-outlined mx-3 col-1" style="font-size: 2.5vw;">
+                                tune
+                            </span>
+                            <span class="fs-4 fw-bold col-5">Ustawienia konta</span>
+                            </div>
+                            <div class="col-lg-6" v-if="selectedSet.id != -1 && userData">
+                                <p class="text-center fs-4 cl-text-primary fw-bold d-flex justify-content-center align-items-center">{{ selectedSet.text }}&nbsp;&nbsp;&nbsp;<span v-if="selectedSet.id != null" @click="deleteSet(selectedSet.id)" title="Usuń zestaw adresów " class="material-symbols-outlined cl-text-primary  cursor-pointer">
+                                delete_forever
+                                </span></p>
+        
+                                <div class="d-flex align-items-center my-3 justify-content-between justify-content-between ">
+                                    <span class="material-symbols-outlined me-3" v-if="editStep != 3">
+                                        phone_in_talk
+                                    </span>
+                                    <span v-if="editStep != 3">
+                                    {{
+                                        userData && userData.me.addressesSets
+                                        //@ts-ignore
+                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).phoneNumber || 'Nie przypisano nr telefonu'
+                                            : 'Nie przypisano nr telefonu'
+                                        : 'Nie przypisano nr telefonu'
+                                    }}
+                                    </span>
+                                    <span class=" cursor-pointer material-symbols-outlined" title="Edytuj" @click="editStep = 3"
+                                        v-if="editStep == 0">
+                                        edit
+                                    </span>
+        
+                                    <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
+                                        edit
+                                    </span>
+                                    <Transition mode="out-in">
+                                        <div class="d-flex flex-wrap" v-if="editStep == 3">
+                                            <div class="form-floating mb-2 w-100">
+                                                <input ref="editPhone" type="text" class="form-control" v-maska
+                                                            data-maska="### ### ###" data-maska-eager :value="editStep == 3 ? 
+                                                (userData && userData.me.addressesSets 
+                                        //@ts-ignore
+                                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id).phoneNumber || ''
+                                                                : ''
+                                                            : ''
+                                                        )
+                                                        : ''">
+                                                <label for="floatingInput">NR telefonu</label>
+                                            </div>
+                                            <div class="d-flex justify-content-around w-100">
+                                                <div class="col-lg-6 text-center">
+                                                    
+                                                    <button class="btn btn-success" @click="modifyLine('phone', $refs.editPhone.value.toString())">Zapisz</button>
+                                                </div>
+                                                <div class="col-lg-6 text-center">
+                                                    <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Transition>
+        
+                                </div>
+                                <div class="d-flex align-items-center my-3 justify-content-between">
+                                    <span class="material-symbols-outlined me-3" v-if="editStep != 4">
+                                        alternate_email
+                                    </span>
+                                    <span v-if="editStep != 4">{{ userData.me.email }}</span>
+        
+                                    <span class=" cursor-pointer material-symbols-outlined invisible">
+                                        edit
+                                    </span>
+                                </div>
+                                <hr class="my-3">
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[5] = true">
+                                    <div class="d-flex align-items-center my-3 justify-content-between"
+                                        v-if="editStep != 5 && !animChain[5]">
+                                        <span class="material-symbols-outlined me-3">
+                                            contact_mail
+                                        </span>
+                                        <span>
+                                    {{
+                                        userData && userData.me.addressesSets
+                                        //@ts-ignore
+                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).county || 'Nie przypisano województwa'
+                                            : 'Nie przypisano województwa'
+                                        : 'Nie przypisano województwa'
+                                    }}</span>
+                                        <span class=" cursor-pointer material-symbols-outlined" title="Edytuj"
+                                            @click="editStep = 5" v-if="editStep == 0">
+                                            edit
+                                        </span>
+        
+                                        <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
+                                            edit
+                                        </span>
+                                    </div>
+                                </Transition>
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[5] = false">
+                                    <div class="d-flex flex-wrap" v-if="editStep == 5 && animChain[5]">
+                                        <div class="form-floating select mb-2 w-100">
+                                                    <select class="form-select" v-model="selectedOption">
+                                                        <option value="opolskie">opolskie</option>
+                                                        <option value="dolnośląskie">dolnośląskie</option>
+                                                        <option value="kujawsko-pomorskie">kujawsko-pomorskie</option>
+                                                        <option value="lubelskie">lubelskie</option>
+                                                        <option value="lubuskie">lubuskie</option>
+                                                        <option value="łódzkie">łódzkie</option>
+                                                        <option value="małopolskie">małopolskie</option>
+                                                        <option value="mazowieckie">mazowieckie</option>
+                                                        <option value="podkarpackie">podkarpackie</option>
+                                                        <option value="podlaskie">podlaskie</option>
+                                                        <option value="pomorskie">pomorskie</option>
+                                                        <option value="śląskie">śląskie</option>
+                                                        <option value="świętokrzyskie">świętokrzyskie</option>
+                                                        <option value="warmińsko-mazurskie">warmińsko-mazurskie</option>
+                                                        <option value="wielkopolskie">wielkopolskie</option>
+                                                        <option value="zachodniopomorskie">zachodniopomorskie</option>
+                                                    </select>
+                                                    <label for="floatingSelectGrid">Województwo</label>
+                                                </div>
+                                        <div class="d-flex justify-content-around w-100">
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="modifyLine('county', selectedOption)">Zapisz</button>
+                                            </div>
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                            </div>
                                         </div>
                                     </div>
-
-                                </div>
-                                <div class="btn-group" role="group"
-                                    style="position: static;">
-                                    <button type="button" class="btn btn-success text-white"
-                                        style="position: static;" @click="setPfp(highlighted)">Wybierz</button>
-                                    <button type="button" class="btn btn-danger text-white" style="position: static;"
-                                        @click="closePopup">Zamknij</button>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="ms-3 d-flex align-items-center">
-                            <span class="h5 m-0" v-if="userData">{{ userData.me.name }} {{ userData.me.surname }}</span>
-                            <span class="h5 m-0" v-else>--- ---</span>
-                        </div>
-                    </div>
-                    <div class="col-md-5 unselectable">
-
-                    </div>
-                </div>
-
-                <hr>
-                <div class="row border-box m-0 p align-items-center mt-2 unselectable">
-                    <!-- TO DO -->
-                    <div class="col-lg-6" v-if="selectedSet.id != -1 && userData">
-                        <p class="text-center fs-4 cl-text-primary fw-bold d-flex justify-content-center align-items-center">{{ selectedSet.text }}&nbsp;&nbsp;&nbsp;<span @click="deleteSet(selectedSet.id)" title="Usuń zestaw adresów" class="material-symbols-outlined cl-text-secondary cursor-pointer">
-                        delete_forever
-                        </span></p>
-
-                        <div class="d-flex align-items-center my-3 justify-content-between justify-content-between">
-                            <span class="material-symbols-outlined me-3" v-if="editStep != 3">
-                                phone_in_talk
-                            </span>
-                            <span v-if="editStep != 3">
-                            {{
-                                userData && userData.me.addressesSets
-                                //@ts-ignore
-                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).phoneNumber || 'Nie przypisano nr telefonu'
-                                    : 'Nie przypisano nr telefonu'
-                                : 'Nie przypisano nr telefonu'
-                            }}
-                            </span>
-                            <span class=" cursor-pointer material-symbols-outlined" title="Edytuj" @click="editStep = 3"
-                                v-if="editStep == 0">
-                                edit
-                            </span>
-
-                            <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
-                                edit
-                            </span>
-                            <Transition mode="out-in">
-                                <div class="d-flex flex-wrap" v-if="editStep == 3">
-                                    <div class="form-floating mb-2 w-100">
-                                        <input ref="editPhone" type="text" class="form-control" v-maska
-                                                    data-maska="### ### ###" data-maska-eager :value="editStep == 3 ? 
-                                        (userData && userData.me.addressesSets 
-                                //@ts-ignore
-                                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id).phoneNumber || ''
-                                                        : ''
+                                </Transition>
+        
+        
+        
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[6] = true">
+        
+                                    <div class="d-flex align-items-center my-3 justify-content-between"
+                                        v-if="editStep != 6 && !animChain[6]">
+                                        <span class="material-symbols-outlined me-3 invisible">
+                                            contact_mail
+                                        </span>
+                                        <span>                            {{
+                                        userData && userData.me.addressesSets
+                                        //@ts-ignore
+                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).postalCode || 'Nie przypisano kodu'
+                                            : 'Nie przypisano kodu'
+                                        : 'Nie przypisano kodu'
+                                    }} {{
+                                        userData && userData.me.addressesSets
+                                        //@ts-ignore
+                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).city || 'Nie przypisano miasta'
+                                            : 'Nie przypisano miasta'
+                                        : 'Nie przypisano miasta'
+                                    }}</span>
+                                        <span class=" cursor-pointer material-symbols-outlined" title="Edytuj"
+                                            @click="editStep = 6" v-if="editStep == 0">
+                                            edit
+                                        </span>
+        
+                                        <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
+                                            edit
+                                        </span>
+                                    </div>
+                                </Transition>
+        
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[6] = false">
+                                    <div class="d-flex flex-wrap" v-if="editStep == 6 && animChain[6]">
+                                        <div class="form-floating mb-2 w-100">
+                                            <input ref="editPostal" v-maska data-maska="##-###" data-maska-eager type="text" class="form-control" placeholder="Kod pocztowy" :value="editStep == 6 ? 
+                                            (userData && userData.me.addressesSets 
+                                        //@ts-ignore
+                                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).postalCode || ''
                                                     : ''
-                                                )
-                                                : ''">
-                                        <label for="floatingInput">NR telefonu</label>
-                                    </div>
-                                    <div class="d-flex justify-content-around w-100">
-                                        <div class="col-lg-6 text-center">
-                                            
-                                            <button class="btn btn-success" @click="modifyLine('phone', $refs.editPhone.value.toString())">Zapisz</button>
+                                                : ''
+                                            )
+                                            : ''">
+                                            <label for="floatingInput">Kod pocztowy</label>
                                         </div>
-                                        <div class="col-lg-6 text-center">
-                                            <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                        <div class="form-floating mb-2 w-100">
+                                            <input ref="editCity" type="text" class="form-control" placeholder="Miasto" :value="editStep == 6 ? 
+                                            (userData && userData.me.addressesSets 
+                                        //@ts-ignore
+                                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).city || ''
+                                                    : ''
+                                                : ''
+                                            )
+                                            : ''">
+                                            <label for="floatingInput">Miasto</label>
+                                        </div>
+                                        <div class="d-flex justify-content-around w-100">
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="modifyLine('postal/city', $refs.editPostal.value.toString(), $refs.editCity.value.toString())">Zapisz</button>
+                                            </div>
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </Transition>
-
-                        </div>
-                        <div class="d-flex align-items-center my-3 justify-content-between">
-                            <span class="material-symbols-outlined me-3" v-if="editStep != 4">
-                                alternate_email
-                            </span>
-                            <span v-if="editStep != 4">{{ userData.me.email }}</span>
-
-                            <span class=" cursor-pointer material-symbols-outlined invisible">
-                                edit
-                            </span>
-                        </div>
-                        <hr class="my-3">
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[5] = true">
-                            <div class="d-flex align-items-center my-3 justify-content-between"
-                                v-if="editStep != 5 && !animChain[5]">
-                                <span class="material-symbols-outlined me-3">
-                                    contact_mail
-                                </span>
-                                <span>
-                            {{
-                                userData && userData.me.addressesSets
-                                //@ts-ignore
-                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).county || 'Nie przypisano województwa'
-                                    : 'Nie przypisano województwa'
-                                : 'Nie przypisano województwa'
-                            }}</span>
-                                <span class=" cursor-pointer material-symbols-outlined" title="Edytuj"
-                                    @click="editStep = 5" v-if="editStep == 0">
-                                    edit
-                                </span>
-
-                                <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
-                                    edit
-                                </span>
-                            </div>
-                        </Transition>
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[5] = false">
-                            <div class="d-flex flex-wrap" v-if="editStep == 5 && animChain[5]">
-                                <div class="form-floating select mb-2 w-100">
-                                            <select class="form-select" v-model="selectedOption">
-                                                <option value="opolskie">opolskie</option>
-                                                <option value="dolnośląskie">dolnośląskie</option>
-                                                <option value="kujawsko-pomorskie">kujawsko-pomorskie</option>
-                                                <option value="lubelskie">lubelskie</option>
-                                                <option value="lubuskie">lubuskie</option>
-                                                <option value="łódzkie">łódzkie</option>
-                                                <option value="małopolskie">małopolskie</option>
-                                                <option value="mazowieckie">mazowieckie</option>
-                                                <option value="podkarpackie">podkarpackie</option>
-                                                <option value="podlaskie">podlaskie</option>
-                                                <option value="pomorskie">pomorskie</option>
-                                                <option value="śląskie">śląskie</option>
-                                                <option value="świętokrzyskie">świętokrzyskie</option>
-                                                <option value="warmińsko-mazurskie">warmińsko-mazurskie</option>
-                                                <option value="wielkopolskie">wielkopolskie</option>
-                                                <option value="zachodniopomorskie">zachodniopomorskie</option>
-                                            </select>
-                                            <label for="floatingSelectGrid">Województwo</label>
+                                </Transition>
+        
+        
+        
+        
+                                <!-- ULICA NR DOMU -->
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[7] = true">
+                                    <div class="d-flex align-items-center my-3 justify-content-between"
+                                        v-if="editStep != 7 && !animChain[7]">
+                                        <span class="material-symbols-outlined me-3 invisible">
+                                            contact_mail
+                                        </span>
+                                        <span>{{
+                                        userData && userData.me.addressesSets
+                                        //@ts-ignore
+                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).street || 'Nie przypisano ulicy'
+                                            : 'Nie przypisano ulicy'
+                                        : 'Nie przypisano ulicy'
+                                    }} {{
+                                        userData && userData.me.addressesSets
+                                        //@ts-ignore
+                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).houseNumber !== null
+                                        //@ts-ignore
+                                                ? " m. " + userData.me.addressesSets.find(set => set.id === selectedSet.id).houseNumber
+                                                : ''
+                                            : ''
+                                        : ''
+                                    }}</span>
+                                        <span class=" cursor-pointer material-symbols-outlined" title="Edytuj"
+                                            @click="editStep = 7" v-if="editStep == 0">
+                                            edit
+                                        </span>
+        
+                                        <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
+                                            edit
+                                        </span>
+                                    </div>
+                                </Transition>
+        
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[7] = false">
+                                    <div class="d-flex flex-wrap my-3" v-if="editStep == 7 && animChain[7]">
+                                        <div class="form-floating mb-2 w-100">
+                                            <input ref="editStreet" type="text" class="form-control" placeholder="Ulica" :value="editStep == 7 ? 
+                                            (userData && userData.me.addressesSets 
+                                        //@ts-ignore
+                                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).street || ''
+                                                    : ''
+                                                : ''
+                                            )
+                                            : ''">
+                                            <label for="floatingInput">Ulica</label>
                                         </div>
-                                <div class="d-flex justify-content-around w-100">
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="modifyLine('county', selectedOption)">Zapisz</button>
+                                        <div class="form-floating mb-2 w-100">
+                                            <input ref="editHouse" type="email" class="form-control" placeholder="Nr domu" :value="editStep == 7 ? 
+                                            (userData && userData.me.addressesSets 
+                                        //@ts-ignore
+                                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).houseNumber || ''
+                                                    : ''
+                                                : ''
+                                            )
+                                            : ''">
+                                            <label for="floatingInput">Nr domu</label>
+                                        </div>
+                                        <div class="d-flex justify-content-around w-100">
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="modifyLine('street/house', $refs.editStreet.value.toString(), $refs.editHouse.value.toString())">Zapisz</button>
+                                            </div>
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </Transition>
-
-
-
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[6] = true">
-
-                            <div class="d-flex align-items-center my-3 justify-content-between"
-                                v-if="editStep != 6 && !animChain[6]">
-                                <span class="material-symbols-outlined me-3 invisible">
-                                    contact_mail
-                                </span>
-                                <span>                            {{
-                                userData && userData.me.addressesSets
-                                //@ts-ignore
-                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).postalCode || 'Nie przypisano kodu'
-                                    : 'Nie przypisano kodu'
-                                : 'Nie przypisano kodu'
-                            }} {{
-                                userData && userData.me.addressesSets
-                                //@ts-ignore
-                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).city || 'Nie przypisano miasta'
-                                    : 'Nie przypisano miasta'
-                                : 'Nie przypisano miasta'
-                            }}</span>
-                                <span class=" cursor-pointer material-symbols-outlined" title="Edytuj"
-                                    @click="editStep = 6" v-if="editStep == 0">
-                                    edit
-                                </span>
-
-                                <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
-                                    edit
-                                </span>
-                            </div>
-                        </Transition>
-
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[6] = false">
-                            <div class="d-flex flex-wrap" v-if="editStep == 6 && animChain[6]">
-                                <div class="form-floating mb-2 w-100">
-                                    <input ref="editPostal" v-maska data-maska="##-###" data-maska-eager type="text" class="form-control" placeholder="Kod pocztowy" :value="editStep == 6 ? 
-                                    (userData && userData.me.addressesSets 
-                                //@ts-ignore
+                                </Transition>
+        
+        
+        
+                                <hr class="my-3">
+        
+                                <!-- NIP  -->
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[8] = true">
+                                    <div class="d-flex align-items-center justify-content-between w-100"
+                                        v-if="editStep != 8 && !animChain[8]">
+                                        <span class="material-symbols-outlined me-3">
+                                            apartment
+                                        </span>
+                                        <span>{{
+                                        userData && userData.me.addressesSets
+                                        //@ts-ignore
                                         ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).postalCode || ''
-                                            : ''
-                                        : ''
-                                    )
-                                    : ''">
-                                    <label for="floatingInput">Kod pocztowy</label>
-                                </div>
-                                <div class="form-floating mb-2 w-100">
-                                    <input ref="editCity" type="text" class="form-control" placeholder="Miasto" :value="editStep == 6 ? 
-                                    (userData && userData.me.addressesSets 
-                                //@ts-ignore
+                                        //@ts-ignore
+                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).nip || 'Nie przypisano NIPu'
+                                            : 'Nie przypisano NIPu'
+                                        : 'Nie przypisano NIPu'
+                                    }}</span>
+                                        <span class=" cursor-pointer material-symbols-outlined" title="Edytuj"
+                                            @click="editStep = 8" v-if="editStep == 0">
+                                            edit
+                                        </span>
+                                        <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
+                                            edit
+                                        </span>
+                                    </div>
+                                </Transition>
+        
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[8] = false">
+                                    <div class="d-flex flex-wrap" v-if="editStep == 8 && animChain[8]">
+                                        <div class="form-floating mb-2 w-100">
+                                            <input ref="editNip" type="text" class="form-control" placeholder="NIP" v-maska
+                                                        data-maska="###-###-##-##" data-maska-eager :value="editStep == 8 ? 
+                                            (userData && userData.me.addressesSets 
+                                        //@ts-ignore
+                                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).nip || ''
+                                                    : ''
+                                                : ''
+                                            )
+                                            : ''">
+                                            <label for="floatingInput">NIP</label>
+                                        </div>
+                                        <div class="d-flex justify-content-around w-100">
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="modifyLine('nip', $refs.editNip.value.toString())">Zapisz</button>
+                                            </div>
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Transition>
+        
+        
+        
+        
+        
+                                <!-- NAZWA FIRMY  -->
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[9] = true">
+                                    <div class="d-flex align-items-center justify-content-between w-100 my-3"
+                                        v-if="editStep != 9 && !animChain[9]">
+                                        <span class="material-symbols-outlined me-3 invisible">
+                                            apartment
+                                        </span>
+                                        <span>{{
+                                        userData && userData.me.addressesSets
+                                        //@ts-ignore
                                         ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).city || ''
-                                            : ''
-                                        : ''
-                                    )
-                                    : ''">
-                                    <label for="floatingInput">Miasto</label>
-                                </div>
-                                <div class="d-flex justify-content-around w-100">
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="modifyLine('postal/city', $refs.editPostal.value.toString(), $refs.editCity.value.toString())">Zapisz</button>
+                                        //@ts-ignore
+                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).companyName || 'Nie przypisano nazwy firmy'
+                                            : 'Nie przypisano nazwy firmy'
+                                        : 'Nie przypisano nazwy firmy'
+                                    }}</span>
+                                        <span class=" cursor-pointer material-symbols-outlined" v-if="editStep == 0"
+                                            title="Edytuj" @click="editStep = 9">
+                                            edit
+                                        </span>
+                                        <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
+                                            edit
+                                        </span>
                                     </div>
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                </Transition>
+        
+                                <Transition mode="out-in" name="fade" @after-leave="animChain[9] = false">
+                                    <div class="d-flex flex-wrap my-3" v-if="editStep == 9 && animChain[9]">
+                                        <div class="form-floating mb-2 w-100">
+                                            <input type="email" class="form-control" ref="editCompany" placeholder="Nazwa firmy" :value="editStep == 9 ? 
+                                            (userData && userData.me.addressesSets 
+                                        //@ts-ignore
+                                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
+                                        //@ts-ignore
+                                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).companyName || ''
+                                                    : ''
+                                                : ''
+                                            )
+                                            : ''">
+                                            <label for="floatingInput">Nazwa firmy</label>
+                                        </div>
+                                        <div class="d-flex justify-content-around w-100">
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="modifyLine('company', $refs.editCompany.value.toString())">Zapisz</button>
+                                            </div>
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                            </div>
+                                        </div>
                                     </div>
+                                </Transition>
+        
+        
+                            </div>
+        
+                            <div class="col-lg-6" v-else>
+                                <p class="text-center fs-4 cl-text-primary fw-bold my-0">Nie posiadasz zapisanych adresów</p>
+                                <p class="text-center fs-5 cl-text-primary fw-bold">Dodaj je za pomocą menu rozwijalnego</p>
+        
+                            </div>
+        
+                            <div class="col-lg-6 flex-column d-flex align-items-center">
+                                <Transition mode="in-out">
+                                    <button class="btn btn-warning col-8 my-2" :disabled="editStep != 0" @click="editStep=10">Zmiana hasła</button>
+                                </Transition>
+                                <Transition mode="in-out">
+                                    <div class="col-8" v-if="editStep ==10">
+                                        <div class="form-floating mb-2">
+                                            <input type="password" class="form-control" v-model="editPasswords.currentPassword">
+                                            <label for="floatingInput">Aktualne hasło</label>
+                                        </div>
+                                        <div class="form-floating mb-2">
+                                            <input type="password" class="form-control" v-model="editPasswords.newPassword1">
+                                            <label for="floatingInput">Nowe hasło</label>
+                                        </div>
+                                        <div class="form-floating mb-2">
+                                            <input type="password" class="form-control" v-model="editPasswords.newPassword2">
+                                            <label for="floatingInput">Powtórz nowe hasło</label>
+                                        </div>
+                                        <span v-if="editPasswords.error == ''">&nbsp;</span>
+                                        <span v-else class="text-danger">{{ editPasswords.error }}</span>
+                                        <div class="d-flex justify-content-around w-100">
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="changePass()">Zapisz</button>
+                                            </div>
+                                            <div class="col-lg-6 text-center">
+                                                <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
+                                            </div>
+                                        </div>
+                                    </div>
+               
+                                </Transition>
+                                <div class="btn-group col-8 my-2">
+                                    <button type="button" class="btn btn-success cl-white dropdown-toggle"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                        Zestawy adresów
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <template v-if="userData">
+                                            <li v-for="(set, index) in filteredAddressesSets">
+                                                <a class="dropdown-item" href="#"
+                                                    @click="selectedSet.id = set.id; selectedSet.text = 'Zestaw adresów ' + (index + 1)">Zestaw
+                                                    adresów {{ index + 1 }}</a>
+                                            </li>
+                                        </template>
+                                        <li v-if="filteredAddressesSets.length < 4">
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li v-if="filteredAddressesSets.length < 4" @click="addAddressSet()">
+                                            <a class="dropdown-item d-flex justify-content-around" href="#">Dodaj nowy<span
+                                                    class="material-symbols-outlined cl-text-secondary">add_circle</span></a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                        </Transition>
-
-
-
-
-                        <!-- ULICA NR DOMU -->
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[7] = true">
-                            <div class="d-flex align-items-center my-3 justify-content-between"
-                                v-if="editStep != 7 && !animChain[7]">
-                                <span class="material-symbols-outlined me-3 invisible">
-                                    contact_mail
-                                </span>
-                                <span>{{
-                                userData && userData.me.addressesSets
-                                //@ts-ignore
-                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).street || 'Nie przypisano ulicy'
-                                    : 'Nie przypisano ulicy'
-                                : 'Nie przypisano ulicy'
-                            }} {{
-                                userData && userData.me.addressesSets
-                                //@ts-ignore
-                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).houseNumber !== null
-                                //@ts-ignore
-                                        ? " m. " + userData.me.addressesSets.find(set => set.id === selectedSet.id).houseNumber
-                                        : ''
-                                    : ''
-                                : ''
-                            }}</span>
-                                <span class=" cursor-pointer material-symbols-outlined" title="Edytuj"
-                                    @click="editStep = 7" v-if="editStep == 0">
-                                    edit
-                                </span>
-
-                                <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
-                                    edit
-                                </span>
-                            </div>
-                        </Transition>
-
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[7] = false">
-                            <div class="d-flex flex-wrap my-3" v-if="editStep == 7 && animChain[7]">
-                                <div class="form-floating mb-2 w-100">
-                                    <input ref="editStreet" type="text" class="form-control" placeholder="Ulica" :value="editStep == 7 ? 
-                                    (userData && userData.me.addressesSets 
-                                //@ts-ignore
-                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).street || ''
-                                            : ''
-                                        : ''
-                                    )
-                                    : ''">
-                                    <label for="floatingInput">Ulica</label>
-                                </div>
-                                <div class="form-floating mb-2 w-100">
-                                    <input ref="editHouse" type="email" class="form-control" placeholder="Nr domu" :value="editStep == 7 ? 
-                                    (userData && userData.me.addressesSets 
-                                //@ts-ignore
-                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).houseNumber || ''
-                                            : ''
-                                        : ''
-                                    )
-                                    : ''">
-                                    <label for="floatingInput">Nr domu</label>
-                                </div>
-                                <div class="d-flex justify-content-around w-100">
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="modifyLine('street/house', $refs.editStreet.value.toString(), $refs.editHouse.value.toString())">Zapisz</button>
-                                    </div>
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </Transition>
-
-
-
-                        <hr class="my-3">
-
-                        <!-- NIP  -->
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[8] = true">
-                            <div class="d-flex align-items-center justify-content-between w-100"
-                                v-if="editStep != 8 && !animChain[8]">
-                                <span class="material-symbols-outlined me-3">
-                                    apartment
-                                </span>
-                                <span>{{
-                                userData && userData.me.addressesSets
-                                //@ts-ignore
-                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).nip || 'Nie przypisano NIPu'
-                                    : 'Nie przypisano NIPu'
-                                : 'Nie przypisano NIPu'
-                            }}</span>
-                                <span class=" cursor-pointer material-symbols-outlined" title="Edytuj"
-                                    @click="editStep = 8" v-if="editStep == 0">
-                                    edit
-                                </span>
-                                <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
-                                    edit
-                                </span>
-                            </div>
-                        </Transition>
-
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[8] = false">
-                            <div class="d-flex flex-wrap" v-if="editStep == 8 && animChain[8]">
-                                <div class="form-floating mb-2 w-100">
-                                    <input ref="editNip" type="text" class="form-control" placeholder="NIP" v-maska
-                                                data-maska="###-###-##-##" data-maska-eager :value="editStep == 8 ? 
-                                    (userData && userData.me.addressesSets 
-                                //@ts-ignore
-                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).nip || ''
-                                            : ''
-                                        : ''
-                                    )
-                                    : ''">
-                                    <label for="floatingInput">NIP</label>
-                                </div>
-                                <div class="d-flex justify-content-around w-100">
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="modifyLine('nip', $refs.editNip.value.toString())">Zapisz</button>
-                                    </div>
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </Transition>
-
-
-
-
-
-                        <!-- NAZWA FIRMY  -->
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[9] = true">
-                            <div class="d-flex align-items-center justify-content-between w-100 my-3"
-                                v-if="editStep != 9 && !animChain[9]">
-                                <span class="material-symbols-outlined me-3 invisible">
-                                    apartment
-                                </span>
-                                <span>{{
-                                userData && userData.me.addressesSets
-                                //@ts-ignore
-                                ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                    ? userData.me.addressesSets.find(set => set.id === selectedSet.id).companyName || 'Nie przypisano nazwy firmy'
-                                    : 'Nie przypisano nazwy firmy'
-                                : 'Nie przypisano nazwy firmy'
-                            }}</span>
-                                <span class=" cursor-pointer material-symbols-outlined" v-if="editStep == 0"
-                                    title="Edytuj" @click="editStep = 9">
-                                    edit
-                                </span>
-                                <span class=" cursor-pointer material-symbols-outlined invisible" v-if="editStep != 0">
-                                    edit
-                                </span>
-                            </div>
-                        </Transition>
-
-                        <Transition mode="out-in" name="fade" @after-leave="animChain[9] = false">
-                            <div class="d-flex flex-wrap my-3" v-if="editStep == 9 && animChain[9]">
-                                <div class="form-floating mb-2 w-100">
-                                    <input type="email" class="form-control" ref="editCompany" placeholder="Nazwa firmy" :value="editStep == 9 ? 
-                                    (userData && userData.me.addressesSets 
-                                //@ts-ignore
-                                        ? userData.me.addressesSets.find(set => set.id === selectedSet.id)
-                                //@ts-ignore
-                                            ? userData.me.addressesSets.find(set => set.id === selectedSet.id).companyName || ''
-                                            : ''
-                                        : ''
-                                    )
-                                    : ''">
-                                    <label for="floatingInput">Nazwa firmy</label>
-                                </div>
-                                <div class="d-flex justify-content-around w-100">
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="modifyLine('company', $refs.editCompany.value.toString())">Zapisz</button>
-                                    </div>
-                                    <div class="col-lg-6 text-center">
-                                        <button class="btn btn-success" @click="editStep = 0">Anuluj</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </Transition>
-
-
-                    </div>
-
-                    <div class="col-lg-6" v-else>
-                        <p class="text-center fs-4 cl-text-primary fw-bold my-0">Nie posiadasz zapisanych adresów</p>
-                        <p class="text-center fs-5 cl-text-primary fw-bold">Dodaj je za pomocą menu rozwijalnego</p>
-
-                    </div>
-
-                    <div class="col-lg-6 border border-1">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-success cl-white dropdown-toggle"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                Zestawy adresów
-                            </button>
-                            <ul class="dropdown-menu">
-                                <template v-if="userData">
-                                    <li v-for="(set, index) in filteredAddressesSets">
-                                        <a class="dropdown-item" href="#"
-                                            @click="selectedSet.id = set.id; selectedSet.text = 'Zestaw adresów ' + (index + 1)">Zestaw
-                                            adresów {{ index + 1 }}</a>
-                                    </li>
-                                </template>
-                                <li v-if="filteredAddressesSets.length < 4">
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li v-if="filteredAddressesSets.length < 4" @click="addAddressSet()">
-                                    <a class="dropdown-item d-flex justify-content-around" href="#">Dodaj nowy<span
-                                            class="material-symbols-outlined cl-text-secondary">add_circle</span></a>
-                                </li>
-                            </ul>
+        
                         </div>
-                    </div>
+                    </Transition>
+                    <Transition name="fade" mode="in-out">
+                        <div v-show="userPageView == 'Orders'" class="row border-box m-0 p align-items-center mt-2 unselectable">
+                            <div class="row flex-row align-items-center">
 
+                                <span class="material-symbols-outlined mx-3 col-1" style="font-size: 2.5vw;">
+                                    package_2
+                                </span>
+                                <span class="fs-4 fw-bold col-5">Twoje zamówienia</span>
+                            </div>
+
+                            <div class="d-flex justify-content-around flex-row align-items-center mt-3">
+                                <a href="#">Wszystkie</a>
+                                <a href="#">Zrealizowane</a>
+                                <a href="#">W drodze</a>
+                                <a href="#">Oczekujące</a>
+                            </div>
+                            <div class="d-flex justify-content-around flex-row align-items-center my-5">
+                                <span class="fs-4 fw-bold cl-text-primary">--- Nie posiadasz żadnych zamówień w tej kategorii---</span>
+
+                            </div>
+
+        
+                        </div>
+                    </Transition>
                 </div>
+    
+    
+    
+    
+                <div class="col-lg-3 p-2 cl-border rounded cl-shadown-down h-100">
+                    <div class="row my-5 w-75 mx-auto">
+                        <button class="btn btn-success" :disabled="userPageView == 'Orders'" @click="userPageView='Orders'">Moje zamówienia</button>
+                    </div>
+                    <div class="row my-5 w-75 mx-auto">
+                        <button class="btn btn-success" :disabled="userPageView == 'Loyalty'" @click="userPageView='Loyalty'">Program lojalnościowy</button>
+                    </div>
+                    <div class="row my-5 w-75 mx-auto">
+                        <button class="btn btn-success" disabled>Moje wątki</button>
+                    </div>
+                    <div class="row my-5 w-75 mx-auto">
+                        <button class="btn btn-success" disabled>Moje powiadomienia</button>
+                    </div>
+                    <div class="row my-5 w-75 mx-auto">
+                        <button class="btn btn-success" :disabled="userPageView == 'Edit'" @click="userPageView='Edit'">Ustawienia konta</button>
+                    </div>
+                </div>
+                <!-- <div v-if="pfpArray">
+                    {{ pfpArray.getPfps[0].source }}
+                </div> -->
+    
             </div>
 
-
-
-
-            <div class="col-lg-3 p-2 cl-border rounded cl-shadown-down h-100">
-                <div class="row my-5 w-75 mx-auto">
-                    <button class="btn btn-success">Moje zamówienia</button>
-                </div>
-                <div class="row my-5 w-75 mx-auto">
-                    <button class="btn btn-success">Moje wątki</button>
-                </div>
-                <div class="row my-5 w-75 mx-auto">
-                    <button class="btn btn-success">Moje powiadomienia</button>
-                </div>
-                <div class="row my-5 w-75 mx-auto">
-                    <button class="btn btn-success">Ustawienia konta</button>
-                </div>
-            </div>
-            <!-- <div v-if="pfpArray">
-                {{ pfpArray.getPfps[0].source }}
-            </div> -->
-
-        </div>
 
     </div>
 </template>
@@ -550,10 +617,18 @@ if (!isLoggedIn.value) {
 }
 
 const flag = ref(false);
+const userPageView = ref("Edit");
 
 onMounted(async () => {
     await doGetPfps();
+    highlighted.value = userData.value.me.picId;
+})
 
+const editPasswords = reactive({
+    currentPassword: "",
+    newPassword1: "",
+    newPassword2: "",
+    error: ""
 })
 
 const selectedSet = reactive({
@@ -594,6 +669,13 @@ const { mutate: doDeleteSet } = useMutation(
     }`
 );
 
+const { mutate: doChangePass } = useMutation(
+    gql`
+    mutation changePassword($oldPass: String!, $newPass1: String!, $newPass2: String!) {
+        changePassword(oldPass: $oldPass, newPass1: $newPass1, newPass2: $newPass2)
+    }`
+);
+
 const { mutate: doSetPfp } = useMutation(
     gql`
     mutation setPfp($picId: String!) {
@@ -626,6 +708,22 @@ const deleteSet = async (setId: any) => {
     }
 };
 
+const changePass = async () => {
+    try {
+        editPasswords.error = "";
+        //@ts-ignore
+        const aux = await doChangePass({
+            oldPass: editPasswords.currentPassword,
+            newPass1: editPasswords.newPassword1,
+            newPass2: editPasswords.newPassword2
+        });
+        
+        editPasswords.error = aux?.data?.changePassword;
+    } catch (error) {
+        console.log(error)
+    }
+};
+
 const setPfp = async (picId: string) => {
     try {
         const res = await doSetPfp({
@@ -637,13 +735,14 @@ const setPfp = async (picId: string) => {
         console.log(error)
     }
     flag.value = !flag.value
+    closePopup();
 };
 
 const addAddressSet = async () => {
     try {
         const res = await doAddAddressSet();
         await fetchMe();
-        selectedSet.id = res?.data || -1;
+        selectedSet.id = res?.data.createAddressSet || -1;
         selectedSet.text = "Utworzony zestaw adresów";
         highlighted.value = userData.value.me.picId;
 
@@ -684,6 +783,7 @@ const highlightHandler = (path: string | null) => {
         const lastPart = pathParts.pop();
         //@ts-ignore
         highlighted.value = lastPart;
+        // console.log(highlighted.value);
 }
 
 
@@ -695,7 +795,7 @@ let animChain = ref([false, false, false, false, false, false, false, false, fal
 
 const popupVisible = ref(false);
 const showPopup = () => {
-    if (editStep.value != 0) return;
+    if (editStep.value != 0 || userPageView.value != 'Edit') return;
     popupVisible.value = true;
     editStep.value = 1;
 }
@@ -716,7 +816,6 @@ const pfpArray = ref([]);
 
 watchEffect(() => {
     pfpArray.value = pfpsData.value || [];
-    console.log(pfpArray.value);
 });
 
 const selectedOption = ref("opolskie")

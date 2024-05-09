@@ -150,16 +150,17 @@ model issueResponse {
 }
 
 model Order {
-  id                 Int      @id @default(autoincrement())
+  id                 Int         @id @default(autoincrement())
   orderStatusId      Int
-  netValue           Int
+  netValue           Float
   userId             Int
   standaloneAdressId Int?
   invoice            Invoice?
-
-  standaloneAdress AdressSet?  @relation("ordersSets", fields: [standaloneAdressId], references: [id])
-  products         Product[]   @relation("productList")
-  orderStatus      OrderStatus @relation("ordersWithStatus", fields: [orderStatusId], references: [id])
+  paymentTitle       String
+  deliveryTitle      String
+  standaloneAdress   AdressSet?  @relation("ordersSets", fields: [standaloneAdressId], references: [id])
+  items              CartItem[]
+  orderStatus        OrderStatus @relation("ordersWithStatus", fields: [orderStatusId], references: [id])
 }
 
 model OrderStatus {
@@ -180,10 +181,12 @@ model CartItem {
   id        Int     @id @default(autoincrement())
   quantity  Int
   productId Int
-  cartId    Int
+  cartId    Int?
+  orderId   Int?
   isPrize   Boolean
   product   Product @relation(fields: [productId], references: [id])
-  Cart      Cart    @relation(fields: [cartId], references: [id])
+  Cart      Cart?   @relation(fields: [cartId], references: [id])
+  Order     Order?  @relation(fields: [orderId], references: [id])
 }
 
 model Category {
@@ -228,7 +231,6 @@ model Product {
   shippingCost ShippingCost? @relation(fields: [shippingCostId], references: [id])
   category     Category?     @relation(fields: [categoryId], references: [id])
 
-  orders         Order[] @relation("productList")
   shippingCostId Int?
   categoryId     Int?
 

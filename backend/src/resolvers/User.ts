@@ -11,6 +11,7 @@ import {
   Int,
   ObjectType,
   UseMiddleware,
+  Float,
 } from "type-graphql";
 import { IsEmail, IsStrongPassword, MaxLength } from "class-validator";
 import { prisma } from "../context.js";
@@ -28,7 +29,7 @@ import ejs from "ejs";
 import * as bcrypt from "bcrypt";
 import { IsElevated, IsLoggedIn } from "../auth.js";
 import { use } from "bcrypt/promises.js";
-
+import { ProductResolver } from "./Product.js";
 @InputType()
 export class UserExtraInput {
   @Field((type) => String, { nullable: true })
@@ -111,68 +112,63 @@ export class UserResolver {
           include: {
             CartItem: {
               include: {
-                product: true
-              }
-            }
-          }
+                product: true,
+              },
+            },
+          },
         },
         addressesSets: true,
-          
-        
-        
       },
     });
 
     if (user && user.cart && user.cart.CartItem) {
       user.cart.CartItem = user.cart.CartItem.filter((item: any) => {
-        console.log("x",item.quantity, item.product.count)
+        console.log("x", item.quantity, item.product.count);
 
         if (item.product) {
           // Jeśli produkt nie jest dostępny, usuń go z koszyka
           if (!item.product.isAvailable) {
             ctx.prisma.cartItem.delete({
               where: {
-                id: item.id
-              }
+                id: item.id,
+              },
             });
             return false;
           }
-          
+
           if (item.product.count === 0) {
             ctx.prisma.cartItem.delete({
               where: {
-                id: item.id
-              }
+                id: item.id,
+              },
             });
             return false;
           }
-    
+
           if (item.quantity > item.product.count) {
-            console.log("exceeds")
+            console.log("exceeds");
             item.quantity = item.product.count;
             ctx.prisma.cartItem.update({
               where: {
-                id: item.id
+                id: item.id,
               },
               data: {
-                quantity: item.product.count
-              }
+                quantity: item.product.count,
+              },
             });
           }
-    
+
           return true;
         }
-    
+
         ctx.prisma.cartItem.delete({
           where: {
-            id: item.id
-          }
+            id: item.id,
+          },
         });
         return false;
       });
     }
-
-
 
     return user;
   }
@@ -247,20 +243,19 @@ export class UserResolver {
     });
 
     if (found && !found.isActive) {
-      
     } else {
-      throw new GraphQLError("user already activated"); 
+      throw new GraphQLError("user already activated");
     }
 
     const updatedUser = await ctx.prisma.user.update({
       where: {
-        id: found.id
+        id: found.id,
       },
       data: {
         isActive: true,
       },
     });
-  
+
     return updatedUser;
   }
 
@@ -316,7 +311,6 @@ export class UserResolver {
         )
       );
     }
-
 
     if (userData.password_1 !== userData.password_2) {
       errors.push(
@@ -429,11 +423,12 @@ export class UserResolver {
       nip: userExtra.nip,
       companyName: userExtra.companyName,
     };
-    
 
-    const anyFieldNotEmpty = Object.values(addressSetData).some(value => !!value);
-    console.log(anyFieldNotEmpty)
-    
+    const anyFieldNotEmpty = Object.values(addressSetData).some(
+      (value) => !!value
+    );
+    console.log(anyFieldNotEmpty);
+
     const userData2 = {
       login: userData.login,
       email: userData.email,
@@ -442,7 +437,7 @@ export class UserResolver {
       surname: userData.surname,
       activationLink: activationLink,
     };
-    
+
     const user = await ctx.prisma.user.create({
       //@ts-ignore
       data: {
@@ -488,19 +483,16 @@ export class UserResolver {
     return { token, user };
   }
 
-
   @Mutation((returns) => Number)
   @UseMiddleware(IsLoggedIn)
-  async createAddressSet(
-    @Ctx() ctx: Context
-  ) {
+  async createAddressSet(@Ctx() ctx: Context) {
     const user = await ctx.prisma.user.findUnique({
       where: {
         email: ctx.user?.email,
       },
       include: {
-        addressesSets: true
-      }
+        addressesSets: true,
+      },
     });
 
     if (!user) {
@@ -508,7 +500,9 @@ export class UserResolver {
     }
 
     if (user.addressesSets) {
-      const nonTemporaryAddressSets = user.addressesSets.filter(set => !set.isTemporary);
+      const nonTemporaryAddressSets = user.addressesSets.filter(
+        (set) => !set.isTemporary
+      );
       if (nonTemporaryAddressSets.length > 3) {
         throw new GraphQLError("Przekroczono limit adresów");
       }
@@ -516,10 +510,9 @@ export class UserResolver {
 
     const res = await ctx.prisma.adressSet.create({
       data: {
-        ownerId: user.id
-      }
-    })
-
+        ownerId: user.id,
+      },
+    });
 
     return res.id;
   }
@@ -531,15 +524,15 @@ export class UserResolver {
     @Arg("setId") setId: number,
     @Arg("whichLine") whichLine: string,
     @Arg("line1") line1: string,
-    @Arg("line2", (type) => String, { nullable: true }) line2: string | null,
+    @Arg("line2", (type) => String, { nullable: true }) line2: string | null
   ) {
     const user = await ctx.prisma.user.findUnique({
       where: {
         email: ctx.user?.email,
       },
       include: {
-        addressesSets: true
-      }
+        addressesSets: true,
+      },
     });
 
     if (!user) {
@@ -549,80 +542,79 @@ export class UserResolver {
     const addressSet = await ctx.prisma.adressSet.findFirst({
       where: {
         ownerId: ctx.user?.id,
-        id: setId
-      }
+        id: setId,
+      },
     });
-
 
     if (!addressSet) {
       throw new GraphQLError("Zestaw adresów nie znaleziony");
     }
 
     switch (whichLine) {
-      case 'phone':
-       await ctx.prisma.adressSet.update({
-          where: {
-            id: setId
-          },
-          data: {
-            phoneNumber: line1
-          }
-        });
-        break;
-      case 'county':
+      case "phone":
         await ctx.prisma.adressSet.update({
           where: {
-            id: setId
+            id: setId,
           },
           data: {
-            county: line1
-          }
+            phoneNumber: line1,
+          },
         });
         break;
-      case 'postal/city':
+      case "county":
         await ctx.prisma.adressSet.update({
           where: {
-            id: setId
+            id: setId,
+          },
+          data: {
+            county: line1,
+          },
+        });
+        break;
+      case "postal/city":
+        await ctx.prisma.adressSet.update({
+          where: {
+            id: setId,
           },
           data: {
             postalCode: line1,
-            city: line2
-          }
+            city: line2,
+          },
         });
         break;
-      case 'street/house':
+      case "street/house":
         await ctx.prisma.adressSet.update({
           where: {
-            id: setId
+            id: setId,
           },
           data: {
             street: line1,
             //@ts-ignore
-            houseNumber: parseInt(line2)
-          }
+            houseNumber: parseInt(line2),
+          },
         });
         break;
-      case 'nip':
+      case "nip":
         await ctx.prisma.adressSet.update({
           where: {
-            id: setId
+            id: setId,
           },
           data: {
-            nip: line1
-          }
+            nip: line1,
+          },
         });
         break;
-      case 'company':
+      case "company":
         await ctx.prisma.adressSet.update({
           where: {
-            id: setId
+            id: setId,
           },
           data: {
-            companyName: line1
-          }
+            companyName: line1,
+          },
         });
         break;
-    
+
       default:
         break;
     }
@@ -631,17 +623,14 @@ export class UserResolver {
 
   @Mutation((returns) => String)
   @UseMiddleware(IsLoggedIn)
-  async deleteAddressSet(
-    @Ctx() ctx: Context,
-    @Arg("setId") setId: number,
-  ) {
+  async deleteAddressSet(@Ctx() ctx: Context, @Arg("setId") setId: number) {
     const user = await ctx.prisma.user.findUnique({
       where: {
         email: ctx.user?.email,
       },
       include: {
-        addressesSets: true
-      }
+        addressesSets: true,
+      },
     });
 
     if (!user) {
@@ -651,10 +640,9 @@ export class UserResolver {
     const addressSet = await ctx.prisma.adressSet.findFirst({
       where: {
         ownerId: ctx.user?.id,
-        id: setId
-      }
+        id: setId,
+      },
     });
-
 
     if (!addressSet) {
       throw new GraphQLError("Zestaw adresów nie znaleziony");
@@ -662,35 +650,192 @@ export class UserResolver {
 
     await ctx.prisma.adressSet.update({
       where: {
-        id: setId
+        id: setId,
       },
       data: {
-        isTemporary: true
-      }
-
-    })
+        isTemporary: true,
+      },
+    });
 
     return "ok";
   }
 
   @Mutation((returns) => String)
   @UseMiddleware(IsLoggedIn)
-  async setPfp(
-    @Ctx() ctx: Context,
-    @Arg("picId") picId: string,
-  ) {
+  async setPfp(@Ctx() ctx: Context, @Arg("picId") picId: string) {
     await ctx.prisma.user.update({
       where: {
-        id: ctx.user?.id
+        id: ctx.user?.id,
       },
       data: {
-        picId: picId
-      }
-
-    })
+        picId: picId,
+      },
+    });
     return "ok";
   }
+
+  @Mutation((returns) => String)
+  @UseMiddleware(IsLoggedIn)
+  async changePassword(
+    @Ctx() ctx: Context,
+    @Arg("oldPass") oldPass: string,
+    @Arg("newPass1") newPass1: string,
+    @Arg("newPass2") newPass2: string
+  ) {
+    if (oldPass == "" || newPass1 == "" || newPass2 == "") {
+      return "Uzupełnij pola";
+    }
+
+    if (newPass1 != newPass2) {
+      return "Nowe hasła się nie zgadzają";
+    }
+
+    if (oldPass == newPass1) {
+      return "Nowe hasło musi być inne niż poprzednie";
+    }
+
+    const user = await ctx.prisma.user.findUnique({
+      where: {
+        email: ctx.user?.email,
+      },
+    });
+
+    if (!user) {
+      throw new GraphQLError("500");
+    }
+    const passwordMatch = await bcrypt.compare(oldPass, user.password);
+    if (!passwordMatch) {
+      return "Wprowadzono niepoprawne aktualne hasło";
+    }
+    const hashedPassword = await bcrypt.hash(newPass1, 3);
+    await ctx.prisma.user.update({
+      where: {
+        email: ctx.user?.email,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    return "";
+  }
+
+  @Mutation((returns) => String)
+  @UseMiddleware(IsLoggedIn)
+  async placeOrder(
+    @Ctx() ctx: Context,
+    @Arg("isSet1") isSet1: boolean,
+    @Arg("set1Id", (type) => String, { nullable: true }) set1Id: string | null,
+    @Arg("paymentMethod", (type) => String) paymentMethod: string,
+    @Arg("deliveryMethod", (type) => String) deliveryMethod: string,
+    @Arg("netValue", (type) => Float) netValue: number
+  ) {
+    let paymentTitle = crypto.randomBytes(32).toString("hex");
+
+    try {
+      const userCart = await ctx.prisma.cart.findUnique({
+        where: {
+          userId: ctx.user!.id,
+        },
+        include: {
+          CartItem: {
+            where: {
+              orderId: null,
+            },
+          },
+        },
+      });
+    
+      if (!userCart) {
+        throw new Error("Koszyk użytkownika nie został znaleziony.");
+      }
+    
+      let paymentMethodId = 1;
+      if (paymentMethod == "cod") {
+        paymentMethodId = 2;
+      }
+    
+      let standaloneAdressId = 0;
+      if (isSet1) {
+        standaloneAdressId = parseInt(set1Id!);
+      } else {
+        return "Custom adresy nie są jeszcze wspierane";
+      }
+    
+      const newOrder = await ctx.prisma.order.create({
+        data: {
+          orderStatusId: paymentMethodId,
+          netValue: netValue,
+          userId: ctx.user!.id,
+          standaloneAdressId: standaloneAdressId,
+          paymentTitle: paymentTitle,
+          deliveryTitle: deliveryMethod,
+          items: {
+            create: userCart.CartItem.map((cartItem) => ({
+              quantity: cartItem.quantity,
+              productId: cartItem.productId,
+              isPrize: cartItem.isPrize,
+            })),
+          },
+        },
+        include: {
+          items: true,
+        },
+      });
+    
+      await ctx.prisma.cartItem.updateMany({
+        where: {
+          id: {
+            in: userCart.CartItem.map((cartItem) => cartItem.id),
+          },
+          orderId: null,
+          cartId: null
+        },
+        data: {
+          orderId: newOrder.id,
+          cartId: null,
+        },
+      });
+
+      await ctx.prisma.cartItem.deleteMany({
+        where: {
+          id: {
+            in: userCart.CartItem.map((cartItem) => cartItem.id),
+          },
+          orderId: null,
+        },
+      });
+    
+      const orderedProducts = await prisma.cartItem.findMany({
+        where: {
+          orderId: newOrder.id,
+          cartId: null,
+        },
+        select: {
+          productId: true,
+          quantity: true,
+        },
+      });
+    
+      for (const orderedProduct of orderedProducts) {
+        console.log(orderedProduct, orderedProducts)
+        const { productId, quantity } = orderedProduct;
+        await prisma.product.update({
+          where: {
+            id: productId,
+          },
+          data: {
+            count: {
+              decrement: quantity,
+            },
+          },
+        });
+      }
+    
+      return paymentTitle;
+    } catch (error) {
+      console.error("Błąd transakcji:", error);
+      throw new Error("Wystąpił błąd podczas przetwarzania zamówienia.");
+    }
+  }
 }
-
-
-

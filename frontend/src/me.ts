@@ -41,6 +41,7 @@ const meQuery =
             isAvailable
             title
             snowFlake
+            pointsGiven
           }
         }
       }
