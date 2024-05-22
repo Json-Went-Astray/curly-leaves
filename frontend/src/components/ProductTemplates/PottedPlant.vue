@@ -541,7 +541,6 @@ watchEffect(() => {
     if (!loadingProduct.value && doGetProduct.value && doGetProduct.value.getProductBySnowflake) {
         const productData = doGetProduct.value.getProductBySnowflake;
         if (productData.productTypeId == 1) {
-            // product.water = productData.
         }
 
         const reviewsCount = productData.reviews ? productData.reviews.length : 0;

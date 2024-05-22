@@ -1,14 +1,16 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "picId" INTEGER NOT NULL DEFAULT 0,
+    "picId" TEXT NOT NULL DEFAULT 'profile1.png',
     "activationLink" TEXT NOT NULL,
+    "resetLink" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "suspended" BOOLEAN NOT NULL DEFAULT false,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "name" TEXT,
-    "surname" TEXT,
+    "login" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "surname" TEXT NOT NULL,
     "points" INTEGER NOT NULL DEFAULT 0,
     "permissionLevel" INTEGER NOT NULL DEFAULT 2,
     "isActive" BOOLEAN NOT NULL DEFAULT false,
@@ -24,18 +26,11 @@ CREATE TABLE "Image" (
     "altString" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isProfile" BOOLEAN NOT NULL,
+    "isCarousel" BOOLEAN NOT NULL,
     "source" TEXT NOT NULL,
+    "refLink" TEXT,
 
     CONSTRAINT "Image_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Carousel" (
-    "id" SERIAL NOT NULL,
-    "refLink" TEXT NOT NULL,
-    "imageId" INTEGER NOT NULL,
-
-    CONSTRAINT "Carousel_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -47,6 +42,8 @@ CREATE TABLE "Review" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "positiveRating" INTEGER NOT NULL DEFAULT 0,
     "negativeRating" INTEGER NOT NULL DEFAULT 0,
+    "flagged" BOOLEAN NOT NULL DEFAULT false,
+    "productId" INTEGER NOT NULL,
 
     CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
 );
@@ -76,37 +73,17 @@ CREATE TABLE "Comment" (
 CREATE TABLE "AdressSet" (
     "id" SERIAL NOT NULL,
     "ownerId" INTEGER NOT NULL,
-    "city" TEXT NOT NULL,
-    "county" TEXT NOT NULL,
+    "city" TEXT,
+    "county" TEXT,
     "street" TEXT,
-    "houseNumber" INTEGER NOT NULL,
-    "postalCode" TEXT NOT NULL,
+    "houseNumber" INTEGER,
+    "phoneNumber" TEXT,
+    "postalCode" TEXT,
     "nip" TEXT,
     "companyName" TEXT,
     "isTemporary" BOOLEAN NOT NULL DEFAULT false,
-    "reviewId" INTEGER NOT NULL,
 
     CONSTRAINT "AdressSet_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Product" (
-    "id" SERIAL NOT NULL,
-    "productTypeId" INTEGER NOT NULL,
-    "isAvailable" BOOLEAN NOT NULL DEFAULT true,
-    "label" TEXT,
-    "fullPrice" DOUBLE PRECISION,
-    "price" DOUBLE PRECISION,
-    "title" TEXT NOT NULL,
-    "description" TEXT,
-    "trivia" TEXT NOT NULL,
-    "rating" DOUBLE PRECISION NOT NULL,
-    "metaTitle" TEXT NOT NULL,
-    "metaDecription" TEXT NOT NULL,
-    "snowFlake" TEXT NOT NULL,
-    "shippingCostId" INTEGER NOT NULL,
-
-    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -175,9 +152,11 @@ CREATE TABLE "issueResponse" (
 CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
     "orderStatusId" INTEGER NOT NULL,
-    "netValue" INTEGER NOT NULL,
+    "netValue" DOUBLE PRECISION NOT NULL,
     "userId" INTEGER NOT NULL,
     "standaloneAdressId" INTEGER,
+    "paymentTitle" TEXT NOT NULL,
+    "deliveryTitle" TEXT NOT NULL,
 
     CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
 );
@@ -199,19 +178,69 @@ CREATE TABLE "Cart" (
 );
 
 -- CreateTable
-CREATE TABLE "_productList" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL
+CREATE TABLE "CartItem" (
+    "id" SERIAL NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "productId" INTEGER NOT NULL,
+    "cartId" INTEGER,
+    "orderId" INTEGER,
+    "isPrize" BOOLEAN NOT NULL,
+
+    CONSTRAINT "CartItem_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "_cartElements" (
-    "A" INTEGER NOT NULL,
-    "B" INTEGER NOT NULL
+CREATE TABLE "Category" (
+    "id" SERIAL NOT NULL,
+    "title" TEXT NOT NULL,
+
+    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PlantInfo" (
+    "id" SERIAL NOT NULL,
+    "sunlight" INTEGER NOT NULL DEFAULT 0,
+    "ground" INTEGER NOT NULL DEFAULT 0,
+    "fertilizer" INTEGER NOT NULL DEFAULT 0,
+    "water" INTEGER NOT NULL DEFAULT 0,
+    "isToxic" BOOLEAN NOT NULL DEFAULT false,
+    "productId" INTEGER NOT NULL,
+
+    CONSTRAINT "PlantInfo_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Product" (
+    "id" SERIAL NOT NULL,
+    "productTypeId" INTEGER NOT NULL,
+    "isPrize" BOOLEAN NOT NULL DEFAULT false,
+    "pointsGiven" INTEGER NOT NULL DEFAULT 0,
+    "pointsCost" INTEGER,
+    "isAvailable" BOOLEAN NOT NULL DEFAULT true,
+    "isEdited" BOOLEAN NOT NULL DEFAULT false,
+    "label" TEXT,
+    "fullPrice" DOUBLE PRECISION,
+    "price" DOUBLE PRECISION,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "trivia" TEXT,
+    "rating" DOUBLE PRECISION,
+    "snowFlake" TEXT NOT NULL,
+    "pics" TEXT,
+    "shortDescription" TEXT,
+    "count" INTEGER NOT NULL DEFAULT 0,
+    "shippingCostId" INTEGER,
+    "categoryId" INTEGER,
+
+    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_activationLink_key" ON "User"("activationLink");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_resetLink_key" ON "User"("resetLink");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
@@ -223,34 +252,22 @@ CREATE UNIQUE INDEX "Invoice_orderId_key" ON "Invoice"("orderId");
 CREATE UNIQUE INDEX "Invoice_inVoiceId_key" ON "Invoice"("inVoiceId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_productList_AB_unique" ON "_productList"("A", "B");
+CREATE UNIQUE INDEX "Cart_userId_key" ON "Cart"("userId");
 
 -- CreateIndex
-CREATE INDEX "_productList_B_index" ON "_productList"("B");
+CREATE UNIQUE INDEX "PlantInfo_productId_key" ON "PlantInfo"("productId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_cartElements_AB_unique" ON "_cartElements"("A", "B");
-
--- CreateIndex
-CREATE INDEX "_cartElements_B_index" ON "_cartElements"("B");
+CREATE UNIQUE INDEX "Product_snowFlake_key" ON "Product"("snowFlake");
 
 -- AddForeignKey
-ALTER TABLE "Image" ADD CONSTRAINT "Image_id_fkey" FOREIGN KEY ("id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Carousel" ADD CONSTRAINT "Carousel_imageId_fkey" FOREIGN KEY ("imageId") REFERENCES "Image"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Review" ADD CONSTRAINT "Review_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_opReviewId_fkey" FOREIGN KEY ("opReviewId") REFERENCES "Review"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AdressSet" ADD CONSTRAINT "AdressSet_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_productTypeId_fkey" FOREIGN KEY ("productTypeId") REFERENCES "ProductType"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_shippingCostId_fkey" FOREIGN KEY ("shippingCostId") REFERENCES "ShippingCost"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -274,13 +291,25 @@ ALTER TABLE "Order" ADD CONSTRAINT "Order_standaloneAdressId_fkey" FOREIGN KEY (
 ALTER TABLE "Order" ADD CONSTRAINT "Order_orderStatusId_fkey" FOREIGN KEY ("orderStatusId") REFERENCES "OrderStatus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_productList" ADD CONSTRAINT "_productList_A_fkey" FOREIGN KEY ("A") REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Cart" ADD CONSTRAINT "Cart_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_productList" ADD CONSTRAINT "_productList_B_fkey" FOREIGN KEY ("B") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_cartElements" ADD CONSTRAINT "_cartElements_A_fkey" FOREIGN KEY ("A") REFERENCES "Cart"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_cartId_fkey" FOREIGN KEY ("cartId") REFERENCES "Cart"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_cartElements" ADD CONSTRAINT "_cartElements_B_fkey" FOREIGN KEY ("B") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "CartItem" ADD CONSTRAINT "CartItem_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PlantInfo" ADD CONSTRAINT "PlantInfo_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_productTypeId_fkey" FOREIGN KEY ("productTypeId") REFERENCES "ProductType"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_shippingCostId_fkey" FOREIGN KEY ("shippingCostId") REFERENCES "ShippingCost"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE SET NULL ON UPDATE CASCADE;
